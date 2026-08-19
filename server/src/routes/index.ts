@@ -10,6 +10,7 @@ productsRouter.get("/", asyncHandler(store.listProducts));
 productsRouter.get("/:idOrSlug", asyncHandler(store.getProduct));
 
 export const categoriesRouter = Router();
+categoriesRouter.get("/previews", asyncHandler(store.listCategoryPreviews));
 categoriesRouter.get("/", asyncHandler(store.listCategories));
 
 export const brandsRouter = Router();

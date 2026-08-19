@@ -1,9 +1,9 @@
 import { Box, Link as MuiLink, Skeleton, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
-import { useQueries } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import type { Category } from "../api/types";
-import { getProducts } from "../api/store";
+import { getCategoryPreviews } from "../api/store";
 import { categoryPathFromPermalink } from "../utils/format";
 import { StoreImage } from "./StoreImage";
 
@@ -12,47 +12,44 @@ function imageKey(src: string) {
 }
 
 function useUniqueCategoryImages(categories: Category[]) {
-  const previews = useQueries({
-    queries: categories.map((category) => ({
-      queryKey: ["category-preview", category.id],
-      queryFn: () => getProducts({ category: category.id, perPage: 24, orderby: "date", order: "desc" }),
-      enabled: !category.image?.src,
-      staleTime: 5 * 60_000,
-    })),
+  const missingIds = useMemo(
+    () => categories.filter((category) => !category.image?.src).map((category) => category.id),
+    [categories],
+  );
+  const previews = useQuery({
+    queryKey: ["category-previews", missingIds],
+    queryFn: () => getCategoryPreviews(missingIds),
+    enabled: missingIds.length > 0,
+    staleTime: 5 * 60_000,
   });
 
   const images = useMemo(() => {
     const usedImages = new Set<string>();
-    const usedProducts = new Set<number>();
     const byCategory = new Map<number, { src: string; alt: string }>();
 
-    categories.forEach((category, index) => {
-      if (category.image?.src) {
-        const src = category.image.thumbnail || category.image.src;
-        usedImages.add(imageKey(src));
-        byCategory.set(category.id, { src, alt: category.image.alt || category.name });
-        return;
-      }
-      const items = previews[index]?.data?.items ?? [];
-      for (const product of items) {
-        if (usedProducts.has(product.id)) continue;
-        const image = product.images[0];
-        const src = image?.thumbnail || image?.src;
-        if (!src) continue;
-        const key = imageKey(src);
-        if (usedImages.has(key)) continue;
-        usedProducts.add(product.id);
-        usedImages.add(key);
-        byCategory.set(category.id, { src, alt: category.name });
-        break;
-      }
-    });
+    for (const category of categories) {
+      if (!category.image?.src) continue;
+      const src = category.image.thumbnail || category.image.src;
+      usedImages.add(imageKey(src));
+      byCategory.set(category.id, { src, alt: category.image.alt || category.name });
+    }
+
+    for (const category of categories) {
+      if (byCategory.has(category.id)) continue;
+      const preview = previews.data?.[category.id];
+      if (!preview?.src) continue;
+      const key = imageKey(preview.src);
+      if (usedImages.has(key)) continue;
+      usedImages.add(key);
+      byCategory.set(category.id, { src: preview.src, alt: preview.alt || category.name });
+    }
+
     return byCategory;
-  }, [categories, previews]);
+  }, [categories, previews.data]);
 
   return {
     images,
-    loading: previews.some((preview, index) => !categories[index]?.image?.src && preview.isLoading),
+    loading: previews.isLoading && missingIds.length > 0,
   };
 }
 

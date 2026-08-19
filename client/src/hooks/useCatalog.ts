@@ -7,6 +7,7 @@ export function useProductList(query: ProductQuery, enabled = true) {
     queryKey: ["products", query],
     queryFn: () => getProducts(query),
     enabled,
+    staleTime: 60_000,
   });
 }
 
@@ -15,6 +16,7 @@ export function useProduct(idOrSlug: string | undefined) {
     queryKey: ["product", idOrSlug],
     queryFn: () => getProduct(idOrSlug!),
     enabled: Boolean(idOrSlug),
+    staleTime: 60_000,
   });
 }
 
@@ -23,6 +25,7 @@ export function useSearch(q: string, query: ProductQuery = {}) {
     queryKey: ["search", q, query],
     queryFn: () => searchProducts(q, query),
     enabled: q.trim().length > 0,
+    staleTime: 60_000,
   });
 }
 
@@ -30,12 +33,8 @@ export function useAllCategories() {
   return useQuery({
     queryKey: ["categories", "all"],
     queryFn: async () => {
-      const first = await getCategories(1, 100);
-      if (first.totalPages <= 1) return first.items;
-      const rest = await Promise.all(
-        Array.from({ length: first.totalPages - 1 }, (_, index) => getCategories(index + 2, 100)),
-      );
-      return [...first.items, ...rest.flatMap((page) => page.items)];
+      const page = await getCategories(1, 100, true);
+      return page.items;
     },
     staleTime: 5 * 60_000,
   });

@@ -39,4 +39,12 @@ describe("express app", () => {
     expect(body.success).toBe(false);
     expect(body.error.code).toBe("VALIDATION_ERROR");
   });
+
+  it("validates category previews without calling WooCommerce", async () => {
+    const response = await fetch(`${baseUrl}/api/categories/previews`);
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.success).toBe(false);
+    expect(body.error.code).toBe("VALIDATION_ERROR");
+  });
 });

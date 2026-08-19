@@ -2,6 +2,7 @@ services:
   - type: web
     name: batshi-api
     runtime: node
+    region: frankfurt
     buildCommand: npm install --include=dev && npm run build -w server
     startCommand: npm run start
     healthCheckPath: /health

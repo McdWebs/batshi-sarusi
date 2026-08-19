@@ -35,8 +35,15 @@ export function searchProducts(q: string, query: ProductQuery = {}) {
   });
 }
 
-export function getCategories(page = 1, perPage = 100) {
-  return apiRequest<Paginated<Category>>("/api/categories", { query: { page, perPage } });
+export function getCategories(page = 1, perPage = 100, all = false) {
+  return apiRequest<Paginated<Category>>("/api/categories", { query: { page, perPage, all: all ? true : undefined } });
+}
+
+export function getCategoryPreviews(ids: number[]) {
+  if (ids.length === 0) return Promise.resolve({} as Record<number, { src: string; alt: string } | null>);
+  return apiRequest<Record<number, { src: string; alt: string } | null>>("/api/categories/previews", {
+    query: { ids: ids.join(",") },
+  });
 }
 
 export function getBrands() {

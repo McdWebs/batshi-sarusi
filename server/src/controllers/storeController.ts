@@ -1,7 +1,8 @@
 import type { Request, Response } from "express";
 import { getBrandsPage } from "../services/brandService.js";
-import { getCategoriesPage } from "../services/categoryService.js";
+import { getAllCategories, getCategoriesPage, getCategoryPreviews } from "../services/categoryService.js";
 import { getProductByIdOrSlug, getProductsPage } from "../services/productService.js";
+import { TAXONOMY_TTL_MS, cached } from "../utils/cache.js";
 import {
   addItem,
   applyCartCoupon,
@@ -16,6 +17,7 @@ import { readCartSession } from "../middleware/cartSession.js";
 import { parseWith } from "../middleware/validate.js";
 import {
   categoryListQuerySchema,
+  categoryPreviewQuerySchema,
   productIdParamSchema,
   productListQuerySchema,
   searchQuerySchema,
@@ -45,13 +47,13 @@ export async function health(_req: Request, res: Response) {
 export async function listProducts(req: Request, res: Response) {
   const query = parseWith(productListQuerySchema, req.query);
   const data = await getProductsPage(query);
-  sendSuccess(res, data);
+  sendSuccess(res, data, 200, 60);
 }
 
 export async function getProduct(req: Request, res: Response) {
   const { idOrSlug } = parseWith(productIdParamSchema, req.params);
   const data = await getProductByIdOrSlug(idOrSlug);
-  sendSuccess(res, data);
+  sendSuccess(res, data, 200, 60);
 }
 
 export async function searchProducts(req: Request, res: Response) {
@@ -63,19 +65,30 @@ export async function searchProducts(req: Request, res: Response) {
     orderby: query.orderby,
     order: query.order,
   });
-  sendSuccess(res, data);
+  sendSuccess(res, data, 200, 60);
 }
 
 export async function listCategories(req: Request, res: Response) {
   const query = parseWith(categoryListQuerySchema, req.query);
+  if (query.all) {
+    const items = await getAllCategories();
+    sendSuccess(res, { items, page: 1, perPage: items.length, total: items.length, totalPages: 1 }, 200, 120);
+    return;
+  }
   const data = await getCategoriesPage(query);
-  sendSuccess(res, data);
+  sendSuccess(res, data, 200, 120);
+}
+
+export async function listCategoryPreviews(req: Request, res: Response) {
+  const query = parseWith(categoryPreviewQuerySchema, req.query);
+  const data = await getCategoryPreviews(query.ids);
+  sendSuccess(res, data, 200, 120);
 }
 
 export async function listBrands(req: Request, res: Response) {
   const query = parseWith(categoryListQuerySchema, req.query);
   const data = await getBrandsPage(query);
-  sendSuccess(res, data);
+  sendSuccess(res, data, 200, 120);
 }
 
 export async function getCart(req: Request, res: Response) {
@@ -127,21 +140,24 @@ export async function deleteCoupon(req: Request, res: Response) {
 }
 
 export async function listPages(_req: Request, res: Response) {
-  const result = await listWpPages();
-  sendSuccess(res, (result.data ?? []).map(mapPage));
+  const data = await cached("wp:pages", TAXONOMY_TTL_MS, async () => (await listWpPages()).data ?? []);
+  sendSuccess(res, data.map(mapPage), 200, 120);
 }
 
 export async function getPage(req: Request, res: Response) {
   const slug = parseWith(z.object({ slug: z.string().min(1) }), req.params).slug;
-  const result = await getPageBySlug(slug);
-  const page = (result.data ?? [])[0];
-  if (!page) {
-    throw new AppError("NOT_FOUND", "Page not found", 404);
-  }
-  sendSuccess(res, mapPage(page));
+  const data = await cached(`wp:page:${slug}`, TAXONOMY_TTL_MS, async () => {
+    const result = await getPageBySlug(slug);
+    const page = (result.data ?? [])[0];
+    if (!page) {
+      throw new AppError("NOT_FOUND", "Page not found", 404);
+    }
+    return mapPage(page);
+  });
+  sendSuccess(res, data, 200, 120);
 }
 
 export async function listBanners(_req: Request, res: Response) {
-  const result = await listWpBanners();
-  sendSuccess(res, (result.data ?? []).map(mapPage));
+  const data = await cached("wp:banners", TAXONOMY_TTL_MS, async () => (await listWpBanners()).data ?? []);
+  sendSuccess(res, data.map(mapPage), 200, 120);
 }

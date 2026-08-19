@@ -8,6 +8,29 @@ export const paginationQuerySchema = z.object({
 export const categoryListQuerySchema = z.object({
   page: z.coerce.number().int().min(1).optional().default(1),
   perPage: z.coerce.number().int().min(1).max(100).optional().default(100),
+  all: z
+    .enum(["true", "false"])
+    .optional()
+    .transform((value) => value === "true"),
+});
+
+export const categoryPreviewQuerySchema = z.object({
+  ids: z
+    .string()
+    .trim()
+    .min(1, "ids is required")
+    .transform((value) => {
+      const ids = [
+        ...new Set(
+          value
+            .split(",")
+            .map((part) => Number(part.trim()))
+            .filter((id) => Number.isInteger(id) && id > 0),
+        ),
+      ];
+      return ids.slice(0, 40);
+    })
+    .refine((ids) => ids.length > 0, "ids is required"),
 });
 
 export const productListQuerySchema = paginationQuerySchema.extend({

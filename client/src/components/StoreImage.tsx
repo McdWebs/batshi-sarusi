@@ -1,4 +1,5 @@
 import { Box, type BoxProps } from "@mui/material";
+import type { CSSProperties } from "react";
 import { useA11yStore } from "../accessibility/store";
 
 export function StoreImage({
@@ -13,7 +14,7 @@ export function StoreImage({
   alt: string;
   loading?: "lazy" | "eager";
   objectFit?: "cover" | "contain";
-  mixBlendMode?: string;
+  mixBlendMode?: CSSProperties["mixBlendMode"];
 } & Omit<BoxProps, "component" | "src" | "alt">) {
   const showAlts = useA11yStore((state) => state.showAlts);
   const { sx, ...rest } = props;
@@ -26,7 +27,13 @@ export function StoreImage({
         alt={alt}
         loading={loading}
         referrerPolicy="no-referrer"
-        sx={{ width: "100%", height: "100%", objectFit, mixBlendMode, display: "block" }}
+        sx={{
+          width: "100%",
+          height: "100%",
+          objectFit,
+          display: "block",
+          ...(mixBlendMode ? { mixBlendMode } : {}),
+        }}
       />
       {showAlts && alt ? <span className="a11y-alt-caption">{alt}</span> : null}
     </Box>

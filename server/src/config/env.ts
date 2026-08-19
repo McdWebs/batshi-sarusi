@@ -32,7 +32,7 @@ if (!parsed.success) {
 export const env = parsed.data;
 
 export const corsOrigins = env.CORS_ORIGIN.split(",")
-  .map((origin) => origin.trim())
+  .map((origin) => origin.trim().replace(/^["']|["']$/g, "").replace(/\/+$/, ""))
   .filter(Boolean);
 
 const wpOrigin = env.WOOCOMMERCE_BASE_URL.replace(/\/$/, "");

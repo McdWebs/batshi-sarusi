@@ -36,7 +36,7 @@ export async function getAllCategories(): Promise<Category[]> {
 }
 
 function imageKey(src: string) {
-  return src.replace(/-\d+x\d+(?=\.\w+$)/, "").split("?")[0];
+  return src.replace(/-\d+x\d+(?=\.\w+$)/, "").split("?")[0] ?? src;
 }
 
 export type CategoryPreview = { src: string; alt: string };

@@ -151,7 +151,6 @@ export function ProductPage() {
     { label: "בית", to: "/" },
     ...(group ? [group] : []),
     ...trail.map((item) => ({ label: item.name, to: storefrontHref(item) })),
-    { label: product.name },
   ];
   const relatedItems = (related.data?.items ?? []).filter((item) => item.id !== product.id).slice(0, 4);
 
@@ -161,7 +160,7 @@ export function ProductPage() {
       <Box sx={{ display: "grid", gap: 5, gridTemplateColumns: { md: "1fr 1fr" } }}>
         <ProductGallery images={product.images} name={product.name} />
         <Box>
-          <Typography variant="h3" mb={1}>
+          <Typography variant="h3" mb={1} sx={{ fontSize: { xs: 22, md: 32 }, lineHeight: 1.3 }}>
             {product.name}
           </Typography>
           {product.sku ? (
@@ -229,9 +228,6 @@ export function ProductPage() {
               <ErrorState message={(addItem.error as Error).message} />
             </Box>
           ) : null}
-          <Typography variant="body2" color="text.secondary" mt={3}>
-            משלוח מחושב בעגלה לפי ההגדרות ב־WooCommerce. איסוף מקומי זמין כשהחנות מחזירה אותו.
-          </Typography>
         </Box>
       </Box>
       {product.description || product.shortDescription ? (

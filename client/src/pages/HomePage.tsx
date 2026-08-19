@@ -25,9 +25,6 @@ export function HomePage() {
       <Box sx={{ bgcolor: "background.paper", borderBottom: "1px solid", borderColor: "divider" }}>
         <Container maxWidth="lg" sx={{ py: { xs: 6, md: 10 }, display: "grid", gap: 4, gridTemplateColumns: { md: "1.1fr 0.9fr" }, alignItems: "center" }}>
           <Box>
-            <Typography variant="h1" sx={{ fontSize: { xs: 36, md: 56 }, mb: 2 }}>
-              בתשי הום
-            </Typography>
             <Typography variant="h6" color="text.secondary" mb={3} fontWeight={400}>
               בית לאוהבי הבישול והאירוח. כל המוצרים והמחירים מגיעים מהחנות החיה.
             </Typography>

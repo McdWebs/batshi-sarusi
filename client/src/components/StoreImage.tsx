@@ -5,8 +5,16 @@ export function StoreImage({
   src,
   alt,
   loading = "lazy",
+  objectFit = "cover",
+  mixBlendMode,
   ...props
-}: { src: string; alt: string; loading?: "lazy" | "eager" } & Omit<BoxProps, "component" | "src" | "alt">) {
+}: {
+  src: string;
+  alt: string;
+  loading?: "lazy" | "eager";
+  objectFit?: "cover" | "contain";
+  mixBlendMode?: string;
+} & Omit<BoxProps, "component" | "src" | "alt">) {
   const showAlts = useA11yStore((state) => state.showAlts);
   const { sx, ...rest } = props;
 
@@ -18,9 +26,10 @@ export function StoreImage({
         alt={alt}
         loading={loading}
         referrerPolicy="no-referrer"
-        sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+        sx={{ width: "100%", height: "100%", objectFit, mixBlendMode, display: "block" }}
       />
       {showAlts && alt ? <span className="a11y-alt-caption">{alt}</span> : null}
     </Box>
   );
 }
+

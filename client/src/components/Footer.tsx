@@ -10,9 +10,25 @@ export function Footer() {
   const departmentItems = departments(categories);
 
   return (
-    <Box component="footer" sx={{ mt: 8, borderTop: "1px solid", borderColor: "divider", py: 6, bgcolor: "background.paper" }}>
-      <Container maxWidth="lg" sx={{ display: "grid", gap: 4, gridTemplateColumns: { xs: "1fr", md: "1.4fr 1fr 1fr 1fr" } }}>
-        <Box>
+    <Box
+      component="footer"
+      sx={{
+        mt: { xs: 4, md: 8 },
+        borderTop: "1px solid",
+        borderColor: "divider",
+        py: { xs: 3, md: 6 },
+        bgcolor: "background.paper",
+      }}
+    >
+      <Container
+        maxWidth="lg"
+        sx={{
+          display: "grid",
+          gap: { xs: 2.5, md: 4 },
+          gridTemplateColumns: { xs: "1fr 1fr", md: "1.4fr 1fr 1fr 1fr" },
+        }}
+      >
+        <Box sx={{ gridColumn: { xs: "1 / -1", md: "auto" } }}>
           <Box
             component={Link}
             to="/"
@@ -25,81 +41,93 @@ export function Footer() {
               alt="בתשי הום"
               sx={{
                 display: "block",
-                width: "100%",
-                maxWidth: 280,
-                height: "auto",
-                transform: "translateX(-48px)",
+                width: "auto",
+                height: { xs: 40, md: "auto" },
+                maxWidth: { xs: 160, md: 280 },
+                transform: { xs: "none", md: "translateX(-48px)" },
               }}
             />
           </Box>
-          <Typography color="text.secondary" maxWidth={360}>
+          <Typography color="text.secondary" maxWidth={360} sx={{ fontSize: { xs: 14, md: 16 } }}>
             בית לאוהבי הבישול והאירוח.
           </Typography>
         </Box>
-        <Box>
+        <Box sx={{ display: { xs: "none", md: "block" } }}>
           <Typography fontWeight={700} mb={1.5}>
             <MuiLink component={Link} to="/collections" underline="hover" color="inherit">
               קולקציות
             </MuiLink>
           </Typography>
           {collectionItems.map((category) => (
-            <MuiLink
-              key={category.id}
-              component={Link}
-              to={storefrontHref(category)}
-              display="block"
-              color="text.secondary"
-              underline="hover"
-              mb={0.75}
-            >
+            <FooterLink key={category.id} to={storefrontHref(category)}>
               {category.name}
-            </MuiLink>
+            </FooterLink>
           ))}
         </Box>
-        <Box>
+        <Box sx={{ display: { xs: "none", md: "block" } }}>
           <Typography fontWeight={700} mb={1.5}>
             <MuiLink component={Link} to="/departments" underline="hover" color="inherit">
               מחלקות
             </MuiLink>
           </Typography>
           {departmentItems.map((category) => (
-            <MuiLink
-              key={category.id}
-              component={Link}
-              to={storefrontHref(category)}
-              display="block"
-              color="text.secondary"
-              underline="hover"
-              mb={0.75}
-            >
+            <FooterLink key={category.id} to={storefrontHref(category)}>
               {category.name}
-            </MuiLink>
+            </FooterLink>
           ))}
         </Box>
-        <Box>
-          <Typography fontWeight={700} mb={1.5}>
+        <Box sx={{ gridColumn: { xs: "1 / -1", md: "auto" } }}>
+          <Typography fontWeight={700} mb={1} sx={{ display: { xs: "none", md: "block" } }}>
             מידע
           </Typography>
-          <MuiLink component={Link} to="/צור-קשר" display="block" color="text.secondary" underline="hover" mb={0.75}>
-            צור קשר
-          </MuiLink>
-          <MuiLink component={Link} to="/אודות" display="block" color="text.secondary" underline="hover" mb={0.75}>
-            אודות
-          </MuiLink>
-          <MuiLink component={Link} to="/תקנון-אתר" display="block" color="text.secondary" underline="hover" mb={0.75}>
-            תקנון אתר
-          </MuiLink>
-          <MuiLink component={Link} to="/מדיניות-פרטיות" display="block" color="text.secondary" underline="hover" mb={0.75}>
-            מדיניות פרטיות
-          </MuiLink>
-          <MuiLink component={Link} to="/הצהרת-נגישות" display="block" color="text.secondary" underline="hover" mb={0.75}>
-            הצהרת נגישות
-          </MuiLink>
-          <MuiLink href="https://www.instagram.com/batshi_sarosi" target="_blank" rel="noreferrer" display="block" color="text.secondary" underline="hover">
-            אינסטגרם
-          </MuiLink>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr 1fr", md: "1fr" },
+              columnGap: 2,
+              rowGap: { xs: 0.75, md: 0 },
+            }}
+          >
+            <Box sx={{ display: { xs: "contents", md: "none" } }}>
+              <FooterLink to="/collections">קולקציות</FooterLink>
+              <FooterLink to="/departments">מחלקות</FooterLink>
+            </Box>
+            <FooterLink to="/צור-קשר">צור קשר</FooterLink>
+            <FooterLink to="/אודות">אודות</FooterLink>
+            <FooterLink to="/תקנון-אתר">תקנון אתר</FooterLink>
+            <FooterLink to="/מדיניות-פרטיות">מדיניות פרטיות</FooterLink>
+            <FooterLink to="/הצהרת-נגישות">הצהרת נגישות</FooterLink>
+            <MuiLink
+              href="https://www.instagram.com/batshi_sarosi"
+              target="_blank"
+              rel="noreferrer"
+              display="block"
+              color="text.secondary"
+              underline="always"
+              mb={{ xs: 0, md: 0.75 }}
+              sx={{ fontSize: { xs: 14, md: 16 } }}
+            >
+              אינסטגרם
+            </MuiLink>
+          </Box>
         </Box>
       </Container>
     </Box>
+  );
+}
+
+function FooterLink({ to, children }: { to: string; children: string }) {
+  return (
+    <MuiLink
+      component={Link}
+      to={to}
+      display="block"
+      color="text.secondary"
+      underline="always"
+      mb={{ xs: 0, md: 0.75 }}
+      sx={{ fontSize: { xs: 14, md: 16 } }}
+    >
+      {children}
+    </MuiLink>
   );
 }

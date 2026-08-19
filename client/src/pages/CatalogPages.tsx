@@ -81,7 +81,7 @@ export function SearchPage() {
       if (seen.has(item.to)) return false;
       seen.add(item.to);
       return true;
-    });
+    }).slice(0, 8);
   }, [allCategories, brandItems]);
 
   const needle = q.trim().toLowerCase();

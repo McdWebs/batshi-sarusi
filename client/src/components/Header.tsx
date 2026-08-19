@@ -1,15 +1,5 @@
-import {
-  AppBar,
-  Badge,
-  Box,
-  Drawer,
-  IconButton,
-  Link as MuiLink,
-  List,
-  ListItemButton,
-  Toolbar,
-  Typography,
-} from "@mui/material";
+import { useCallback } from "react";
+import { AppBar, Badge, Box, IconButton, Link as MuiLink, Toolbar, Typography } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
@@ -22,6 +12,7 @@ import { useUiStore } from "../store/ui";
 import { collections, departments, storefrontHref } from "../storefront/map";
 import { normalizePath } from "../utils/format";
 import logo from "../assets/batshi-logo.png";
+import { MobileNav } from "./MobileNav";
 
 function pathIsActive(pathname: string, to: string) {
   const current = normalizePath(pathname);
@@ -88,15 +79,21 @@ export function Header() {
   const { cartOpen, setCartOpen, navOpen, setNavOpen } = useUiStore();
   const collectionItems = collections(categories);
   const departmentItems = departments(categories);
-  const closeNav = () => setNavOpen(false);
+  const closeNav = useCallback(() => setNavOpen(false), [setNavOpen]);
 
   return (
     <>
       <AnnouncementBar />
       <AppBar position="sticky" elevation={0} color="transparent" sx={{ bgcolor: "background.paper", borderBottom: "1px solid", borderColor: "divider" }}>
         <Toolbar sx={{ gap: { xs: 1, md: 2 }, minHeight: { xs: 64, md: 72 } }}>
-          <IconButton aria-label="תפריט" onClick={() => setNavOpen(true)} sx={{ display: { md: "none" } }}>
-            <MenuIcon />
+          <IconButton
+            aria-label={navOpen ? "סגירת תפריט" : "תפריט"}
+            aria-expanded={navOpen}
+            aria-controls="mobile-nav-title"
+            onClick={() => setNavOpen(!navOpen)}
+            sx={{ display: { md: "none" } }}
+          >
+            {navOpen ? <CloseIcon /> : <MenuIcon />}
           </IconButton>
           <Box
             component={Link}
@@ -153,40 +150,13 @@ export function Header() {
         </Toolbar>
       </AppBar>
 
-      <Drawer anchor="right" open={navOpen} onClose={closeNav}>
-        <Box sx={{ width: 300, p: 2 }}>
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-            <Typography variant="h6">תפריט</Typography>
-            <IconButton aria-label="סגירת תפריט" onClick={closeNav}>
-              <CloseIcon />
-            </IconButton>
-          </Box>
-          <List>
-            <ListItemButton component={Link} to="/shop" selected={pathIsActive(pathname, "/shop")} onClick={closeNav}>
-              הכל
-            </ListItemButton>
-            <ListItemButton component={Link} to="/sale" selected={pathIsActive(pathname, "/sale")} onClick={closeNav}>
-              מבצעים
-            </ListItemButton>
-            <ListItemButton
-              component={Link}
-              to="/departments"
-              selected={pathIsActive(pathname, "/departments") || anyActive(pathname, departmentItems)}
-              onClick={closeNav}
-            >
-              מחלקות
-            </ListItemButton>
-            <ListItemButton
-              component={Link}
-              to="/collections"
-              selected={pathIsActive(pathname, "/collections") || anyActive(pathname, collectionItems)}
-              onClick={closeNav}
-            >
-              קולקציות
-            </ListItemButton>
-          </List>
-        </Box>
-      </Drawer>
+      <MobileNav
+        open={navOpen}
+        onClose={closeNav}
+        pathname={pathname}
+        departments={departmentItems}
+        collections={collectionItems}
+      />
     </>
   );
 }

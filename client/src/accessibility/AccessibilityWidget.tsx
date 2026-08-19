@@ -47,10 +47,10 @@ function Tile({
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    gap: 0.75,
-    minHeight: 108,
-    px: 1,
-    py: 1.25,
+    gap: { xs: 0.25, sm: 0.75 },
+    minHeight: { xs: 72, sm: 108 },
+    px: { xs: 0.5, sm: 1 },
+    py: { xs: 0.5, sm: 1.25 },
     borderRadius: 1.5,
     border: "1px solid",
     borderColor: active ? "#0b57d0" : "rgba(44,36,30,0.12)",
@@ -65,10 +65,12 @@ function Tile({
 
   const content = (
     <>
-      <Box sx={{ color: active ? "#0b57d0" : "#2C241E", display: "flex" }}>{icon}</Box>
-      <Typography sx={{ fontSize: 13, fontWeight: 700, lineHeight: 1.25 }}>{label}</Typography>
+      <Box sx={{ color: active ? "#0b57d0" : "#2C241E", display: "flex", "& .MuiSvgIcon-root": { fontSize: { xs: 20, sm: 24 } } }}>
+        {icon}
+      </Box>
+      <Typography sx={{ fontSize: { xs: 11, sm: 13 }, fontWeight: 700, lineHeight: 1.2 }}>{label}</Typography>
       {detail ? (
-        <Typography sx={{ fontSize: 11, color: active ? "#0b57d0" : "text.secondary", lineHeight: 1.2 }}>
+        <Typography sx={{ fontSize: { xs: 10, sm: 11 }, color: active ? "#0b57d0" : "text.secondary", lineHeight: 1.2 }}>
           {detail}
         </Typography>
       ) : null}
@@ -145,7 +147,18 @@ export function AccessibilityWidget() {
         </IconButton>
       )}
       {open ? (
-        <Box
+        <>
+          <Box
+            aria-hidden
+            onClick={() => setOpen(false)}
+            sx={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 1499,
+              bgcolor: "rgba(28,24,20,0.4)",
+            }}
+          />
+          <Box
           id="accessibility-menu"
           role="dialog"
           aria-modal="true"
@@ -157,7 +170,7 @@ export function AccessibilityWidget() {
             bottom: { xs: 0, sm: 16 },
             zIndex: 1500,
             width: { xs: "100%", sm: 400 },
-            maxHeight: { xs: "85vh", sm: "min(720px, calc(100vh - 32px))" },
+            maxHeight: { xs: "80vh", sm: "min(720px, calc(100vh - 32px))" },
             display: "flex",
             flexDirection: "column",
             bgcolor: "#F4EEE4",
@@ -170,27 +183,33 @@ export function AccessibilityWidget() {
             sx={{
               display: "flex",
               alignItems: "center",
-              gap: 1.5,
-              px: 2,
-              py: 1.5,
+              gap: { xs: 1, sm: 1.5 },
+              px: { xs: 1.5, sm: 2 },
+              py: { xs: 0.75, sm: 1.5 },
+              minHeight: { xs: 44, sm: 64 },
               bgcolor: "#0b57d0",
               color: "#fff",
             }}
           >
-            <AccessibilityNewIcon />
-            <Typography id="a11y-title" variant="h6" component="h2" sx={{ flex: 1, color: "inherit" }}>
+            <AccessibilityNewIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
+            <Typography
+              id="a11y-title"
+              variant="h6"
+              component="h2"
+              sx={{ flex: 1, color: "inherit", fontSize: { xs: 16, sm: 20 }, lineHeight: 1.2 }}
+            >
               תפריט נגישות
             </Typography>
-            <IconButton aria-label="סגירה" onClick={() => setOpen(false)} sx={{ color: "#fff" }}>
-              <CloseIcon />
+            <IconButton aria-label="סגירה" onClick={() => setOpen(false)} size="small" sx={{ color: "#fff" }}>
+              <CloseIcon fontSize="small" />
             </IconButton>
           </Box>
-          <Box sx={{ p: 1.5, overflow: "auto" }}>
+          <Box sx={{ p: { xs: 1, sm: 1.5 }, overflow: "auto" }}>
             <Box
               sx={{
                 display: "grid",
                 gridTemplateColumns: "1fr 1fr",
-                gap: 1,
+                gap: { xs: 0.75, sm: 1 },
               }}
             >
               <Tile
@@ -287,6 +306,7 @@ export function AccessibilityWidget() {
             </Button>
           </Box>
         </Box>
+        </>
       ) : null}
       {a11y.screenReader ? (
         <Box

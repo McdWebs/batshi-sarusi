@@ -73,11 +73,29 @@ export function CategoryCard({
       color="inherit"
       sx={{ display: "block" }}
     >
-      <Box sx={{ aspectRatio: "4 / 3", bgcolor: "#E7DDD0", mb: 1.25, overflow: "hidden" }}>
+      <Box
+        sx={{
+          aspectRatio: "4 / 3",
+          bgcolor: "#EDE4D6",
+          mb: 1.25,
+          overflow: "hidden",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          px: 1.5,
+          py: 1.25,
+        }}
+      >
         {loading ? (
-          <Skeleton variant="rectangular" animation="wave" sx={{ width: "100%", height: "100%", transform: "none", bgcolor: "#E7DDD0" }} />
+          <Skeleton variant="rectangular" animation="wave" sx={{ width: "100%", height: "100%", transform: "none", bgcolor: "#EDE4D6" }} />
         ) : src ? (
-          <StoreImage src={src} alt={category.name} sx={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <StoreImage
+            src={src}
+            alt={category.name}
+            objectFit="contain"
+            mixBlendMode="multiply"
+            sx={{ width: "100%", height: "100%" }}
+          />
         ) : null}
       </Box>
       <Typography fontWeight={600}>{category.name}</Typography>

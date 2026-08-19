@@ -16,7 +16,7 @@ export function Breadcrumbs({ items }: { items: Crumb[] }) {
         return (
           <Box key={`${item.label}-${index}`} sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
             {index ? <span aria-hidden="true">/</span> : null}
-            {item.to && !last ? (
+            {item.to ? (
               <MuiLink component={Link} to={item.to} underline="hover" color="inherit">
                 {item.label}
               </MuiLink>

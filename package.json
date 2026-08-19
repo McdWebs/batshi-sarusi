@@ -1,0 +1,22 @@
+{
+  "name": "batshi-storefront",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Headless storefront for Batshi Home. WooCommerce remains the source of truth.",
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w server",
+    "dev:client": "npm run dev -w client",
+    "dev:storefront": "npm run dev -w server & npm run dev -w client",
+    "build": "npm run build -w server && npm run build -w client",
+    "start": "npm run start -w server",
+    "test": "npm run test -w server",
+    "test:live": "npm run test:live -w server"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

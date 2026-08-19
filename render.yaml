@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: batshi-api
+    runtime: node
+    buildCommand: npm install --include=dev && npm run build -w server
+    startCommand: npm run start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: NODE_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: info
+      - key: REQUEST_TIMEOUT_MS
+        value: "15000"
+      - key: WOOCOMMERCE_BASE_URL
+        value: https://batshi-home.co.il
+      - key: CORS_ORIGIN
+        sync: false

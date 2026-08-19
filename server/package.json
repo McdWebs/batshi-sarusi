@@ -12,6 +12,9 @@
     "test:all": "vitest run"
   },
   "dependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.3.0",
     "axios": "^1.11.0",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
@@ -19,14 +22,11 @@
     "express-rate-limit": "^8.0.1",
     "helmet": "^8.1.0",
     "pino": "^9.9.0",
+    "typescript": "^5.9.2",
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.3",
-    "@types/node": "^24.3.0",
     "tsx": "^4.20.4",
-    "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   }
 }

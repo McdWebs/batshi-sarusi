@@ -1,0 +1,107 @@
+import {
+  Box,
+  Button,
+  Divider,
+  Drawer,
+  IconButton,
+  TextField,
+  Typography,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useCart, useCartMutations } from "../hooks/useCart";
+import { useUiStore } from "../store/ui";
+import { formatMoney } from "../utils/format";
+import { CartLineItem } from "./CartLineItem";
+import { ErrorState } from "./States";
+
+export function CartDrawer() {
+  const { cartOpen, setCartOpen } = useUiStore();
+  const { data: cart, isError, error, refetch } = useCart();
+  const { updateItem, removeItem, coupon } = useCartMutations();
+  const [code, setCode] = useState("");
+
+  return (
+    <Drawer anchor="left" open={cartOpen} onClose={() => setCartOpen(false)} PaperProps={{ "aria-label": "עגלה" }}>
+      <Box sx={{ width: { xs: "100vw", sm: 420 }, p: 2, display: "flex", flexDirection: "column", height: "100%" }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+          <Typography variant="h6">עגלה</Typography>
+          <IconButton onClick={() => setCartOpen(false)}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
+        {isError ? <ErrorState message={(error as Error).message} onRetry={() => refetch()} /> : null}
+        {!cart?.itemsCount ? (
+          <Typography color="text.secondary" sx={{ my: 4 }}>
+            העגלה שלך ריקה.
+          </Typography>
+        ) : (
+          <Box sx={{ flex: 1, overflow: "auto", display: "grid", gap: 1.5, alignContent: "start" }}>
+            {cart.items.map((item) => (
+              <CartLineItem
+                key={item.key}
+                item={item}
+                busy={updateItem.isPending || removeItem.isPending}
+                onQuantity={(quantity) => updateItem.mutate({ key: item.key, quantity })}
+                onRemove={() => removeItem.mutate(item.key)}
+                onNavigate={() => setCartOpen(false)}
+              />
+            ))}
+          </Box>
+        )}
+        <Divider sx={{ my: 2 }} />
+        {cart ? (
+          <Box>
+            <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+              <Typography>ביניים</Typography>
+              <Typography>{formatMoney(cart.totals.totalItems.major, cart.totals.currencySuffix)}</Typography>
+            </Box>
+            {Number(cart.totals.totalDiscount.minor) > 0 ? (
+              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+                <Typography>הנחה</Typography>
+                <Typography>-{formatMoney(cart.totals.totalDiscount.major, cart.totals.currencySuffix)}</Typography>
+              </Box>
+            ) : null}
+            {cart.totals.totalShipping ? (
+              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+                <Typography>משלוח</Typography>
+                <Typography>{formatMoney(cart.totals.totalShipping.major, cart.totals.currencySuffix)}</Typography>
+              </Box>
+            ) : (
+              <Typography variant="body2" color="text.secondary" mb={1}>
+                משלוח מחושב לפי כללי החנות ב־WooCommerce.
+              </Typography>
+            )}
+            <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+              <Typography fontWeight={700}>סה״כ</Typography>
+              <Typography fontWeight={700}>{formatMoney(cart.totals.totalPrice.major, cart.totals.currencySuffix)}</Typography>
+            </Box>
+            <Box sx={{ display: "flex", gap: 1, mb: 2, alignItems: "stretch" }}>
+              <TextField
+                size="small"
+                fullWidth
+                placeholder="קוד קופון"
+                value={code}
+                onChange={(event) => setCode(event.target.value)}
+                sx={{ "& .MuiOutlinedInput-root": { height: "100%" } }}
+              />
+              <Button
+                variant="outlined"
+                onClick={() => code && coupon.mutate(code)}
+                disabled={coupon.isPending}
+                sx={{ py: 0, minHeight: 40, height: 40, flexShrink: 0 }}
+              >
+                החלה
+              </Button>
+            </Box>
+            {coupon.isError ? <ErrorState message={(coupon.error as Error).message} /> : null}
+            <Button fullWidth variant="contained" component={Link} to="/cart" onClick={() => setCartOpen(false)}>
+              לעגלה
+            </Button>
+          </Box>
+        ) : null}
+      </Box>
+    </Drawer>
+  );
+}

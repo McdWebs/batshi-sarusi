@@ -5,6 +5,8 @@ import { useA11yStore } from "../accessibility/store";
 export function StoreImage({
   src,
   alt,
+  srcSet,
+  sizes,
   loading = "lazy",
   objectFit = "cover",
   mixBlendMode,
@@ -12,6 +14,8 @@ export function StoreImage({
 }: {
   src: string;
   alt: string;
+  srcSet?: string;
+  sizes?: string;
   loading?: "lazy" | "eager";
   objectFit?: "cover" | "contain";
   mixBlendMode?: CSSProperties["mixBlendMode"];
@@ -24,8 +28,11 @@ export function StoreImage({
       <Box
         component="img"
         src={src}
+        srcSet={srcSet || undefined}
+        sizes={sizes || undefined}
         alt={alt}
         loading={loading}
+        decoding="async"
         referrerPolicy="no-referrer"
         sx={{
           width: "100%",
@@ -39,4 +46,3 @@ export function StoreImage({
     </Box>
   );
 }
-

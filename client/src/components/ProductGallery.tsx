@@ -16,6 +16,8 @@ export function ProductGallery({ images, name }: { images: Image[]; name: string
       <Box sx={{ aspectRatio: "1 / 1", bgcolor: "#EDE4D6", mb: 1.5, overflow: "hidden" }}>
         <StoreImage
           src={current.src}
+          srcSet={current.srcset}
+          sizes={current.sizes || "(max-width: 900px) 100vw, 50vw"}
           alt={current.alt || name}
           loading="eager"
           sx={{ width: "100%", height: "100%", objectFit: "cover" }}

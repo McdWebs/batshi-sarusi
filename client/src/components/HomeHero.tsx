@@ -76,6 +76,8 @@ export function HomeHero({ product }: HomeHeroProps) {
           >
             <StoreImage
               src={image.src}
+              srcSet={image.srcset}
+              sizes="100vw"
               alt=""
               loading="eager"
               sx={{

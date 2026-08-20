@@ -1,7 +1,7 @@
 import { CatalogView } from "../components/CatalogView";
 import { useAllCategories, useBrands } from "../hooks/useCatalog";
 import { decodeSlug, findCategoryByPath, brandPath } from "../utils/format";
-import { categoryAncestors, categoryChildren, collections, crumbGroup, departments, searchStorefront, storefrontHref } from "../storefront/map";
+import { categoryAncestors, categoryChildren, collections, COLLECTION_SLUGS, crumbGroup, departments, DEPARTMENT_SLUGS, searchStorefront, storefrontHref } from "../storefront/map";
 import { EmptyState, ErrorState, LoadingState } from "../components/States";
 import { CategoryGrid, CategoryGridSkeleton } from "../components/CategoryGrid";
 import { Breadcrumbs } from "../components/Breadcrumbs";
@@ -151,6 +151,7 @@ export function DepartmentsPage() {
       title="מחלקות"
       empty="לא מצאנו מחלקות להצגה."
       pick={departments}
+      skeletonCount={DEPARTMENT_SLUGS.length}
     />
   );
 }
@@ -161,6 +162,7 @@ export function CollectionsPage() {
       title="קולקציות"
       empty="לא מצאנו קולקציות להצגה."
       pick={collections}
+      skeletonCount={COLLECTION_SLUGS.length}
     />
   );
 }
@@ -169,10 +171,12 @@ function DirectoryPage({
   title,
   empty,
   pick,
+  skeletonCount = 8,
 }: {
   title: string;
   empty: string;
   pick: (categories: Category[]) => Category[];
+  skeletonCount?: number;
 }) {
   const categories = useAllCategories();
   const items = pick(categories.data ?? []);
@@ -186,7 +190,7 @@ function DirectoryPage({
       {categories.isError ? (
         <ErrorState message={(categories.error as Error).message} onRetry={() => categories.refetch()} />
       ) : categories.isLoading ? (
-        <CategoryGridSkeleton count={8} />
+        <CategoryGridSkeleton count={skeletonCount} />
       ) : items.length === 0 ? (
         <EmptyState title={empty} />
       ) : (

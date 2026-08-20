@@ -53,6 +53,8 @@ function useUniqueCategoryImages(categories: Category[]) {
   };
 }
 
+const bone = { bgcolor: "#EDE4D6", transform: "none" } as const;
+
 export function CategoryCard({
   category,
   src,
@@ -84,7 +86,7 @@ export function CategoryCard({
         }}
       >
         {loading ? (
-          <Skeleton variant="rectangular" animation="wave" sx={{ width: "100%", height: "100%", transform: "none", bgcolor: "#EDE4D6" }} />
+          <Skeleton variant="rectangular" animation="wave" sx={{ width: "100%", height: "100%", ...bone }} />
         ) : src ? (
           <StoreImage
             src={src}
@@ -103,21 +105,41 @@ export function CategoryCard({
   );
 }
 
+function CategoryCardSkeleton() {
+  return (
+    <Box sx={{ display: "block" }} aria-hidden>
+      <Box
+        sx={{
+          aspectRatio: "4 / 3",
+          bgcolor: "#EDE4D6",
+          mb: 1.25,
+          overflow: "hidden",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          px: 1.5,
+          py: 1.25,
+        }}
+      >
+        <Skeleton variant="rectangular" animation="wave" sx={{ width: "100%", height: "100%", ...bone }} />
+      </Box>
+      <Skeleton variant="rectangular" animation="wave" height={24} width="78%" sx={{ ...bone, mb: 0.75 }} />
+      <Skeleton variant="rectangular" animation="wave" height={18} width={88} sx={bone} />
+    </Box>
+  );
+}
+
 const gridSx = {
   display: "grid",
   gap: 3,
   gridTemplateColumns: { xs: "repeat(2, 1fr)", md: "repeat(3, 1fr)", lg: "repeat(4, 1fr)" },
-};
+} as const;
 
 export function CategoryGridSkeleton({ count = 8 }: { count?: number }) {
   return (
-    <Box sx={gridSx}>
+    <Box sx={gridSx} aria-busy="true" aria-label="טוען קטגוריות">
       {Array.from({ length: count }, (_, index) => (
-        <Box key={index}>
-          <Skeleton variant="rectangular" animation="wave" sx={{ aspectRatio: "4 / 3", width: "100%", mb: 1.25, transform: "none", bgcolor: "#E7DDD0" }} />
-          <Skeleton variant="text" animation="wave" sx={{ width: "70%", bgcolor: "#EDE4D6" }} />
-          <Skeleton variant="text" animation="wave" sx={{ width: 80, bgcolor: "#EDE4D6" }} />
-        </Box>
+        <CategoryCardSkeleton key={index} />
       ))}
     </Box>
   );
@@ -125,6 +147,11 @@ export function CategoryGridSkeleton({ count = 8 }: { count?: number }) {
 
 export function CategoryGrid({ categories }: { categories: Category[] }) {
   const { images, loading } = useUniqueCategoryImages(categories);
+
+  // Avoid flashing text-only tiles while preview images are still resolving.
+  if (loading && images.size === 0) {
+    return <CategoryGridSkeleton count={categories.length || 8} />;
+  }
 
   return (
     <Box sx={gridSx}>

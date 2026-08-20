@@ -51,12 +51,15 @@ export function CartPage() {
         </Box>
       ) : (
         <>
-          <Box sx={{ display: "grid", gap: 1.5 }}>
+          <Box sx={{ display: "grid", gap: 1.25 }}>
             {cart.items.map((item) => (
               <CartLineItem
                 key={item.key}
                 item={item}
-                busy={updateItem.isPending || removeItem.isPending}
+                busy={
+                  (updateItem.isPending && updateItem.variables?.key === item.key) ||
+                  (removeItem.isPending && removeItem.variables === item.key)
+                }
                 onQuantity={(quantity) => updateItem.mutate({ key: item.key, quantity })}
                 onRemove={() => removeItem.mutate(item.key)}
               />

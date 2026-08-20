@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mapProduct } from "./mappers.js";
+import { mapCart, mapCartItemTotals, mapProduct } from "./mappers.js";
 
 describe("mapProduct", () => {
   it("normalizes an observed Store API product without inventing related products", () => {
@@ -47,5 +47,77 @@ describe("mapProduct", () => {
     expect(product.stockAvailability.text).toBe("קיים במלאי");
     expect(product).not.toHaveProperty("related");
     expect(product).not.toHaveProperty("upsells");
+  });
+});
+
+describe("mapCartItemTotals", () => {
+  it("maps Woo line_* totals instead of cart-level total_* keys", () => {
+    const totals = mapCartItemTotals({
+      currency_code: "ILS",
+      currency_symbol: "₪",
+      currency_minor_unit: 2,
+      line_subtotal: "39800",
+      line_subtotal_tax: "0",
+      line_total: "39800",
+      line_total_tax: "0",
+    });
+
+    expect(totals.totalPrice).toEqual({ minor: "39800", major: "398.00" });
+    expect(totals.lineTotal).toEqual({ minor: "39800", major: "398.00" });
+  });
+});
+
+describe("mapCart", () => {
+  it("maps cart item line totals onto totalPrice", () => {
+    const cart = mapCart({
+      items: [
+        {
+          key: "abc",
+          id: 1,
+          quantity: 2,
+          name: "Test",
+          prices: {
+            price: "19900",
+            regular_price: "59900",
+            sale_price: "19900",
+            currency_code: "ILS",
+            currency_symbol: "₪",
+            currency_minor_unit: 2,
+          },
+          totals: {
+            currency_code: "ILS",
+            currency_symbol: "₪",
+            currency_minor_unit: 2,
+            line_subtotal: "39800",
+            line_total: "39800",
+            line_subtotal_tax: "0",
+            line_total_tax: "0",
+          },
+          images: [],
+          variation: [],
+        },
+      ],
+      items_count: 2,
+      coupons: [],
+      fees: [],
+      totals: {
+        currency_code: "ILS",
+        currency_symbol: "₪",
+        currency_minor_unit: 2,
+        total_items: "39800",
+        total_price: "39800",
+        total_discount: "0",
+        total_tax: "0",
+      },
+      shipping_address: {},
+      billing_address: {},
+      needs_payment: true,
+      needs_shipping: true,
+      has_calculated_shipping: false,
+      shipping_rates: [],
+      errors: [],
+    });
+
+    expect(cart.items[0]?.totals.totalPrice.major).toBe("398.00");
   });
 });

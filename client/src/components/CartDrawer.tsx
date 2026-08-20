@@ -37,12 +37,16 @@ export function CartDrawer() {
             העגלה שלך ריקה.
           </Typography>
         ) : (
-          <Box sx={{ flex: 1, overflow: "auto", display: "grid", gap: 1.5, alignContent: "start" }}>
+          <Box sx={{ flex: 1, overflow: "auto", display: "grid", gap: 1.25, alignContent: "start", pe: 0.25 }}>
             {cart.items.map((item) => (
               <CartLineItem
                 key={item.key}
                 item={item}
-                busy={updateItem.isPending || removeItem.isPending}
+                compact
+                busy={
+                  (updateItem.isPending && updateItem.variables?.key === item.key) ||
+                  (removeItem.isPending && removeItem.variables === item.key)
+                }
                 onQuantity={(quantity) => updateItem.mutate({ key: item.key, quantity })}
                 onRemove={() => removeItem.mutate(item.key)}
                 onNavigate={() => setCartOpen(false)}

@@ -6,6 +6,7 @@ import type {
   Cart,
   CartCoupon,
   CartItem,
+  CartItemTotals,
   CartTotals,
   Category,
   Image,
@@ -20,6 +21,7 @@ import type {
   WooCart,
   WooCartCoupon,
   WooCartItem,
+  WooCartItemTotals,
   WooCartTotals,
   WooCategory,
   WooImage,
@@ -189,6 +191,19 @@ export function mapCartTotals(totals: WooCartTotals | undefined): CartTotals {
   };
 }
 
+export function mapCartItemTotals(totals: WooCartItemTotals | undefined): CartItemTotals {
+  const format = readCurrencyFormat(totals ?? {});
+  const unit = format.currencyMinorUnit;
+  const lineTotal = toMoney(totals?.line_total, unit);
+  return {
+    totalPrice: lineTotal,
+    lineSubtotal: toMoney(totals?.line_subtotal, unit),
+    lineSubtotalTax: toMoney(totals?.line_subtotal_tax, unit),
+    lineTotal,
+    lineTotalTax: toMoney(totals?.line_total_tax, unit),
+  };
+}
+
 function mapCartItem(item: WooCartItem): CartItem {
   return {
     key: item.key ?? "",
@@ -213,7 +228,7 @@ function mapCartItem(item: WooCartItem): CartItem {
       value: entry.value ?? "",
     })),
     prices: toPricedAmount(item.prices),
-    totals: mapCartTotals(item.totals),
+    totals: mapCartItemTotals(item.totals),
   };
 }
 
@@ -222,9 +237,9 @@ function mapShippingRate(rate: WooShippingRate): ShippingRate {
   return {
     ...format,
     rateId: rate.rate_id ?? "",
-    name: rate.name ?? "",
-    description: rate.description ?? "",
-    deliveryTime: rate.delivery_time ?? "",
+    name: decodeEntities(rate.name ?? ""),
+    description: decodeEntities(rate.description ?? ""),
+    deliveryTime: decodeEntities(rate.delivery_time ?? ""),
     price: toMoney(rate.price, format.currencyMinorUnit),
     instanceId: rate.instance_id ?? 0,
     methodId: rate.method_id ?? "",
@@ -239,11 +254,11 @@ function mapShippingRate(rate: WooShippingRate): ShippingRate {
 function mapShippingPackage(pkg: WooShippingPackage): ShippingPackage {
   return {
     packageId: pkg.package_id ?? 0,
-    name: pkg.name ?? "",
+    name: decodeEntities(pkg.name ?? ""),
     destination: mapAddress(pkg.destination),
     items: (pkg.items ?? []).map((item) => ({
       key: item.key ?? "",
-      name: item.name ?? "",
+      name: decodeEntities(item.name ?? ""),
       quantity: item.quantity ?? 0,
     })),
     rates: (pkg.shipping_rates ?? []).map(mapShippingRate),

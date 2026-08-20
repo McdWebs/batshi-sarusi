@@ -177,6 +177,14 @@ export type WooCartTotals = WooPrice & {
   tax_lines?: Array<{ name?: string; price?: string; rate?: string }>;
 };
 
+/** Cart line item totals use line_* keys, not cart-level total_* keys. */
+export type WooCartItemTotals = WooPrice & {
+  line_subtotal?: string;
+  line_subtotal_tax?: string;
+  line_total?: string;
+  line_total_tax?: string;
+};
+
 export type WooCartItem = {
   key?: string;
   id?: number;
@@ -200,7 +208,7 @@ export type WooCartItem = {
   images?: WooImage[];
   variation?: Array<{ attribute?: string; value?: string; raw_attribute?: string }>;
   prices?: WooPrice;
-  totals?: WooCartTotals;
+  totals?: WooCartItemTotals;
   catalog_visibility?: string;
   extensions?: Record<string, unknown>;
 };

@@ -84,8 +84,8 @@ export function Footer() {
             </MuiLink>
           </Box>
         </Box>
-        <Box sx={{ display: { xs: "none", md: "block" } }}>
-          <Typography fontWeight={700} mb={1.5}>
+        <Box sx={{ display: { xs: "none", md: "grid" }, gap: 0.75, alignContent: "start", minWidth: 0 }}>
+          <Typography fontWeight={700} mb={0.75}>
             <MuiLink
               component={Link}
               to="/collections"
@@ -103,8 +103,8 @@ export function Footer() {
             </FooterLink>
           ))}
         </Box>
-        <Box sx={{ display: { xs: "none", md: "block" } }}>
-          <Typography fontWeight={700} mb={1.5}>
+        <Box sx={{ display: { xs: "none", md: "grid" }, gap: 0.75, alignContent: "start", minWidth: 0 }}>
+          <Typography fontWeight={700} mb={0.75}>
             <MuiLink
               component={Link}
               to="/departments"
@@ -131,7 +131,9 @@ export function Footer() {
               display: "grid",
               gridTemplateColumns: { xs: "1fr 1fr", md: "1fr" },
               columnGap: 2,
-              rowGap: { xs: 0.75, md: 0 },
+              rowGap: 0.75,
+              alignContent: "start",
+              minWidth: 0,
             }}
           >
             <Box sx={{ display: { xs: "contents", md: "none" } }}>
@@ -159,22 +161,22 @@ function FooterLink({ to, children, featured = false }: { to: string; children: 
     <MuiLink
       component={Link}
       to={to}
-      display="block"
       color={featured ? "text.primary" : "text.secondary"}
       underline="none"
-      mb={{ xs: 0, md: 0.75 }}
       sx={{
-        fontSize: { xs: 14, md: 16 },
+        fontSize: { xs: 14, md: 15 },
         fontWeight: featured ? 700 : 400,
-        display: "inline-flex",
-        alignItems: "center",
+        display: "flex",
+        alignItems: "flex-start",
         gap: featured ? 0.75 : 0,
-        width: "fit-content",
+        maxWidth: "100%",
+        lineHeight: 1.45,
+        overflowWrap: "anywhere",
         ...footerLinkMotionSx,
       }}
     >
       {featured ? (
-        <Box component="span" sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "secondary.main", flexShrink: 0 }} />
+        <Box component="span" sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "secondary.main", flexShrink: 0, mt: "0.45em" }} />
       ) : null}
       {children}
     </MuiLink>

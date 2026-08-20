@@ -119,6 +119,14 @@ export type CartTotals = CurrencyFormat & {
   taxLines: Array<{ name: string; price: Money; rate: string }>;
 };
 
+export type CartItemTotals = {
+  totalPrice: Money;
+  lineSubtotal: Money;
+  lineSubtotalTax: Money;
+  lineTotal: Money;
+  lineTotalTax: Money;
+};
+
 export type CartItem = {
   key: string;
   id: number;
@@ -139,7 +147,7 @@ export type CartItem = {
   images: Image[];
   variation: Array<{ attribute: string; value: string }>;
   prices: PricedAmount | null;
-  totals: CartTotals;
+  totals: CartItemTotals;
 };
 
 export type ShippingRate = CurrencyFormat & {

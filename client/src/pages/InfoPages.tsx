@@ -3,18 +3,32 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { getPage, getPages } from "../api/store";
 import { EmptyState, ErrorState, LoadingState } from "../components/States";
+import { getStaticPage } from "../content/staticPages";
 import { decodeSlug } from "../utils/format";
 
 export function CmsPage() {
   const { slug } = useParams();
   const decoded = slug ? decodeSlug(slug) : "";
-  const pages = useQuery({ queryKey: ["pages"], queryFn: getPages });
+  const staticPage = decoded ? getStaticPage(decoded) : null;
+
+  const pages = useQuery({ queryKey: ["pages"], queryFn: getPages, enabled: !staticPage });
   const match = (pages.data ?? []).find((page) => decodeSlug(page.slug) === decoded || page.slug === decoded);
   const pageQuery = useQuery({
     queryKey: ["page", match?.slug ?? decoded],
     queryFn: () => getPage(match?.slug ?? decoded),
-    enabled: Boolean(decoded),
+    enabled: Boolean(decoded) && !staticPage,
   });
+
+  if (staticPage) {
+    return (
+      <Container maxWidth="md" sx={{ py: 5 }}>
+        <Typography variant="h3" mb={3}>
+          {staticPage.title}
+        </Typography>
+        <BoxProse html={staticPage.html} />
+      </Container>
+    );
+  }
 
   if (pages.isLoading || pageQuery.isLoading) {
     return (
@@ -39,8 +53,24 @@ export function CmsPage() {
       <Typography variant="h3" mb={3}>
         {pageQuery.data.title}
       </Typography>
-      <div dangerouslySetInnerHTML={{ __html: pageQuery.data.contentHtml }} />
+      <BoxProse html={pageQuery.data.contentHtml} />
     </Container>
+  );
+}
+
+function BoxProse({ html }: { html: string }) {
+  return (
+    <Typography
+      component="div"
+      sx={{
+        "& h3": { mt: 3, mb: 1.5, fontFamily: '"Noto Serif Hebrew", serif' },
+        "& p": { mb: 1.5, lineHeight: 1.7 },
+        "& ul": { mb: 2, pr: 3 },
+        "& li": { mb: 0.75, lineHeight: 1.6 },
+        "& a": { color: "secondary.main" },
+      }}
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
   );
 }
 

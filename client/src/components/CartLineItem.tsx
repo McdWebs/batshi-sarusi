@@ -9,6 +9,7 @@ import {
   formatMoney,
   productPathFromPermalink,
 } from "../utils/format";
+import { ProductImagePlaceholder } from "./ProductImagePlaceholder";
 import { StoreImage } from "./StoreImage";
 
 function QuantityStepper({
@@ -229,7 +230,9 @@ export function CartLineItem({
               alt={image.alt || item.name}
               sx={{ width: imageSize, height: imageSize, objectFit: "cover" }}
             />
-          ) : null}
+          ) : (
+            <ProductImagePlaceholder />
+          )}
         </Box>
 
         <Box

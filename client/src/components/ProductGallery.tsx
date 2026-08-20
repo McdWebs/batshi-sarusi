@@ -1,6 +1,7 @@
 import { Box } from "@mui/material";
 import { useState } from "react";
 import type { Image } from "../api/types";
+import { ProductImagePlaceholder } from "./ProductImagePlaceholder";
 import { StoreImage } from "./StoreImage";
 
 export function ProductGallery({ images, name }: { images: Image[]; name: string }) {
@@ -8,7 +9,11 @@ export function ProductGallery({ images, name }: { images: Image[]; name: string
   const current = images[index] ?? images[0];
 
   if (!current) {
-    return <Box sx={{ aspectRatio: "1 / 1", bgcolor: "#EDE4D6" }} />;
+    return (
+      <Box sx={{ aspectRatio: "1 / 1", overflow: "hidden" }}>
+        <ProductImagePlaceholder />
+      </Box>
+    );
   }
 
   return (

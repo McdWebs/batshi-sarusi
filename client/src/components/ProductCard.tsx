@@ -6,6 +6,7 @@ import { prefetchProduct } from "../hooks/prefetch";
 import { productPath } from "../utils/format";
 import { useUiStore } from "../store/ui";
 import { Price } from "./Price";
+import { ProductImagePlaceholder } from "./ProductImagePlaceholder";
 import { StoreImage } from "./StoreImage";
 
 export function ProductCard({
@@ -60,7 +61,9 @@ export function ProductCard({
                 transition: "opacity 0.2s ease",
               }}
             />
-          ) : null}
+          ) : (
+            <ProductImagePlaceholder />
+          )}
           {hover ? (
             <StoreImage
               className="product-card-hover"

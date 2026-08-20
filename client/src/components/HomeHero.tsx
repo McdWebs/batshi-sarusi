@@ -18,22 +18,20 @@ type HomeHeroProps = {
 };
 
 export function HomeHero({ products = [] }: HomeHeroProps) {
-  const slides = useMemo<HeroSlide[]>(
-    () =>
-      products
-        .map((product) => {
-          const image = product.images[0];
-          if (!image?.src) return null;
-          return {
-            key: `${product.id}-${image.id ?? image.src}`,
-            src: image.src,
-            srcset: image.srcset,
-          };
-        })
-        .filter((slide): slide is HeroSlide => Boolean(slide))
-        .slice(0, 7),
-    [products],
-  );
+  const slides = useMemo(() => {
+    const next: HeroSlide[] = [];
+    for (const product of products) {
+      const image = product.images[0];
+      if (!image?.src) continue;
+      next.push({
+        key: `${product.id}-${image.id ?? image.src}`,
+        src: image.src,
+        srcset: image.srcset || undefined,
+      });
+      if (next.length >= 7) break;
+    }
+    return next;
+  }, [products]);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [reduceMotion, setReduceMotion] = useState(false);

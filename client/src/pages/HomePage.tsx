@@ -15,11 +15,16 @@ export function HomePage() {
     orderby: "date",
     order: "desc",
   });
+  const popular = useProductList({
+    perPage: 7,
+    orderby: "popularity",
+    order: "desc",
+  });
   const categories = useAllCategories();
   const { addItem } = useCartMutations();
   const collectionItems = collections(categories.data ?? []);
   const departmentItems = departments(categories.data ?? []);
-  const heroProduct = deals.data?.items.find((item) => item.images[0]) ?? deals.data?.items[0];
+  const heroProducts = popular.data?.items ?? [];
 
   const onAdd = (product: { id: number; addToCart: { minimum: number } }) =>
     addItem.mutate({
@@ -29,7 +34,7 @@ export function HomePage() {
 
   return (
     <Box>
-      <HomeHero product={heroProduct} />
+      <HomeHero products={heroProducts} />
 
       <Container
         id="collections"
@@ -52,9 +57,32 @@ export function HomePage() {
       </Container>
 
       <Container maxWidth="lg" sx={{ py: 2, pb: 7 }}>
-        <Typography variant="h3" mb={3}>
-          מבצעים עכשיו
-        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 2,
+            mb: 3,
+            flexWrap: "wrap",
+          }}
+        >
+          <Typography variant="h3">מבצעים עכשיו</Typography>
+          <Button
+            component={Link}
+            to="/sale"
+            variant="contained"
+            size="large"
+            sx={{
+              bgcolor: "secondary.main",
+              color: "#F7F1E8",
+              px: 4,
+              "&:hover": { bgcolor: "#7A3424" },
+            }}
+          >
+            לכל המבצעים
+          </Button>
+        </Box>
         {deals.isError ? (
           <ErrorState
             message={(deals.error as Error).message}
@@ -71,11 +99,6 @@ export function HomePage() {
             }
           />
         )}
-        <Box mt={3}>
-          <Button component={Link} to="/sale">
-            לכל המבצעים
-          </Button>
-        </Box>
       </Container>
 
       <Container

@@ -1,14 +1,62 @@
 import { Box, Button, Container, Typography } from "@mui/material";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import type { Product } from "../api/types";
 import { StoreImage } from "./StoreImage";
 
-type HomeHeroProps = {
-  product?: Product | null;
+const HERO_SLIDE_MS = 4500;
+const HERO_FADE_MS = 900;
+
+type HeroSlide = {
+  key: string;
+  src: string;
+  srcset?: string;
 };
 
-export function HomeHero({ product }: HomeHeroProps) {
-  const image = product?.images[0];
+type HomeHeroProps = {
+  products?: Product[];
+};
+
+export function HomeHero({ products = [] }: HomeHeroProps) {
+  const slides = useMemo<HeroSlide[]>(
+    () =>
+      products
+        .map((product) => {
+          const image = product.images[0];
+          if (!image?.src) return null;
+          return {
+            key: `${product.id}-${image.id ?? image.src}`,
+            src: image.src,
+            srcset: image.srcset,
+          };
+        })
+        .filter((slide): slide is HeroSlide => Boolean(slide))
+        .slice(0, 7),
+    [products],
+  );
+
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [reduceMotion, setReduceMotion] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setReduceMotion(media.matches);
+    sync();
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [slides]);
+
+  useEffect(() => {
+    if (reduceMotion || slides.length < 2) return;
+    const id = window.setInterval(() => {
+      setActiveIndex((current) => (current + 1) % slides.length);
+    }, HERO_SLIDE_MS);
+    return () => window.clearInterval(id);
+  }, [reduceMotion, slides.length]);
 
   return (
     <Box
@@ -56,39 +104,61 @@ export function HomeHero({ product }: HomeHeroProps) {
         }}
       />
 
-      {image ? (
+      {slides.length > 0 ? (
         <Box
           data-hero-anim
+          aria-hidden
           sx={{
             position: "absolute",
             inset: 0,
             animation: "heroFade 1.1s ease-out both",
           }}
         >
-          <Box
-            data-hero-anim
-            sx={{
-              width: "100%",
-              height: "100%",
-              transformOrigin: "center center",
-              animation: "heroZoom 8s ease-out both",
-            }}
-          >
-            <StoreImage
-              src={image.src}
-              srcSet={image.srcset}
-              sizes="100vw"
-              alt=""
-              loading="eager"
-              sx={{
-                width: "100%",
-                height: "100%",
-                "& img": {
-                  filter: "saturate(0.92) contrast(1.05)",
-                },
-              }}
-            />
-          </Box>
+          {slides.map((slide, index) => {
+            const isActive = index === activeIndex;
+            return (
+              <Box
+                key={slide.key}
+                sx={{
+                  position: "absolute",
+                  inset: 0,
+                  opacity: isActive ? 1 : 0,
+                  transition: reduceMotion
+                    ? "none"
+                    : `opacity ${HERO_FADE_MS}ms ease-in-out`,
+                  pointerEvents: "none",
+                  zIndex: isActive ? 1 : 0,
+                }}
+              >
+                <Box
+                  sx={{
+                    width: "100%",
+                    height: "100%",
+                    transformOrigin: "center center",
+                    animation:
+                      isActive && !reduceMotion
+                        ? "heroZoom 8s ease-out both"
+                        : "none",
+                  }}
+                >
+                  <StoreImage
+                    src={slide.src}
+                    srcSet={slide.srcset}
+                    sizes="100vw"
+                    alt=""
+                    loading={index === 0 ? "eager" : "lazy"}
+                    sx={{
+                      width: "100%",
+                      height: "100%",
+                      "& img": {
+                        filter: "saturate(0.92) contrast(1.05)",
+                      },
+                    }}
+                  />
+                </Box>
+              </Box>
+            );
+          })}
         </Box>
       ) : null}
 

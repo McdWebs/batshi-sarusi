@@ -16,6 +16,7 @@ import { useState, type ReactNode } from "react";
 import { useCart, useCartMutations } from "../hooks/useCart";
 import { AnimatedMoney } from "../components/AnimatedMoney";
 import { CartLineItem, CartLineItemSkeleton } from "../components/CartLineItem";
+import { EmptyCart } from "../components/EmptyCart";
 import { ErrorState } from "../components/States";
 import { formatMoney } from "../utils/format";
 
@@ -105,50 +106,46 @@ export function CartPage() {
     );
   }
 
+  if (!cart?.itemsCount) {
+    return <EmptyCart />;
+  }
+
   return (
     <Container maxWidth="md" sx={{ py: 5 }}>
       <Typography variant="h3" mb={4}>
         עגלה
       </Typography>
-      {!cart?.itemsCount ? (
-        <Box>
-          <Typography mb={2}>העגלה שלך ריקה.</Typography>
-          <Button component={Link} to="/shop" variant="contained">
-            חזרה לחנות
-          </Button>
-        </Box>
-      ) : (
-        <>
-          <Box
-            sx={{
-              display: "grid",
-              gap: 1.75,
-              maxHeight: { xs: "min(40vh, 360px)", sm: "min(46vh, 480px)" },
-              overflowY: "auto",
-              overscrollBehavior: "contain",
-              pe: 0.5,
-              pb: 0.5,
-              borderBottom: "1px solid",
-              borderColor: "divider",
-              mb: 0.5,
-            }}
-          >
-            {cart.items.map((item) => (
-              <CartLineItem
-                key={item.key}
-                item={item}
-                busy={
-                  (updateItem.isPending &&
-                    updateItem.variables?.key === item.key) ||
-                  (removeItem.isPending && removeItem.variables === item.key)
-                }
-                onQuantity={(quantity) =>
-                  updateItem.mutate({ key: item.key, quantity })
-                }
-                onRemove={() => removeItem.mutate(item.key)}
-              />
-            ))}
-          </Box>
+
+      <Box
+        sx={{
+          display: "grid",
+          gap: 1.75,
+          maxHeight: { xs: "min(40vh, 360px)", sm: "min(46vh, 480px)" },
+          overflowY: "auto",
+          overscrollBehavior: "contain",
+          pe: 0.5,
+          pb: 0.5,
+          borderBottom: "1px solid",
+          borderColor: "divider",
+          mb: 0.5,
+        }}
+      >
+        {cart.items.map((item) => (
+          <CartLineItem
+            key={item.key}
+            item={item}
+            busy={
+              (updateItem.isPending &&
+                updateItem.variables?.key === item.key) ||
+              (removeItem.isPending && removeItem.variables === item.key)
+            }
+            onQuantity={(quantity) =>
+              updateItem.mutate({ key: item.key, quantity })
+            }
+            onRemove={() => removeItem.mutate(item.key)}
+          />
+        ))}
+      </Box>
 
           {cart.shippingRates.map((pkg) => {
             const shippingBusy =
@@ -325,8 +322,6 @@ export function CartPage() {
           >
             לתשלום
           </Button>
-        </>
-      )}
     </Container>
   );
 }

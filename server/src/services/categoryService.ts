@@ -2,7 +2,7 @@ import { listCategories } from "../integrations/woocommerce/categories.js";
 import { mapCategory } from "../integrations/woocommerce/mappers.js";
 import type { Category, Paginated } from "../types/api.js";
 import { getProductsPage } from "./productService.js";
-import { TAXONOMY_TTL_MS, cacheKey, cached } from "../utils/cache.js";
+import { CATALOG_TTL_MS, TAXONOMY_TTL_MS, cacheKey, cached } from "../utils/cache.js";
 
 export async function getCategoriesPage(query: {
   page?: number;
@@ -42,32 +42,34 @@ function imageKey(src: string) {
 export type CategoryPreview = { src: string; alt: string };
 
 export async function getCategoryPreviews(ids: number[]): Promise<Record<number, CategoryPreview | null>> {
-  const uniqueIds = [...new Set(ids)].slice(0, 40);
-  const pages = await Promise.all(
-    uniqueIds.map((id) =>
-      getProductsPage({ category: id, perPage: 8, orderby: "date", order: "desc" }),
-    ),
-  );
+  const uniqueIds = [...new Set(ids)].slice(0, 40).sort((a, b) => a - b);
+  return cached(cacheKey(["category-previews", ...uniqueIds]), CATALOG_TTL_MS, async () => {
+    const pages = await Promise.all(
+      uniqueIds.map((id) =>
+        getProductsPage({ category: id, perPage: 8, orderby: "date", order: "desc" }),
+      ),
+    );
 
-  const usedImages = new Set<string>();
-  const usedProducts = new Set<number>();
-  const previews: Record<number, CategoryPreview | null> = {};
+    const usedImages = new Set<string>();
+    const usedProducts = new Set<number>();
+    const previews: Record<number, CategoryPreview | null> = {};
 
-  uniqueIds.forEach((id, index) => {
-    previews[id] = null;
-    for (const product of pages[index]?.items ?? []) {
-      if (usedProducts.has(product.id)) continue;
-      const image = product.images[0];
-      const src = image?.thumbnail || image?.src;
-      if (!src) continue;
-      const key = imageKey(src);
-      if (usedImages.has(key)) continue;
-      usedProducts.add(product.id);
-      usedImages.add(key);
-      previews[id] = { src, alt: product.name };
-      break;
-    }
+    uniqueIds.forEach((id, index) => {
+      previews[id] = null;
+      for (const product of pages[index]?.items ?? []) {
+        if (usedProducts.has(product.id)) continue;
+        const image = product.images[0];
+        const src = image?.thumbnail || image?.src;
+        if (!src) continue;
+        const key = imageKey(src);
+        if (usedImages.has(key)) continue;
+        usedProducts.add(product.id);
+        usedImages.add(key);
+        previews[id] = { src, alt: product.name };
+        break;
+      }
+    });
+
+    return previews;
   });
-
-  return previews;
 }

@@ -48,6 +48,48 @@ describe("mapProduct", () => {
     expect(product).not.toHaveProperty("related");
     expect(product).not.toHaveProperty("upsells");
   });
+
+  it("decodes variation attribute values to match term slugs", () => {
+    const product = mapProduct({
+      id: 36665,
+      name: "כרית הריון",
+      slug: "pillow",
+      type: "variable",
+      has_options: true,
+      is_purchasable: true,
+      is_in_stock: true,
+      attributes: [
+        {
+          id: 1,
+          name: "צבע",
+          taxonomy: "pa_צבע",
+          has_variations: true,
+          terms: [
+            {
+              id: 230,
+              name: "אפור בהיר",
+              slug: "%d7%90%d7%a4%d7%95%d7%a8-%d7%91%d7%94%d7%99%d7%a8",
+            },
+          ],
+        },
+      ],
+      variations: [
+        {
+          id: 36672,
+          attributes: [
+            {
+              name: "צבע",
+              value: "%d7%90%d7%a4%d7%95%d7%a8-%d7%91%d7%94%d7%99%d7%a8",
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(product.attributes[0]?.terms[0]?.slug).toBe("אפור-בהיר");
+    expect(product.variations[0]?.attributes[0]?.value).toBe("אפור-בהיר");
+    expect(product.variations[0]?.attributes[0]?.value).toBe(product.attributes[0]?.terms[0]?.slug);
+  });
 });
 
 describe("mapCartItemTotals", () => {

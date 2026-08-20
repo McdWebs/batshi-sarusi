@@ -116,8 +116,9 @@ export function mapProduct(product: WooProduct): Product {
     variations: (product.variations ?? []).map((variation) => ({
       id: variation.id ?? 0,
       attributes: (variation.attributes ?? []).map((item) => ({
-        name: item.name ?? "",
-        value: item.value ?? "",
+        name: decodeEntities(item.name ?? ""),
+        // Store API returns percent-encoded slugs; decode to match attribute term.slug.
+        value: decodeUri(item.value ?? ""),
       })),
     })),
     groupedProducts: product.grouped_products ?? [],

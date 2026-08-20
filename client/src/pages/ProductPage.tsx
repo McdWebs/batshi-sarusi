@@ -85,18 +85,39 @@ function ProductPageSkeleton() {
   );
 }
 
+function decodeMaybe(value: string) {
+  let current = value;
+  for (let i = 0; i < 3; i += 1) {
+    try {
+      const next = decodeURIComponent(current);
+      if (next === current) break;
+      current = next;
+    } catch {
+      break;
+    }
+  }
+  return current;
+}
+
 function selectedVariationId(product: Product, selected: Record<string, string>) {
   if (!product.hasOptions) return product.id;
   const match = product.variations.find((variation) =>
     variation.attributes.every((attribute) => {
-      const chosen = selected[attribute.name];
-      if (!chosen) return false;
-      if (chosen === attribute.value) return true;
       const definition = product.attributes.find(
         (entry) => entry.name === attribute.name || entry.taxonomy === attribute.name,
       );
-      const term = definition?.terms.find((item) => item.slug === chosen || item.name === chosen);
-      return Boolean(term && (term.slug === attribute.value || term.name === attribute.value));
+      const chosen = selected[attribute.name] ?? (definition ? selected[definition.name] : undefined);
+      if (!chosen) return false;
+      const chosenNorm = decodeMaybe(chosen);
+      const valueNorm = decodeMaybe(attribute.value);
+      if (chosenNorm === valueNorm || chosen === attribute.value) return true;
+      const term = definition?.terms.find((item) => {
+        const slug = decodeMaybe(item.slug);
+        return slug === chosenNorm || item.slug === chosen || item.name === chosen || item.name === chosenNorm;
+      });
+      if (!term) return false;
+      const termSlug = decodeMaybe(term.slug);
+      return termSlug === valueNorm || term.slug === attribute.value || term.name === attribute.value || term.name === valueNorm;
     }),
   );
   return match?.id;

@@ -91,6 +91,38 @@ function withOptimisticRemove(cart: Cart, key: string): Cart {
   };
 }
 
+function withOptimisticShipping(cart: Cart, packageId: number, rateId: string): Cart {
+  const pkg = cart.shippingRates.find((entry) => entry.packageId === packageId);
+  if (!pkg) return cart;
+  const nextRate = pkg.rates.find((rate) => rate.rateId === rateId);
+  if (!nextRate) return cart;
+
+  const previousRate = pkg.rates.find((rate) => rate.selected);
+  const previousShipping = Number(cart.totals.totalShipping?.minor ?? previousRate?.price.minor ?? 0);
+  const nextShipping = Number(nextRate.price.minor);
+  const deltaMinor = nextShipping - previousShipping;
+
+  return {
+    ...cart,
+    shippingRates: cart.shippingRates.map((entry) =>
+      entry.packageId !== packageId
+        ? entry
+        : {
+            ...entry,
+            rates: entry.rates.map((rate) => ({
+              ...rate,
+              selected: rate.rateId === rateId,
+            })),
+          },
+    ),
+    totals: {
+      ...cart.totals,
+      totalShipping: nextRate.price,
+      totalPrice: adjustMoney(cart.totals.totalPrice, deltaMinor),
+    },
+  };
+}
+
 export function useCartMutations() {
   const queryClient = useQueryClient();
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["cart"] });
@@ -153,6 +185,21 @@ export function useCartMutations() {
   const shipping = useMutation({
     mutationFn: ({ packageId, rateId }: { packageId: number; rateId: string }) =>
       selectShippingRate(packageId, rateId),
+    onMutate: async ({ packageId, rateId }) => {
+      await queryClient.cancelQueries({ queryKey: ["cart"] });
+      const previous = queryClient.getQueryData<Cart>(["cart"]);
+      if (previous) {
+        queryClient.setQueryData(["cart"], withOptimisticShipping(previous, packageId, rateId));
+      }
+      return { previous };
+    },
+    onError: (error, _variables, context) => {
+      if (context?.previous) queryClient.setQueryData(["cart"], context.previous);
+      useUiStore.getState().setNotice({
+        message: error instanceof Error ? decodeHtmlEntities(error.message) : "לא הצלחנו לעדכן משלוח",
+        severity: "error",
+      });
+    },
     onSuccess: (cart) => queryClient.setQueryData(["cart"], cart),
   });
 

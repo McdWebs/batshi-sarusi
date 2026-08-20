@@ -12,7 +12,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useCart, useCartMutations } from "../hooks/useCart";
 import { useUiStore } from "../store/ui";
-import { formatMoney } from "../utils/format";
+import { AnimatedMoney } from "./AnimatedMoney";
 import { CartLineItem } from "./CartLineItem";
 import { ErrorState } from "./States";
 
@@ -57,29 +57,37 @@ export function CartDrawer() {
         <Divider sx={{ my: 2 }} />
         {cart ? (
           <Box>
-            <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1, alignItems: "center" }}>
               <Typography>ביניים</Typography>
-              <Typography>{formatMoney(cart.totals.totalItems.major, cart.totals.currencySuffix)}</Typography>
+              <AnimatedMoney major={cart.totals.totalItems.major} suffix={cart.totals.currencySuffix} />
             </Box>
             {Number(cart.totals.totalDiscount.minor) > 0 ? (
-              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1, alignItems: "center" }}>
                 <Typography>הנחה</Typography>
-                <Typography>-{formatMoney(cart.totals.totalDiscount.major, cart.totals.currencySuffix)}</Typography>
+                <AnimatedMoney
+                  major={cart.totals.totalDiscount.major}
+                  suffix={cart.totals.currencySuffix}
+                  prefix="-"
+                />
               </Box>
             ) : null}
             {cart.totals.totalShipping ? (
-              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1, alignItems: "center" }}>
                 <Typography>משלוח</Typography>
-                <Typography>{formatMoney(cart.totals.totalShipping.major, cart.totals.currencySuffix)}</Typography>
+                <AnimatedMoney major={cart.totals.totalShipping.major} suffix={cart.totals.currencySuffix} />
               </Box>
             ) : (
               <Typography variant="body2" color="text.secondary" mb={1}>
                 משלוח מחושב לפי כללי החנות ב־WooCommerce.
               </Typography>
             )}
-            <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2, alignItems: "center" }}>
               <Typography fontWeight={700}>סה״כ</Typography>
-              <Typography fontWeight={700}>{formatMoney(cart.totals.totalPrice.major, cart.totals.currencySuffix)}</Typography>
+              <AnimatedMoney
+                major={cart.totals.totalPrice.major}
+                suffix={cart.totals.currencySuffix}
+                fontWeight={700}
+              />
             </Box>
             <Box sx={{ display: "flex", gap: 1, mb: 2, alignItems: "stretch" }}>
               <TextField

@@ -1,4 +1,4 @@
-import { Box, IconButton, Typography } from "@mui/material";
+import { Box, IconButton, Skeleton, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -302,6 +302,66 @@ export function CartLineItem({
             disabled={busy || !item.quantityLimits.editable}
             compact={compact}
             onChange={onQuantity}
+          />
+        </Box>
+      </Box>
+    </Box>
+  );
+}
+
+const bone = { bgcolor: "#EDE4D6", transform: "none" } as const;
+
+export function CartLineItemSkeleton({ compact = false }: { compact?: boolean }) {
+  const imageSize = compact ? 76 : 96;
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        gap: compact ? 1.25 : 1.75,
+        p: compact ? 1.25 : 1.75,
+        bgcolor: "background.paper",
+        border: "1px solid",
+        borderColor: "divider",
+        borderRadius: 1.5,
+        boxShadow: "0 1px 2px rgba(28, 24, 20, 0.04)",
+      }}
+    >
+      <Skeleton
+        variant="rectangular"
+        animation="wave"
+        width={imageSize}
+        height={imageSize}
+        sx={{ ...bone, borderRadius: 1, flexShrink: 0 }}
+      />
+      <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: compact ? 0.75 : 1 }}>
+        <Box sx={{ display: "flex", alignItems: "flex-start", gap: 0.5 }}>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Skeleton variant="rectangular" animation="wave" height={compact ? 14 : 16} width="92%" sx={{ ...bone, mb: 0.75 }} />
+            <Skeleton variant="rectangular" animation="wave" height={compact ? 14 : 16} width="68%" sx={bone} />
+          </Box>
+          <Skeleton variant="circular" animation="wave" width={28} height={28} sx={bone} />
+        </Box>
+        <Box
+          sx={{
+            mt: "auto",
+            pt: compact ? 0.25 : 0.5,
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "space-between",
+            gap: 1,
+          }}
+        >
+          <Box>
+            <Skeleton variant="rectangular" animation="wave" height={compact ? 15 : 16} width={72} sx={{ ...bone, mb: 0.5 }} />
+            <Skeleton variant="rectangular" animation="wave" height={11} width={56} sx={bone} />
+          </Box>
+          <Skeleton
+            variant="rectangular"
+            animation="wave"
+            width={compact ? 78 : 88}
+            height={compact ? 28 : 32}
+            sx={{ ...bone, borderRadius: 1 }}
           />
         </Box>
       </Box>

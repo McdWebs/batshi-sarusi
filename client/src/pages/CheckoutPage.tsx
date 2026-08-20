@@ -1,5 +1,6 @@
 import {
   Alert,
+  Autocomplete,
   Box,
   Button,
   Checkbox,
@@ -17,12 +18,13 @@ import {
   Typography,
 } from "@mui/material";
 import { Link as RouterLink, Navigate } from "react-router-dom";
-import { useEffect, useState, type ChangeEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ChangeEvent, type ReactNode } from "react";
 import type { Address, Cart } from "../api/types";
 import { AnimatedMoney } from "../components/AnimatedMoney";
 import { ErrorState } from "../components/States";
 import { ProductImagePlaceholder } from "../components/ProductImagePlaceholder";
 import { StoreImage } from "../components/StoreImage";
+import { ISRAEL_CITIES } from "../data/israelCities";
 import { useCart, useCartMutations } from "../hooks/useCart";
 import { formatMoney, productPathFromPermalink } from "../utils/format";
 
@@ -81,7 +83,6 @@ export function CheckoutPage() {
   const [shippingAddr, setShippingAddr] = useState<Address>(emptyAddress);
   const [shipElsewhere, setShipElsewhere] = useState(false);
   const [orderNotes, setOrderNotes] = useState("");
-  const [createAccount, setCreateAccount] = useState(false);
   const [couponCode, setCouponCode] = useState("");
   const [couponOpen, setCouponOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
@@ -141,18 +142,6 @@ export function CheckoutPage() {
         <Box component="form" noValidate onSubmit={(e) => e.preventDefault()} sx={{ display: "grid", gap: 3 }}>
           <SectionTitle>פרטי חיוב</SectionTitle>
           <AddressFields value={billing} onChange={setBilling} includeEmail />
-
-          <FormControlLabel
-            sx={{ alignItems: "center", mr: 0 }}
-            control={
-              <Checkbox
-                checked={createAccount}
-                onChange={(_, checked) => setCreateAccount(checked)}
-                size="small"
-              />
-            }
-            label={<Typography variant="body2">ליצור חשבון?</Typography>}
-          />
 
           {cart.needsShipping ? (
             <>
@@ -528,14 +517,9 @@ function AddressFields({
           onChange={set("postcode")}
           autoComplete="postal-code"
         />
-        <TextField
-          label="עיר"
-          required
-          size="small"
-          fullWidth
+        <CitySelect
           value={value.city}
-          onChange={set("city")}
-          autoComplete="address-level2"
+          onChange={(city) => onChange({ ...value, city })}
         />
       </Box>
 
@@ -563,6 +547,50 @@ function AddressFields({
         />
       ) : null}
     </Box>
+  );
+}
+
+function CitySelect({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (city: string) => void;
+}) {
+  const options = useMemo(() => {
+    const list = [...ISRAEL_CITIES] as string[];
+    if (value && !list.includes(value)) list.unshift(value);
+    return list;
+  }, [value]);
+
+  return (
+    <Autocomplete
+      options={options}
+      value={value || null}
+      onChange={(_event, next) => onChange(next ?? "")}
+      autoHighlight
+      openOnFocus
+      fullWidth
+      size="small"
+      noOptionsText="לא נמצאה עיר"
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label="עיר"
+          required
+          autoComplete="address-level2"
+        />
+      )}
+      slotProps={{
+        popper: {
+          sx: {
+            "& .MuiAutocomplete-listbox": {
+              maxHeight: 280,
+            },
+          },
+        },
+      }}
+    />
   );
 }
 

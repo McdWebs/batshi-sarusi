@@ -7,6 +7,7 @@ import { CartNotice } from "../components/CartNotice";
 import { ScrollToTop } from "../components/ScrollToTop";
 import { AccessibilityRoot } from "../accessibility/AccessibilityRoot";
 import { AccessibilityWidget } from "../accessibility/AccessibilityWidget";
+import { CookieConsent } from "../consent/CookieConsent";
 
 export function AppShell() {
   return (
@@ -24,6 +25,7 @@ export function AppShell() {
       </Box>
       <Footer />
       <AccessibilityWidget />
+      <CookieConsent />
     </Box>
   );
 }

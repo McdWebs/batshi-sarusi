@@ -37,7 +37,7 @@ export function CartDrawer() {
             העגלה שלך ריקה.
           </Typography>
         ) : (
-          <Box sx={{ flex: 1, overflow: "auto", display: "grid", gap: 1.25, alignContent: "start", pe: 0.25 }}>
+          <Box sx={{ flex: 1, overflow: "auto", display: "grid", gap: 1.5, alignContent: "start", pe: 0.25 }}>
             {cart.items.map((item) => (
               <CartLineItem
                 key={item.key}
@@ -95,22 +95,41 @@ export function CartDrawer() {
                 fullWidth
                 placeholder="קוד קופון"
                 value={code}
-                onChange={(event) => setCode(event.target.value)}
+                onChange={(event) => setCode(event.target.value.toUpperCase())}
+                inputProps={{ style: { textTransform: "uppercase" } }}
                 sx={{ "& .MuiOutlinedInput-root": { height: "100%" } }}
               />
               <Button
                 variant="outlined"
                 onClick={() => code && coupon.mutate(code)}
-                disabled={coupon.isPending}
+                disabled={!code.trim() || coupon.isPending}
                 sx={{ py: 0, minHeight: 40, height: 40, flexShrink: 0 }}
               >
                 החלה
               </Button>
             </Box>
             {coupon.isError ? <ErrorState message={(coupon.error as Error).message} /> : null}
-            <Button fullWidth variant="contained" component={Link} to="/cart" onClick={() => setCartOpen(false)}>
-              לעגלה
-            </Button>
+            <Box sx={{ display: "grid", gap: 1 }}>
+              <Button
+                fullWidth
+                variant="contained"
+                component={Link}
+                to="/checkout"
+                onClick={() => setCartOpen(false)}
+                disabled={!cart.itemsCount}
+              >
+                לתשלום
+              </Button>
+              <Button
+                fullWidth
+                variant="outlined"
+                component={Link}
+                to="/cart"
+                onClick={() => setCartOpen(false)}
+              >
+                לעגלה
+              </Button>
+            </Box>
           </Box>
         ) : null}
       </Box>

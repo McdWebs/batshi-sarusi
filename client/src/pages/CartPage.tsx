@@ -26,7 +26,14 @@ function CartPageSkeleton() {
     <Container maxWidth="md" sx={{ py: 5 }} aria-busy="true" aria-label="טוען עגלה">
       <Skeleton variant="rectangular" animation="wave" width={120} height={40} sx={{ ...bone, mb: 4 }} />
 
-      <Box sx={{ display: "grid", gap: 1.25 }}>
+      <Box
+        sx={{
+          display: "grid",
+          gap: 1.75,
+          maxHeight: { xs: "min(40vh, 360px)", sm: "min(46vh, 480px)" },
+          overflow: "hidden",
+        }}
+      >
         <CartLineItemSkeleton />
         <CartLineItemSkeleton />
       </Box>
@@ -112,7 +119,20 @@ export function CartPage() {
         </Box>
       ) : (
         <>
-          <Box sx={{ display: "grid", gap: 1.25 }}>
+          <Box
+            sx={{
+              display: "grid",
+              gap: 1.75,
+              maxHeight: { xs: "min(40vh, 360px)", sm: "min(46vh, 480px)" },
+              overflowY: "auto",
+              overscrollBehavior: "contain",
+              pe: 0.5,
+              pb: 0.5,
+              borderBottom: "1px solid",
+              borderColor: "divider",
+              mb: 0.5,
+            }}
+          >
             {cart.items.map((item) => (
               <CartLineItem
                 key={item.key}
@@ -171,10 +191,34 @@ export function CartPage() {
                   sx={{
                     opacity: shippingBusy ? 0.72 : 1,
                     transition: "opacity 0.2s ease",
+                    "& .MuiSelect-select": {
+                      whiteSpace: "normal",
+                      textOverflow: "clip",
+                      overflow: "hidden",
+                      lineHeight: 1.35,
+                      py: 1.5,
+                      minHeight: "1.4375em",
+                      height: "auto",
+                    },
+                  }}
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        maxWidth: "calc(100vw - 32px)",
+                      },
+                    },
                   }}
                 >
                   {pkg.rates.map((rate) => (
-                    <MenuItem key={rate.rateId} value={rate.rateId}>
+                    <MenuItem
+                      key={rate.rateId}
+                      value={rate.rateId}
+                      sx={{
+                        whiteSpace: "normal",
+                        alignItems: "flex-start",
+                        lineHeight: 1.35,
+                      }}
+                    >
                       {rate.name} · {formatMoney(rate.price.major)}
                     </MenuItem>
                   ))}
@@ -188,12 +232,14 @@ export function CartPage() {
               fullWidth
               placeholder="קוד קופון"
               value={code}
-              onChange={(event) => setCode(event.target.value)}
+              onChange={(event) => setCode(event.target.value.toUpperCase())}
+              inputProps={{ style: { textTransform: "uppercase" } }}
               sx={{ "& .MuiOutlinedInput-root": { height: "100%" } }}
             />
             <Button
               variant="outlined"
               onClick={() => code && coupon.mutate(code)}
+              disabled={!code.trim() || coupon.isPending}
               sx={{ py: 0, alignSelf: "stretch" }}
             >
               החלה

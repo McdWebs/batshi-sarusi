@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import {
   addCartItem,
   applyCoupon,
@@ -178,6 +179,13 @@ export function useCartMutations() {
     mutationFn: applyCoupon,
     onSuccess: (cart) => queryClient.setQueryData(["cart"], cart),
   });
+
+  useEffect(() => {
+    if (!coupon.isError) return;
+    const timer = window.setTimeout(() => coupon.reset(), 4000);
+    return () => window.clearTimeout(timer);
+  }, [coupon.isError, coupon.reset]);
+
   const dropCoupon = useMutation({
     mutationFn: removeCoupon,
     onSuccess: (cart) => queryClient.setQueryData(["cart"], cart),

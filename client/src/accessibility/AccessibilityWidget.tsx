@@ -19,6 +19,7 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { useUiStore } from "../store/ui";
 import { useA11yStore } from "./store";
 
 const STATEMENT = "/הצהרת-נגישות";
@@ -51,26 +52,46 @@ function Tile({
     minHeight: { xs: 72, sm: 108 },
     px: { xs: 0.5, sm: 1 },
     py: { xs: 0.5, sm: 1.25 },
-    borderRadius: 1.5,
+    borderRadius: 2,
     border: "1px solid",
-    borderColor: active ? "#0b57d0" : "rgba(44,36,30,0.12)",
-    bgcolor: active ? "rgba(11,87,208,0.08)" : "#FFFbf5",
+    borderColor: active ? "secondary.main" : "divider",
+    bgcolor: active ? "rgba(143,61,42,0.08)" : "background.paper",
     color: "text.primary",
     textAlign: "center",
     cursor: "pointer",
     textDecoration: "none",
-    "&:hover": { borderColor: "#0b57d0", bgcolor: "rgba(11,87,208,0.06)" },
-    "&:focus-visible": { outline: "3px solid #0b57d0", outlineOffset: 2 },
+    transition: "border-color 0.15s ease, background-color 0.15s ease",
+    "&:hover": {
+      borderColor: "secondary.main",
+      bgcolor: "rgba(143,61,42,0.06)",
+    },
+    "&:focus-visible": {
+      outline: "2px solid",
+      outlineColor: "secondary.main",
+      outlineOffset: 2,
+    },
   } as const;
 
   const content = (
     <>
-      <Box sx={{ color: active ? "#0b57d0" : "#2C241E", display: "flex", "& .MuiSvgIcon-root": { fontSize: { xs: 20, sm: 24 } } }}>
+      <Box
+        sx={{
+          color: active ? "secondary.main" : "text.primary",
+          display: "flex",
+          "& .MuiSvgIcon-root": { fontSize: { xs: 20, sm: 24 } },
+        }}
+      >
         {icon}
       </Box>
       <Typography sx={{ fontSize: { xs: 11, sm: 13 }, fontWeight: 700, lineHeight: 1.2 }}>{label}</Typography>
       {detail ? (
-        <Typography sx={{ fontSize: { xs: 10, sm: 11 }, color: active ? "#0b57d0" : "text.secondary", lineHeight: 1.2 }}>
+        <Typography
+          sx={{
+            fontSize: { xs: 10, sm: 11 },
+            color: active ? "secondary.main" : "text.secondary",
+            lineHeight: 1.2,
+          }}
+        >
           {detail}
         </Typography>
       ) : null}
@@ -100,6 +121,7 @@ function Tile({
 
 export function AccessibilityWidget() {
   const [open, setOpen] = useState(false);
+  const cartOpen = useUiStore((state) => state.cartOpen);
   const a11y = useA11yStore();
 
   useEffect(() => {
@@ -110,6 +132,10 @@ export function AccessibilityWidget() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
+
+  useEffect(() => {
+    if (cartOpen) setOpen(false);
+  }, [cartOpen]);
 
   const contrastLabel = a11y.contrast === "off" ? "כבוי" : a11y.contrast === "dark" ? "כהה" : "צהוב";
   const colorLabel =
@@ -124,7 +150,7 @@ export function AccessibilityWidget() {
 
   return (
     <>
-      {open ? null : (
+      {open || cartOpen ? null : (
         <IconButton
           aria-label="תפריט נגישות"
           aria-expanded={open}
@@ -135,12 +161,13 @@ export function AccessibilityWidget() {
             bottom: 20,
             right: 20,
             zIndex: 1500,
-            bgcolor: "#0b57d0",
-            color: "#fff",
+            bgcolor: "primary.main",
+            color: "primary.contrastText",
             width: 56,
             height: 56,
-            boxShadow: "0 8px 24px rgba(11,87,208,0.35)",
-            "&:hover": { bgcolor: "#0842a0" },
+            borderRadius: "50%",
+            boxShadow: "0 12px 40px rgba(28, 24, 20, 0.18)",
+            "&:hover": { bgcolor: "#1C1814" },
           }}
         >
           <AccessibilityNewIcon />
@@ -159,153 +186,169 @@ export function AccessibilityWidget() {
             }}
           />
           <Box
-          id="accessibility-menu"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="a11y-title"
-          sx={{
-            position: "fixed",
-            right: { xs: 0, sm: 16 },
-            left: { xs: 0, sm: "auto" },
-            bottom: { xs: 0, sm: 16 },
-            zIndex: 1500,
-            width: { xs: "100%", sm: 400 },
-            maxHeight: { xs: "80vh", sm: "min(720px, calc(100vh - 32px))" },
-            display: "flex",
-            flexDirection: "column",
-            bgcolor: "#F4EEE4",
-            borderRadius: { xs: "16px 16px 0 0", sm: 2 },
-            boxShadow: "0 16px 48px rgba(28,24,20,0.28)",
-            overflow: "hidden",
-          }}
-        >
-          <Box
+            id="accessibility-menu"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="a11y-title"
             sx={{
+              position: "fixed",
+              right: { xs: 0, sm: 16 },
+              left: { xs: 0, sm: "auto" },
+              bottom: { xs: 0, sm: 16 },
+              zIndex: 1500,
+              width: { xs: "100%", sm: 400 },
+              maxHeight: { xs: "80vh", sm: "min(720px, calc(100vh - 32px))" },
               display: "flex",
-              alignItems: "center",
-              gap: { xs: 1, sm: 1.5 },
-              px: { xs: 1.5, sm: 2 },
-              py: { xs: 0.75, sm: 1.5 },
-              minHeight: { xs: 44, sm: 64 },
-              bgcolor: "#0b57d0",
-              color: "#fff",
+              flexDirection: "column",
+              bgcolor: "background.default",
+              border: "1px solid",
+              borderColor: "divider",
+              borderRadius: { xs: "8px 8px 0 0", sm: 2 },
+              boxShadow: "0 16px 48px rgba(28,24,20,0.2)",
+              overflow: "hidden",
             }}
           >
-            <AccessibilityNewIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
-            <Typography
-              id="a11y-title"
-              variant="h6"
-              component="h2"
-              sx={{ flex: 1, color: "inherit", fontSize: { xs: 16, sm: 20 }, lineHeight: 1.2 }}
-            >
-              תפריט נגישות
-            </Typography>
-            <IconButton aria-label="סגירה" onClick={() => setOpen(false)} size="small" sx={{ color: "#fff" }}>
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          </Box>
-          <Box sx={{ p: { xs: 1, sm: 1.5 }, overflow: "auto" }}>
             <Box
               sx={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: { xs: 0.75, sm: 1 },
+                display: "flex",
+                alignItems: "center",
+                gap: { xs: 1, sm: 1.5 },
+                px: { xs: 1.5, sm: 2 },
+                py: { xs: 0.75, sm: 1.5 },
+                minHeight: { xs: 44, sm: 64 },
+                bgcolor: "primary.main",
+                color: "primary.contrastText",
+                borderBottom: "1px solid",
+                borderColor: "divider",
               }}
             >
-              <Tile
-                icon={<KeyboardIcon />}
-                label="ניווט מקלדת"
-                detail={a11y.keyboard ? "פעיל" : "כבוי"}
-                active={a11y.keyboard}
-                onClick={() => a11y.setKeyboard(!a11y.keyboard)}
-              />
-              <Tile
-                icon={<RecordVoiceOverIcon />}
-                label="קורא מסך"
-                detail={a11y.screenReader ? "פעיל" : "כבוי"}
-                active={a11y.screenReader}
-                onClick={() => a11y.setScreenReader(!a11y.screenReader)}
-              />
-              <Tile
-                icon={<MotionPhotosOffIcon />}
-                label="חסימת הבהובים"
-                detail={a11y.stopMotion ? "פעיל" : "כבוי"}
-                active={a11y.stopMotion}
-                onClick={() => a11y.setStopMotion(!a11y.stopMotion)}
-              />
-              <Tile
-                icon={<TextIncreaseIcon />}
-                label="הגדלת פונט"
-                detail={`${a11y.fontScale + 1} / 4`}
-                active={a11y.fontScale > 0}
-                onClick={() => a11y.cycleFont()}
-              />
-              <Tile
-                icon={<ContrastIcon />}
-                label="ניגודיות"
-                detail={contrastLabel}
-                active={a11y.contrast !== "off"}
-                onClick={() => a11y.cycleContrast()}
-              />
-              <Tile
-                icon={<PaletteIcon />}
-                label="עיוורי צבעים"
-                detail={colorLabel}
-                active={a11y.colorBlind !== "off"}
-                onClick={() => a11y.cycleColorBlind()}
-              />
-              <Tile
-                icon={<FontDownloadIcon />}
-                label="פונט קריא"
-                detail={a11y.readableFont ? "פעיל" : "כבוי"}
-                active={a11y.readableFont}
-                onClick={() => a11y.setReadableFont(!a11y.readableFont)}
-              />
-              <Tile
-                icon={<AdsClickIcon />}
-                label="סמן מוגדל"
-                detail={cursorLabel}
-                active={a11y.cursor !== "off"}
-                onClick={() => a11y.cycleCursor()}
-              />
-              <Tile
-                icon={<ZoomInIcon />}
-                label="תצוגה 200%"
-                detail={a11y.zoom ? "פעיל" : "כבוי"}
-                active={a11y.zoom}
-                onClick={() => a11y.setZoom(!a11y.zoom)}
-              />
-              <Tile
-                icon={<LinkIcon />}
-                label="הדגשת קישורים"
-                detail={a11y.highlightLinks ? "פעיל" : "כבוי"}
-                active={a11y.highlightLinks}
-                onClick={() => a11y.setHighlightLinks(!a11y.highlightLinks)}
-              />
-              <Tile
-                icon={<TitleIcon />}
-                label="הדגשת כותרות"
-                detail={a11y.highlightHeadings ? "פעיל" : "כבוי"}
-                active={a11y.highlightHeadings}
-                onClick={() => a11y.setHighlightHeadings(!a11y.highlightHeadings)}
-              />
-              <Tile
-                icon={<ImageSearchIcon />}
-                label="תיאור לתמונות"
-                detail={a11y.showAlts ? "פעיל" : "כבוי"}
-                active={a11y.showAlts}
-                onClick={() => a11y.setShowAlts(!a11y.showAlts)}
-              />
-              <Tile icon={<GavelIcon />} label="הצהרת נגישות" to={STATEMENT} onClick={() => setOpen(false)} />
-              <Tile icon={<FeedbackIcon />} label="משוב נגישות" to={CONTACT} onClick={() => setOpen(false)} />
-              <Tile icon={<PhoneIcon />} label="רכז נגישות" detail="03-6347080" href={`tel:${COORDINATOR_TEL}`} />
-              <Tile icon={<RestartAltIcon />} label="איפוס הגדרות" onClick={() => a11y.reset()} />
+              <AccessibilityNewIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
+              <Typography
+                id="a11y-title"
+                variant="h6"
+                component="h2"
+                sx={{
+                  flex: 1,
+                  color: "inherit",
+                  fontFamily: '"Noto Serif Hebrew", "Times New Roman", serif',
+                  fontWeight: 600,
+                  fontSize: { xs: 16, sm: 20 },
+                  lineHeight: 1.2,
+                }}
+              >
+                תפריט נגישות
+              </Typography>
+              <IconButton
+                aria-label="סגירה"
+                onClick={() => setOpen(false)}
+                size="small"
+                sx={{ color: "primary.contrastText" }}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
             </Box>
-            <Button fullWidth onClick={() => setOpen(false)} sx={{ mt: 1 }}>
-              סגירה
-            </Button>
+            <Box sx={{ p: { xs: 1, sm: 1.5 }, overflow: "auto" }}>
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: { xs: 0.75, sm: 1 },
+                }}
+              >
+                <Tile
+                  icon={<KeyboardIcon />}
+                  label="ניווט מקלדת"
+                  detail={a11y.keyboard ? "פעיל" : "כבוי"}
+                  active={a11y.keyboard}
+                  onClick={() => a11y.setKeyboard(!a11y.keyboard)}
+                />
+                <Tile
+                  icon={<RecordVoiceOverIcon />}
+                  label="קורא מסך"
+                  detail={a11y.screenReader ? "פעיל" : "כבוי"}
+                  active={a11y.screenReader}
+                  onClick={() => a11y.setScreenReader(!a11y.screenReader)}
+                />
+                <Tile
+                  icon={<MotionPhotosOffIcon />}
+                  label="חסימת הבהובים"
+                  detail={a11y.stopMotion ? "פעיל" : "כבוי"}
+                  active={a11y.stopMotion}
+                  onClick={() => a11y.setStopMotion(!a11y.stopMotion)}
+                />
+                <Tile
+                  icon={<TextIncreaseIcon />}
+                  label="הגדלת פונט"
+                  detail={`${a11y.fontScale + 1} / 4`}
+                  active={a11y.fontScale > 0}
+                  onClick={() => a11y.cycleFont()}
+                />
+                <Tile
+                  icon={<ContrastIcon />}
+                  label="ניגודיות"
+                  detail={contrastLabel}
+                  active={a11y.contrast !== "off"}
+                  onClick={() => a11y.cycleContrast()}
+                />
+                <Tile
+                  icon={<PaletteIcon />}
+                  label="עיוורי צבעים"
+                  detail={colorLabel}
+                  active={a11y.colorBlind !== "off"}
+                  onClick={() => a11y.cycleColorBlind()}
+                />
+                <Tile
+                  icon={<FontDownloadIcon />}
+                  label="פונט קריא"
+                  detail={a11y.readableFont ? "פעיל" : "כבוי"}
+                  active={a11y.readableFont}
+                  onClick={() => a11y.setReadableFont(!a11y.readableFont)}
+                />
+                <Tile
+                  icon={<AdsClickIcon />}
+                  label="סמן מוגדל"
+                  detail={cursorLabel}
+                  active={a11y.cursor !== "off"}
+                  onClick={() => a11y.cycleCursor()}
+                />
+                <Tile
+                  icon={<ZoomInIcon />}
+                  label="תצוגה 200%"
+                  detail={a11y.zoom ? "פעיל" : "כבוי"}
+                  active={a11y.zoom}
+                  onClick={() => a11y.setZoom(!a11y.zoom)}
+                />
+                <Tile
+                  icon={<LinkIcon />}
+                  label="הדגשת קישורים"
+                  detail={a11y.highlightLinks ? "פעיל" : "כבוי"}
+                  active={a11y.highlightLinks}
+                  onClick={() => a11y.setHighlightLinks(!a11y.highlightLinks)}
+                />
+                <Tile
+                  icon={<TitleIcon />}
+                  label="הדגשת כותרות"
+                  detail={a11y.highlightHeadings ? "פעיל" : "כבוי"}
+                  active={a11y.highlightHeadings}
+                  onClick={() => a11y.setHighlightHeadings(!a11y.highlightHeadings)}
+                />
+                <Tile
+                  icon={<ImageSearchIcon />}
+                  label="תיאור לתמונות"
+                  detail={a11y.showAlts ? "פעיל" : "כבוי"}
+                  active={a11y.showAlts}
+                  onClick={() => a11y.setShowAlts(!a11y.showAlts)}
+                />
+                <Tile icon={<GavelIcon />} label="הצהרת נגישות" to={STATEMENT} onClick={() => setOpen(false)} />
+                <Tile icon={<FeedbackIcon />} label="משוב נגישות" to={CONTACT} onClick={() => setOpen(false)} />
+                <Tile icon={<PhoneIcon />} label="רכז נגישות" detail="03-6347080" href={`tel:${COORDINATOR_TEL}`} />
+                <Tile icon={<RestartAltIcon />} label="איפוס הגדרות" onClick={() => a11y.reset()} />
+              </Box>
+              <Button fullWidth variant="outlined" color="primary" onClick={() => setOpen(false)} sx={{ mt: 1.5 }}>
+                סגירה
+              </Button>
+            </Box>
           </Box>
-        </Box>
         </>
       ) : null}
       {a11y.screenReader ? (

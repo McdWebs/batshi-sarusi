@@ -28,7 +28,7 @@ html[data-a11y-readable="on"] * {
 }
 
 html[data-a11y-keyboard="on"] *:focus {
-  outline: 3px solid #0b57d0 !important;
+  outline: 3px solid #8F3D2A !important;
   outline-offset: 3px !important;
 }
 

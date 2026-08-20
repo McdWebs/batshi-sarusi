@@ -157,7 +157,7 @@ export function MobileNav({ open, onClose, pathname, departments, collections }:
           pathname={pathname}
         />
 
-        <Box sx={{ mt: 5, pt: 3, borderTop: "1px solid", borderColor: "divider", display: "grid", gap: 1.5 }}>
+        <Box sx={{ mt: 5, pt: 3, display: "grid", gap: 1.5 }}>
           <MuiLink
             component={Link}
             to="/search"

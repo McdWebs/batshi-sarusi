@@ -1,8 +1,20 @@
 import { Box, Container, Link as MuiLink, Typography } from "@mui/material";
+import InstagramIcon from "@mui/icons-material/Instagram";
 import { Link } from "react-router-dom";
 import { useAllCategories } from "../hooks/useCatalog";
 import { collections, departments, storefrontHref } from "../storefront/map";
 import logo from "../assets/batshi-logo.png";
+
+const footerLinkMotionSx = {
+  transition: "color 180ms ease, transform 180ms ease",
+  "@media (prefers-reduced-motion: reduce)": {
+    transition: "color 180ms ease",
+  },
+  "&:hover": {
+    color: "secondary.main",
+    transform: "translateX(-4px)",
+  },
+};
 
 export function Footer() {
   const { data: categories = [] } = useAllCategories();
@@ -51,10 +63,37 @@ export function Footer() {
           <Typography color="text.secondary" maxWidth={360} sx={{ fontSize: { xs: 14, md: 16 } }}>
             בית לאוהבי הבישול והאירוח.
           </Typography>
+          <Box sx={{ display: "flex", gap: 1, mt: 1.5 }}>
+            <MuiLink
+              href="https://www.instagram.com/batshi_sarosi"
+              target="_blank"
+              rel="noreferrer"
+              underline="none"
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 1,
+                color: "text.secondary",
+                fontSize: { xs: 14, md: 16 },
+                width: "fit-content",
+                ...footerLinkMotionSx,
+              }}
+            >
+              Instagram
+              <InstagramIcon sx={{ fontSize: { xs: 28, md: 32 } }} />
+            </MuiLink>
+          </Box>
         </Box>
         <Box sx={{ display: { xs: "none", md: "block" } }}>
           <Typography fontWeight={700} mb={1.5}>
-            <MuiLink component={Link} to="/collections" underline="hover" color="inherit">
+            <MuiLink
+              component={Link}
+              to="/collections"
+              underline="none"
+              color="inherit"
+              sx={{ display: "inline-flex", alignItems: "center", gap: 0.75, ...footerLinkMotionSx }}
+            >
+              <Box component="span" sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "secondary.main", flexShrink: 0 }} />
               קולקציות
             </MuiLink>
           </Typography>
@@ -66,7 +105,14 @@ export function Footer() {
         </Box>
         <Box sx={{ display: { xs: "none", md: "block" } }}>
           <Typography fontWeight={700} mb={1.5}>
-            <MuiLink component={Link} to="/departments" underline="hover" color="inherit">
+            <MuiLink
+              component={Link}
+              to="/departments"
+              underline="none"
+              color="inherit"
+              sx={{ display: "inline-flex", alignItems: "center", gap: 0.75, ...footerLinkMotionSx }}
+            >
+              <Box component="span" sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "secondary.main", flexShrink: 0 }} />
               מחלקות
             </MuiLink>
           </Typography>
@@ -89,26 +135,18 @@ export function Footer() {
             }}
           >
             <Box sx={{ display: { xs: "contents", md: "none" } }}>
-              <FooterLink to="/collections">קולקציות</FooterLink>
-              <FooterLink to="/departments">מחלקות</FooterLink>
+              <FooterLink to="/collections" featured>
+                קולקציות
+              </FooterLink>
+              <FooterLink to="/departments" featured>
+                מחלקות
+              </FooterLink>
             </Box>
             <FooterLink to="/צור-קשר">צור קשר</FooterLink>
             <FooterLink to="/אודות">אודות</FooterLink>
             <FooterLink to="/תקנון-אתר">תקנון אתר</FooterLink>
             <FooterLink to="/מדיניות-פרטיות">מדיניות פרטיות</FooterLink>
             <FooterLink to="/הצהרת-נגישות">הצהרת נגישות</FooterLink>
-            <MuiLink
-              href="https://www.instagram.com/batshi_sarosi"
-              target="_blank"
-              rel="noreferrer"
-              display="block"
-              color="text.secondary"
-              underline="always"
-              mb={{ xs: 0, md: 0.75 }}
-              sx={{ fontSize: { xs: 14, md: 16 } }}
-            >
-              אינסטגרם
-            </MuiLink>
           </Box>
         </Box>
       </Container>
@@ -116,17 +154,28 @@ export function Footer() {
   );
 }
 
-function FooterLink({ to, children }: { to: string; children: string }) {
+function FooterLink({ to, children, featured = false }: { to: string; children: string; featured?: boolean }) {
   return (
     <MuiLink
       component={Link}
       to={to}
       display="block"
-      color="text.secondary"
-      underline="always"
+      color={featured ? "text.primary" : "text.secondary"}
+      underline="none"
       mb={{ xs: 0, md: 0.75 }}
-      sx={{ fontSize: { xs: 14, md: 16 } }}
+      sx={{
+        fontSize: { xs: 14, md: 16 },
+        fontWeight: featured ? 700 : 400,
+        display: "inline-flex",
+        alignItems: "center",
+        gap: featured ? 0.75 : 0,
+        width: "fit-content",
+        ...footerLinkMotionSx,
+      }}
     >
+      {featured ? (
+        <Box component="span" sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "secondary.main", flexShrink: 0 }} />
+      ) : null}
       {children}
     </MuiLink>
   );

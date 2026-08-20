@@ -1,11 +1,28 @@
+import { lazy } from "react";
 import { Navigate, Route, Routes, useParams } from "react-router-dom";
 import { AppShell } from "../layouts/AppShell";
 import { HomePage } from "../pages/HomePage";
-import { BrandPage, CategoryPage, CollectionsPage, DepartmentsPage, SalePage, SearchPage, ShopPage } from "../pages/CatalogPages";
-import { ProductPage } from "../pages/ProductPage";
-import { CartPage } from "../pages/CartPage";
-import { AccountPage, CheckoutBlockedPage, CmsPage, NotFoundPage } from "../pages/InfoPages";
-import { ContactPage } from "../pages/ContactPage";
+
+const ShopPage = lazy(() => import("../pages/CatalogPages").then((m) => ({ default: m.ShopPage })));
+const SalePage = lazy(() => import("../pages/CatalogPages").then((m) => ({ default: m.SalePage })));
+const SearchPage = lazy(() => import("../pages/CatalogPages").then((m) => ({ default: m.SearchPage })));
+const DepartmentsPage = lazy(() =>
+  import("../pages/CatalogPages").then((m) => ({ default: m.DepartmentsPage })),
+);
+const CollectionsPage = lazy(() =>
+  import("../pages/CatalogPages").then((m) => ({ default: m.CollectionsPage })),
+);
+const CategoryPage = lazy(() => import("../pages/CatalogPages").then((m) => ({ default: m.CategoryPage })));
+const BrandPage = lazy(() => import("../pages/CatalogPages").then((m) => ({ default: m.BrandPage })));
+const ProductPage = lazy(() => import("../pages/ProductPage").then((m) => ({ default: m.ProductPage })));
+const CartPage = lazy(() => import("../pages/CartPage").then((m) => ({ default: m.CartPage })));
+const ContactPage = lazy(() => import("../pages/ContactPage").then((m) => ({ default: m.ContactPage })));
+const CmsPage = lazy(() => import("../pages/InfoPages").then((m) => ({ default: m.CmsPage })));
+const AccountPage = lazy(() => import("../pages/InfoPages").then((m) => ({ default: m.AccountPage })));
+const CheckoutBlockedPage = lazy(() =>
+  import("../pages/InfoPages").then((m) => ({ default: m.CheckoutBlockedPage })),
+);
+const NotFoundPage = lazy(() => import("../pages/InfoPages").then((m) => ({ default: m.NotFoundPage })));
 
 function CategorySplat() {
   const splat = useParams()["*"] ?? "";

@@ -1,6 +1,8 @@
 import { Box, Button, Chip, Link as MuiLink, Skeleton, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import type { Product } from "../api/types";
+import { prefetchProduct } from "../hooks/prefetch";
 import { productPath } from "../utils/format";
 import { useUiStore } from "../store/ui";
 import { Price } from "./Price";
@@ -15,19 +17,24 @@ export function ProductCard({
   onAdd?: (product: Product) => void;
   adding?: boolean;
 }) {
+  const queryClient = useQueryClient();
   const image = product.images[0];
   const hover = product.images[1];
   const canQuickAdd = Boolean(product.isPurchasable && product.isInStock && !product.hasOptions && onAdd);
   const justAdded = useUiStore((state) => state.addedProductId === product.id);
+  const path = productPath(product.slug);
+  const warm = () => prefetchProduct(queryClient, product.slug);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <MuiLink
         component={Link}
-        to={productPath(product.slug)}
+        to={path}
         underline="none"
         color="inherit"
         sx={{ display: "block", position: "relative", mb: 1.5 }}
+        onMouseEnter={warm}
+        onFocus={warm}
       >
         <Box
           sx={{
@@ -43,6 +50,8 @@ export function ProductCard({
             <StoreImage
               className="product-card-main"
               src={image.thumbnail || image.src}
+              srcSet={image.srcset}
+              sizes={image.sizes || "(max-width: 600px) 50vw, (max-width: 1200px) 33vw, 25vw"}
               alt={image.alt || product.name}
               sx={{
                 width: "100%",
@@ -56,6 +65,8 @@ export function ProductCard({
             <StoreImage
               className="product-card-hover"
               src={hover.thumbnail || hover.src}
+              srcSet={hover.srcset}
+              sizes={hover.sizes || "(max-width: 600px) 50vw, (max-width: 1200px) 33vw, 25vw"}
               alt=""
               sx={{
                 position: "absolute",
@@ -81,8 +92,10 @@ export function ProductCard({
       </MuiLink>
       <Typography
         component={Link}
-        to={productPath(product.slug)}
+        to={path}
         variant="subtitle1"
+        onMouseEnter={warm}
+        onFocus={warm}
         sx={{
           color: "inherit",
           textDecoration: "none",

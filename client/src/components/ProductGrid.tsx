@@ -13,12 +13,14 @@ export function ProductGrid({
   onAdd,
   addingId,
   loading,
+  refreshing,
   skeletonCount = 8,
 }: {
   products: Product[];
   onAdd?: (product: Product) => void;
   addingId?: number | null;
   loading?: boolean;
+  refreshing?: boolean;
   skeletonCount?: number;
 }) {
   if (loading) {
@@ -32,7 +34,15 @@ export function ProductGrid({
   }
 
   return (
-    <Box sx={gridSx}>
+    <Box
+      sx={{
+        ...gridSx,
+        opacity: refreshing ? 0.55 : 1,
+        transition: "opacity 0.15s ease",
+        pointerEvents: refreshing ? "none" : "auto",
+      }}
+      aria-busy={refreshing || undefined}
+    >
       {products.map((product) => (
         <ProductCard key={product.id} product={product} onAdd={onAdd} adding={addingId === product.id} />
       ))}

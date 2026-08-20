@@ -1,15 +1,13 @@
-import { useQuery } from "@tanstack/react-query";
 import { Box, Button, Container, FormControl, InputLabel, MenuItem, Select, Skeleton, TextField, Typography } from "@mui/material";
 import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getProduct } from "../api/store";
 import { ProductGallery } from "../components/ProductGallery";
 import { ProductGrid } from "../components/ProductGrid";
 import { Price } from "../components/Price";
 import { Breadcrumbs } from "../components/Breadcrumbs";
 import { EmptyState, ErrorState } from "../components/States";
 import { useCartMutations } from "../hooks/useCart";
-import { useAllCategories, useProductList } from "../hooks/useCatalog";
+import { useAllCategories, useProduct, useProductList } from "../hooks/useCatalog";
 import { useUiStore } from "../store/ui";
 import { categoryAncestors, crumbGroup, storefrontHref } from "../storefront/map";
 import { decodeSlug } from "../utils/format";
@@ -83,7 +81,6 @@ function ProductPageSkeleton() {
         <Bone width={220} height={18} sx={{ mb: 0.75 }} />
         <Bone width={260} height={18} />
       </Box>
-      <RelatedProductsSkeleton />
     </Container>
   );
 }
@@ -108,11 +105,7 @@ function selectedVariationId(product: Product, selected: Record<string, string>)
 export function ProductPage() {
   const { slug } = useParams();
   const idOrSlug = slug ? decodeSlug(slug) : "";
-  const productQuery = useQuery({
-    queryKey: ["product", idOrSlug],
-    queryFn: () => getProduct(idOrSlug),
-    enabled: Boolean(idOrSlug),
-  });
+  const productQuery = useProduct(idOrSlug || undefined);
   const product = productQuery.data;
   const { addItem } = useCartMutations();
   const addedProductId = useUiStore((state) => state.addedProductId);
@@ -245,7 +238,7 @@ export function ProductPage() {
           ))}
         </Box>
       ) : null}
-      {related.isLoading ? (
+      {related.isPending ? (
         <RelatedProductsSkeleton />
       ) : relatedItems.length ? (
         <Box sx={{ mt: 8 }}>

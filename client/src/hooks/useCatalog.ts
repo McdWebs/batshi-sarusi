@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { getBrands, getCategories, getProducts, getProduct, searchProducts } from "../api/store";
 import type { ProductQuery } from "../api/types";
 
@@ -8,6 +8,7 @@ export function useProductList(query: ProductQuery, enabled = true) {
     queryFn: () => getProducts(query),
     enabled,
     staleTime: 60_000,
+    placeholderData: keepPreviousData,
   });
 }
 

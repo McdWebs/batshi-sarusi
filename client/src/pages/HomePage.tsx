@@ -44,7 +44,7 @@ export function HomePage() {
             message={(categories.error as Error).message}
             onRetry={() => categories.refetch()}
           />
-        ) : categories.isLoading ? (
+        ) : categories.isPending ? (
           <CategoryGridSkeleton count={COLLECTION_SLUGS.length} />
         ) : (
           <CategoryGrid categories={collectionItems} />
@@ -63,7 +63,8 @@ export function HomePage() {
         ) : (
           <ProductGrid
             products={deals.data?.items ?? []}
-            loading={deals.isLoading}
+            loading={deals.isPending}
+            refreshing={deals.isFetching && !deals.isPending}
             onAdd={onAdd}
             addingId={
               addItem.isPending ? (addItem.variables?.id ?? null) : null
@@ -90,7 +91,7 @@ export function HomePage() {
             message={(categories.error as Error).message}
             onRetry={() => categories.refetch()}
           />
-        ) : categories.isLoading ? (
+        ) : categories.isPending ? (
           <CategoryGridSkeleton count={DEPARTMENT_SLUGS.length} />
         ) : (
           <CategoryGrid categories={departmentItems} />

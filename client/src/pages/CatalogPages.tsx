@@ -2,7 +2,7 @@ import { CatalogView } from "../components/CatalogView";
 import { useAllCategories, useBrands } from "../hooks/useCatalog";
 import { decodeSlug, findCategoryByPath, brandPath } from "../utils/format";
 import { categoryAncestors, categoryChildren, collections, COLLECTION_SLUGS, crumbGroup, departments, DEPARTMENT_SLUGS, searchStorefront, storefrontHref } from "../storefront/map";
-import { EmptyState, ErrorState, LoadingState } from "../components/States";
+import { EmptyState, ErrorState } from "../components/States";
 import { CategoryGrid, CategoryGridSkeleton } from "../components/CategoryGrid";
 import { Breadcrumbs } from "../components/Breadcrumbs";
 import { Box, Chip, Container, InputBase, Typography } from "@mui/material";
@@ -189,7 +189,7 @@ function DirectoryPage({
       </Typography>
       {categories.isError ? (
         <ErrorState message={(categories.error as Error).message} onRetry={() => categories.refetch()} />
-      ) : categories.isLoading ? (
+      ) : categories.isPending ? (
         <CategoryGridSkeleton count={skeletonCount} />
       ) : items.length === 0 ? (
         <EmptyState title={empty} />
@@ -203,14 +203,8 @@ function DirectoryPage({
 export function CategoryPage({ splat }: { splat: string }) {
   const categories = useAllCategories();
   const match = findCategoryByPath(categories.data ?? [], splat);
+  const fallbackTitle = decodeSlug(splat.split("/").filter(Boolean).at(-1) ?? "") || "קטגוריה";
 
-  if (categories.isLoading) {
-    return (
-      <Container maxWidth="lg" sx={{ py: 5 }}>
-        <LoadingState />
-      </Container>
-    );
-  }
   if (categories.isError) {
     return (
       <Container maxWidth="lg" sx={{ py: 5 }}>
@@ -218,12 +212,13 @@ export function CategoryPage({ splat }: { splat: string }) {
       </Container>
     );
   }
-  if (!match) {
+  if (!categories.isPending && !match) {
     return <EmptyState title="הקטגוריה לא נמצאה." body="נסו חיפוש, או פתחו קולקציות מהתפריט." />;
   }
 
-  const trail = categoryAncestors(categories.data ?? [], match);
-  const group = crumbGroup(match, categories.data ?? []);
+  const all = categories.data ?? [];
+  const trail = match ? categoryAncestors(all, match) : [];
+  const group = match ? crumbGroup(match, all) : null;
   const crumbs = [
     { label: "בית", to: "/" },
     ...(group ? [group] : []),
@@ -232,11 +227,21 @@ export function CategoryPage({ splat }: { splat: string }) {
       to: index === trail.length - 1 ? undefined : storefrontHref(item),
     })),
   ];
-  const chips = categoryChildren(categories.data ?? [], match.id)
-    .slice(0, 12)
-    .map((item) => ({ label: item.name, to: storefrontHref(item) }));
+  const chips = match
+    ? categoryChildren(all, match.id)
+        .slice(0, 12)
+        .map((item) => ({ label: item.name, to: storefrontHref(item) }))
+    : undefined;
 
-  return <CatalogView title={match.name} query={{ category: match.id }} crumbs={crumbs} chips={chips} />;
+  return (
+    <CatalogView
+      title={match?.name ?? fallbackTitle}
+      query={{ category: match?.id }}
+      crumbs={crumbs}
+      chips={chips}
+      enabled={Boolean(match)}
+    />
+  );
 }
 
 export function BrandPage({ slug }: { slug: string }) {
@@ -245,25 +250,28 @@ export function BrandPage({ slug }: { slug: string }) {
   const match = brands.data?.items.find(
     (brand) => decodeSlug(brand.slug) === decoded || decodeSlug(brand.permalink).endsWith(`/${decoded}`),
   );
-  if (brands.isLoading) {
+
+  if (brands.isError) {
     return (
       <Container maxWidth="lg" sx={{ py: 5 }}>
-        <LoadingState />
+        <ErrorState message={(brands.error as Error).message} onRetry={() => brands.refetch()} />
       </Container>
     );
   }
-  if (!match) {
+  if (!brands.isPending && !match) {
     return <EmptyState title="המותג לא נמצא." />;
   }
+
   return (
     <CatalogView
-      title={match.name}
-      query={{ brand: match.id }}
+      title={match?.name ?? decoded}
+      query={{ brand: match?.id }}
       crumbs={[
         { label: "בית", to: "/" },
         { label: "קולקציות", to: "/collections" },
-        { label: match.name },
+        { label: match?.name ?? decoded },
       ]}
+      enabled={Boolean(match)}
     />
   );
 }

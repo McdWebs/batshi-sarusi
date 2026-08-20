@@ -1,9 +1,10 @@
 import { Box, Link as MuiLink, Skeleton, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 import type { Category } from "../api/types";
 import { getCategoryPreviews } from "../api/store";
+import { prefetchCategoryCatalog } from "../hooks/prefetch";
 import { categoryPathFromPermalink } from "../utils/format";
 import { StoreImage } from "./StoreImage";
 
@@ -64,6 +65,8 @@ export function CategoryCard({
   src?: string;
   loading?: boolean;
 }) {
+  const queryClient = useQueryClient();
+
   return (
     <MuiLink
       component={Link}
@@ -71,6 +74,8 @@ export function CategoryCard({
       underline="none"
       color="inherit"
       sx={{ display: "block" }}
+      onMouseEnter={() => prefetchCategoryCatalog(queryClient, category.id)}
+      onFocus={() => prefetchCategoryCatalog(queryClient, category.id)}
     >
       <Box
         sx={{
@@ -91,6 +96,7 @@ export function CategoryCard({
           <StoreImage
             src={src}
             alt={category.name}
+            sizes="(max-width: 600px) 50vw, (max-width: 1200px) 33vw, 25vw"
             objectFit="contain"
             mixBlendMode="multiply"
             sx={{ width: "100%", height: "100%" }}
@@ -147,11 +153,6 @@ export function CategoryGridSkeleton({ count = 8 }: { count?: number }) {
 
 export function CategoryGrid({ categories }: { categories: Category[] }) {
   const { images, loading } = useUniqueCategoryImages(categories);
-
-  // Avoid flashing text-only tiles while preview images are still resolving.
-  if (loading && images.size === 0) {
-    return <CategoryGridSkeleton count={categories.length || 8} />;
-  }
 
   return (
     <Box sx={gridSx}>

@@ -5,6 +5,7 @@ import { BrandPage, CategoryPage, CollectionsPage, DepartmentsPage, SalePage, Se
 import { ProductPage } from "../pages/ProductPage";
 import { CartPage } from "../pages/CartPage";
 import { AccountPage, CheckoutBlockedPage, CmsPage, NotFoundPage } from "../pages/InfoPages";
+import { ContactPage } from "../pages/ContactPage";
 
 function CategorySplat() {
   const splat = useParams()["*"] ?? "";
@@ -32,6 +33,7 @@ export function AppRoutes() {
         <Route path="/cart" element={<CartPage />} />
         <Route path="/checkout" element={<CheckoutBlockedPage />} />
         <Route path="/my-account" element={<AccountPage />} />
+        <Route path="/צור-קשר" element={<ContactPage />} />
         <Route path="/login" element={<Navigate to="/my-account" replace />} />
         <Route path="/:slug" element={<CmsPage />} />
         <Route path="*" element={<NotFoundPage />} />

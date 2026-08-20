@@ -195,10 +195,19 @@ export function ContactPage() {
               href={INSTAGRAM_URL}
               target="_blank"
               rel="noreferrer"
-              variant="outlined"
+              variant="contained"
               size="small"
               startIcon={<InstagramIcon />}
-              sx={{ borderColor: "divider" }}
+              sx={{
+                color: "#fff",
+                border: "none",
+                background:
+                  "linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)",
+                "&:hover": {
+                  background:
+                    "linear-gradient(45deg, #e0852e 0%, #d45d36 25%, #c8233c 50%, #b81f5c 75%, #a8167a 100%)",
+                },
+              }}
             >
               אינסטגרם
             </Button>

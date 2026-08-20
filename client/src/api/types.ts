@@ -130,6 +130,20 @@ export type ShippingRate = {
   instanceId: number;
 };
 
+export type Address = {
+  firstName: string;
+  lastName: string;
+  company: string;
+  address1: string;
+  address2: string;
+  city: string;
+  state: string;
+  postcode: string;
+  country: string;
+  phone: string;
+  email?: string;
+};
+
 export type Cart = {
   items: CartItem[];
   coupons: Array<{ code: string; discountType: string }>;
@@ -142,8 +156,8 @@ export type Cart = {
     totalShipping: Money | null;
     totalPrice: Money;
   };
-  shippingAddress: { country: string; city: string };
-  billingAddress: { country: string };
+  shippingAddress: Address;
+  billingAddress: Address;
   needsPayment: boolean;
   needsShipping: boolean;
   hasCalculatedShipping: boolean;
@@ -153,6 +167,7 @@ export type Cart = {
     rates: ShippingRate[];
   }>;
   itemsCount: number;
+  paymentMethodIds?: string[];
   errors: Array<{ code: string; message: string }>;
 };
 

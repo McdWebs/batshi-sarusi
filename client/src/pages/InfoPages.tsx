@@ -90,16 +90,6 @@ export function AccountPage() {
   );
 }
 
-export function CheckoutBlockedPage() {
-  return (
-    <Container maxWidth="sm" sx={{ py: 8 }}>
-      <Typography variant="h3" mb={2}>
-        תשלום
-      </Typography>
-    </Container>
-  );
-}
-
 export function NotFoundPage() {
   return <EmptyState title="העמוד לא נמצא." />;
 }

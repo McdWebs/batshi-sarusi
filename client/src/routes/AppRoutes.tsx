@@ -19,8 +19,8 @@ const CartPage = lazy(() => import("../pages/CartPage").then((m) => ({ default: 
 const ContactPage = lazy(() => import("../pages/ContactPage").then((m) => ({ default: m.ContactPage })));
 const CmsPage = lazy(() => import("../pages/InfoPages").then((m) => ({ default: m.CmsPage })));
 const AccountPage = lazy(() => import("../pages/InfoPages").then((m) => ({ default: m.AccountPage })));
-const CheckoutBlockedPage = lazy(() =>
-  import("../pages/InfoPages").then((m) => ({ default: m.CheckoutBlockedPage })),
+const CheckoutPage = lazy(() =>
+  import("../pages/CheckoutPage").then((m) => ({ default: m.CheckoutPage })),
 );
 const NotFoundPage = lazy(() => import("../pages/InfoPages").then((m) => ({ default: m.NotFoundPage })));
 
@@ -48,7 +48,7 @@ export function AppRoutes() {
         <Route path="/product-category/*" element={<CategorySplat />} />
         <Route path="/brand/:slug" element={<BrandSlug />} />
         <Route path="/cart" element={<CartPage />} />
-        <Route path="/checkout" element={<CheckoutBlockedPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/my-account" element={<AccountPage />} />
         <Route path="/צור-קשר" element={<ContactPage />} />
         <Route path="/login" element={<Navigate to="/my-account" replace />} />

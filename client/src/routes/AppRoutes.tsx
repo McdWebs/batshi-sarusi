@@ -22,6 +22,9 @@ const AccountPage = lazy(() => import("../pages/InfoPages").then((m) => ({ defau
 const CheckoutPage = lazy(() =>
   import("../pages/CheckoutPage").then((m) => ({ default: m.CheckoutPage })),
 );
+const StudioPage = lazy(() => import("../pages/StudioPage").then((m) => ({ default: m.StudioPage })));
+const ShopTheLookPage = lazy(() => import("../pages/LookPages").then((m) => ({ default: m.ShopTheLookPage })));
+const InfluencerPage = lazy(() => import("../pages/LookPages").then((m) => ({ default: m.InfluencerPage })));
 const NotFoundPage = lazy(() => import("../pages/InfoPages").then((m) => ({ default: m.NotFoundPage })));
 
 function CategorySplat() {
@@ -51,6 +54,9 @@ export function AppRoutes() {
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/my-account" element={<AccountPage />} />
         <Route path="/צור-קשר" element={<ContactPage />} />
+        <Route path="/studio" element={<StudioPage />} />
+        <Route path="/shop-the-look" element={<ShopTheLookPage />} />
+        <Route path="/influencers/:slug" element={<InfluencerPage />} />
         <Route path="/login" element={<Navigate to="/my-account" replace />} />
         <Route path="/:slug" element={<CmsPage />} />
         <Route path="*" element={<NotFoundPage />} />

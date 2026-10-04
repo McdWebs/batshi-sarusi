@@ -14,7 +14,9 @@ Images appear line by line from the top instead of showing up smoothly. Likely c
 - [x] First-screen photos load first: `priority` on the first four catalog cards, the product gallery main photo and the first hero slide. Everything else stays lazy.
 - [x] Preload the product page's main photo when a card is hovered or focused, using the same `srcset` and `sizes` as the gallery.
 - [ ] Look at it yourself on a throttled connection and in a phone-sized window. I could not watch the fade: the Browser pane was hidden, which freezes CSS transitions, so I tested the loading logic with transitions switched off.
-- [ ] Heavy source photos (for example a 685 KB card image): resize or compress them at the source, or serve them through an image CDN. The storefront cannot fix files it does not own.
+- [x] Heavy source photos: shop photos now go through our own resizing endpoint (`/api/img`, WebP, cached on disk, only the shop's own uploads folder). On the same twelve product cards a catalog page downloads 77 to 92 percent less (for example 1.7 MB to 0.4 MB on a 2x phone screen). Also fixed: WordPress told browsers every card photo was full width, so small cards fetched the largest copy; the cards and the gallery now say how wide they really are.
+- [ ] Photos in production: put a CDN in front of `/api/img` (responses are cacheable for a year), check how the host handles the disk cache (it may be wiped on every deploy; copies are simply rebuilt on demand), and look at the first-request time of a new photo on the real host.
+- [ ] Optional: resize the heavy originals once at the source (media library) so the first request is cheaper too.
 
 ### 2. New UI for four pages (PARKED, decided not to do it for now)
 
@@ -101,14 +103,23 @@ Write one list of event names and their fields before coding, so every page trac
 - [ ] Confirm the dashboard totals against a manual count of a few real sessions.
 - [x] Make sure tracking does not slow the site or break when the tracking API is down.
 
+### Dashboard redesign (done): answer first, details on request
+
+The first dashboard showed ten sections of numbers and overwhelmed the owner. It is now: a one-sentence summary, three big numbers, up to six plain-Hebrew "what deserves your attention" messages (three shown, the rest behind "show more"), the daily chart, and five tabs of detail with five rows each. Written rules live in `client/src/analytics/advice.ts` with tests.
+
+- [ ] Show it to the owner (or someone like her) and ask what she reads first and what confuses her. The wording of the messages and the tab names are the first things to adjust.
+- [ ] Check the "לפרטים" scroll to the tabs and the tab keyboard use (arrow keys in right-to-left) on a real device. The smooth scroll could not be seen in the hidden test browser.
+- [ ] Tune the thresholds in `advice.ts` once there is real traffic (for example how many searches count as "enough", and what share of abandoned carts is "a problem").
+
 ### What the first slice covers (done) and what is still open
 
 Done: consent-aware tracker (page views, scroll depth, clicks marked `data-track`, search, sort, paging, product views, add and remove from cart, cart and checkout views, back-in-stock signups), events endpoint, SQLite store with retention, owner dashboard at `/analytics`, demo seed, withdrawal deletes the visitor's events, 51 server and 7 client tests.
 
 Still open from the plan above:
 
-- [ ] More events: coupon tried (valid or not), shipping option chosen, checkout field where people stop, failed API calls and failed images, 404 pages, slow loads, repeated fast clicks (rage clicks), time on page, new vs returning.
-- [ ] Dashboard sections that need those events: cart and checkout detail, abandonment, devices and speed beyond the split, scroll depth (it is recorded but not shown).
+- [x] Round 2 events: coupon tried (valid or not), shipping option chosen, checkout field reached (names only), failed API calls, broken photos (and resizer fallbacks), script errors, missing pages (404), page speed (LCP), time on page (visible time only), repeated fast clicks, new vs returning visitors. The dashboard now has sections for behaviour, cart and checkout, site speed and problems.
+- [ ] Speed (LCP) and time on page need a real visible browser to measure. I could only test time on page by faking a visible tab, and could not test LCP at all because the test browser pane was hidden. Check both on a real phone and desktop.
+- [ ] Not tracked yet: which checkout step people leave on after the form (payment), form validation errors shown, the free-shipping bar (not built yet), slow API calls (only failures), core web vitals other than LCP (CLS, INP).
 - [ ] A way to delete a visitor's data on request beyond withdrawing consent (for example from the privacy page).
 - [ ] Update the privacy policy text (what is collected, how long). Needs the client's approval.
 - [ ] Backups of the events file, and a decision on moving to Postgres for real traffic.

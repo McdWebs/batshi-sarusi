@@ -46,9 +46,9 @@ Order: decide, plan the events, handle privacy, collect, store, then show. Do on
 
 ### A. Decide first
 
-- [ ] Choose the approach: (1) our own events sent to our API plus our own owner dashboard, (2) Google Analytics 4 through Tag Manager (the client may already have IDs, ask her), (3) a tool like PostHog, or (1) plus (2) together. Own data gives exactly the views she needs and works with the demand list; GA4 is free and familiar but harder to shape.
-- [ ] Decide where events live. `plan.md` says no second database at first, so a real store (for example Postgres, or SQLite for a demo) needs an explicit yes. The back-in-stock JSON file is only a demo and is too weak for this volume.
-- [ ] Decide how long raw events are kept (for example 13 months), and whether visitors are identified at all (recommended: anonymous random visitor ID, never name or email).
+- [x] Choose the approach: (1) our own events sent to our API plus our own owner dashboard, (2) Google Analytics 4 through Tag Manager (the client may already have IDs, ask her), (3) a tool like PostHog, or (1) plus (2) together. Own data gives exactly the views she needs and works with the demand list; GA4 is free and familiar but harder to shape. **Decided: own tracking and own dashboard.**
+- [x] Decide where events live. `plan.md` says no second database at first, so a real store (for example Postgres, or SQLite for a demo) needs an explicit yes. The back-in-stock JSON file is only a demo and is too weak for this volume. **Decided: a SQLite file (`server/.data/analytics.sqlite`, better-sqlite3).** Move to Postgres when there is a real store.
+- [x] Decide how long raw events are kept (for example 13 months), and whether visitors are identified at all (recommended: anonymous random visitor ID, never name or email). **Decided: 395 days (13 months), anonymous random visitor id.**
 
 ### B. Plan what to track
 
@@ -56,7 +56,7 @@ Write one list of event names and their fields before coding, so every page trac
 
 - [ ] **Movement:** page views (including route changes in the app), entry page, exit page, referrer, UTM and `ref` (influencer), previous page, time on page, scroll depth, session length, new vs returning, device, screen size, language.
 - [ ] **Clicks:** header and menu links, hero slides and banners, category cards, product cards (position in the grid), product page photo gallery, quick add, "shop the look" pins and popovers, influencer page links, contact and WhatsApp buttons, footer links, cookie banner choice. Include repeated fast clicks on the same spot (rage clicks) and clicks that do nothing.
-- [ ] **Search:** every query, number of results, searches with zero results, which result was clicked and its position, searches that end on an out-of-stock product, searches that were changed or abandoned.
+- [x] **Search:** every query, number of results, searches with zero results, which result was clicked and its position, searches that end on an out-of-stock product, searches that were changed or abandoned.
 - [ ] **Sorting, filtering and browsing:** which sort option was chosen, which filters, page number or "load more", how deep people scroll in a catalog, which category and collection pages are opened most.
 - [ ] **Product pages:** views, variation picked, quantity, add to cart, out-of-stock views, "notify me" opens and signups, reading the description, related product clicks.
 - [ ] **Cart and checkout:** add, remove, quantity change, coupon tried (valid or not), shipping option chosen, cart opened, checkout started, which step or field people stop at, errors shown, the free-shipping bar once it exists.
@@ -64,42 +64,57 @@ Write one list of event names and their fields before coding, so every page trac
 
 ### C. Privacy and consent
 
-- [ ] Send nothing until the visitor accepts analytics in the existing cookie banner, and stop when they decline or change their mind.
-- [ ] No personal data in events: no email, phone, address or free text typed into forms. For search, check whether queries can contain personal data and cut or mask them if needed.
+- [x] Send nothing until the visitor accepts analytics in the existing cookie banner, and stop when they decline or change their mind.
+- [x] No personal data in events: no email, phone, address or free text typed into forms. For search, check whether queries can contain personal data and cut or mask them if needed.
 - [ ] Update the privacy policy text so it says what is collected and for how long (the policy pages come from WordPress; this needs the client's approval).
 - [ ] Add a way to delete a visitor's data on request.
 
 ### D. Collect
 
-- [ ] A tiny `track(event, details)` helper in the storefront that adds visitor ID, session ID, page, time and device, and queues events.
-- [ ] Send events in small batches, and use `sendBeacon` when the page closes so the last events are not lost. Never block or slow the page.
-- [ ] `POST /api/events` on the server: validate every field, limit size and rate, drop bots and our own test traffic, never log personal data.
-- [ ] Automatic tracking for page views, clicks and scroll, plus explicit calls for search, sort, filters, cart and checkout.
+- [x] A tiny `track(event, details)` helper in the storefront that adds visitor ID, session ID, page, time and device, and queues events.
+- [x] Send events in small batches, and use `sendBeacon` when the page closes so the last events are not lost. Never block or slow the page.
+- [x] `POST /api/events` on the server: validate every field, limit size and rate, drop bots and our own test traffic, never log personal data.
+- [x] Automatic tracking for page views, clicks and scroll, plus explicit calls for search, sort, filters, cart and checkout.
 
 ### E. Store
 
-- [ ] Create the events store (whichever was chosen in A) with an index by date and event name, and a daily summary so the dashboard stays fast.
-- [ ] A cleanup job for old events, matching the retention period.
+- [x] Create the events store (whichever was chosen in A) with an index by date and event name, and a daily summary so the dashboard stays fast.
+- [x] A cleanup job for old events, matching the retention period.
 - [ ] Backups, and a way to start clean for the demo.
 
 ### F. Owner dashboard (plain words, Hebrew, mobile friendly, behind the studio access code)
 
-- [ ] **Overview:** visitors, sessions, pages per visit, orders and conversion, with a date range (today, 7 days, 30 days, custom) and comparison to the previous period.
-- [ ] **Where people come from:** Instagram, influencers (by `ref`), direct, search engines, WhatsApp, other sites.
-- [ ] **Journey and funnel:** visit, product view, add to cart, checkout, order, with the drop-off at every step and the most common paths between pages.
-- [ ] **Products:** most viewed, most added to cart, viewed but never bought, and sold-out products people look at (links to the demand list at `/demand`).
+- [x] **Overview:** visitors, sessions, pages per visit, orders and conversion, with a date range (today, 7 days, 30 days, custom) and comparison to the previous period.
+- [x] **Where people come from:** Instagram, influencers (by `ref`), direct, search engines, WhatsApp, other sites.
+- [x] **Journey and funnel:** visit, product view, add to cart, checkout, order, with the drop-off at every step and the most common paths between pages.
+- [x] **Products:** most viewed, most added to cart, viewed but never bought, and sold-out products people look at (links to the demand list at `/demand`).
 - [ ] **Search:** top searches, searches with no results (lost sales and catalog gaps), searches that end on sold-out products.
-- [ ] **Browsing:** which sorting and filters are used, deepest scroll, most used menu items and banners.
+- [x] **Browsing:** which sorting and filters are used, deepest scroll, most used menu items and banners.
 - [ ] **Cart and checkout:** abandonment rate, where people stop, coupons tried and failed, shipping choices.
-- [ ] **Devices and speed:** mobile vs desktop split, slowest pages, error pages.
-- [ ] Export any table to CSV, and short plain-Hebrew explanations next to every number.
+- [x] **Devices and speed:** mobile vs desktop split, slowest pages, error pages.
+- [x] Export any table to CSV, and short plain-Hebrew explanations next to every number.
 
 ### G. Check it
 
 - [ ] Test every event on phone and desktop: it fires once, with the right details, and not twice (no double counting).
-- [ ] Test with analytics declined: nothing is sent and nothing is stored.
+- [x] Test with analytics declined: nothing is sent and nothing is stored.
 - [ ] Confirm the dashboard totals against a manual count of a few real sessions.
-- [ ] Make sure tracking does not slow the site or break when the tracking API is down.
+- [x] Make sure tracking does not slow the site or break when the tracking API is down.
+
+### What the first slice covers (done) and what is still open
+
+Done: consent-aware tracker (page views, scroll depth, clicks marked `data-track`, search, sort, paging, product views, add and remove from cart, cart and checkout views, back-in-stock signups), events endpoint, SQLite store with retention, owner dashboard at `/analytics`, demo seed, withdrawal deletes the visitor's events, 51 server and 7 client tests.
+
+Still open from the plan above:
+
+- [ ] More events: coupon tried (valid or not), shipping option chosen, checkout field where people stop, failed API calls and failed images, 404 pages, slow loads, repeated fast clicks (rage clicks), time on page, new vs returning.
+- [ ] Dashboard sections that need those events: cart and checkout detail, abandonment, devices and speed beyond the split, scroll depth (it is recorded but not shown).
+- [ ] A way to delete a visitor's data on request beyond withdrawing consent (for example from the privacy page).
+- [ ] Update the privacy policy text (what is collected, how long). Needs the client's approval.
+- [ ] Backups of the events file, and a decision on moving to Postgres for real traffic.
+- [ ] Try the tracker on a real phone and a throttled connection, and confirm there is no double counting across a full real visit.
+- [ ] Compare the dashboard totals with a manual count of a few real sessions.
+- [ ] Add the dashboard to the owner's navigation (it is reached by URL only, like `/studio` and `/demand`).
 
 ### H. Needs the client's store
 

@@ -116,3 +116,91 @@ describe("AnalyticsStore.summary", () => {
     expect(store.count()).toBeLessThan(before);
   });
 });
+
+describe("AnalyticsStore.summary: cart, problems, speed and engagement", () => {
+  let store: AnalyticsStore;
+
+  beforeEach(() => {
+    store = new AnalyticsStore(":memory:");
+    store.insertMany([
+      // c1 adds to cart and gets as far as the address fields, never reaches checkout view completion... but opens it
+      ev("c1", "u1", 1_000_000, "session_start", { source: "instagram", returning: false }),
+      ev("c1", "u1", 990_000, "add_to_cart", { productId: 1, qty: 1 }),
+      ev("c1", "u1", 980_000, "cart_view"),
+      ev("c1", "u1", 970_000, "coupon_try", { ok: false }),
+      ev("c1", "u1", 960_000, "coupon_try", { ok: true }),
+      ev("c1", "u1", 950_000, "shipping_select", { method: "local_pickup" }),
+      ev("c1", "u1", 940_000, "checkout_view"),
+      ev("c1", "u1", 930_000, "checkout_field", { field: "email" }),
+      ev("c1", "u1", 920_000, "checkout_field", { field: "city" }),
+      // c2 adds to cart and leaves without opening checkout
+      ev("c2", "u2", 800_000, "session_start", { source: "direct", returning: true }),
+      ev("c2", "u2", 790_000, "add_to_cart", { productId: 2, qty: 1 }),
+      ev("c2", "u2", 780_000, "checkout_field", { field: "email" }),
+      ev("c2", "u2", 770_000, "shipping_select", { method: "pisol_extended_flat_shipping" }),
+      // c3 browses only
+      ev("c3", "u3", 700_000, "session_start", { source: "google", returning: false }),
+      ev("c3", "u3", 690_000, "page_view", {}, { path: "/shop" }),
+      ev("c3", "u3", 680_000, "error", { kind: "api", where: "GET /api/products", status: 503 }),
+      ev("c3", "u3", 670_000, "error", { kind: "api", where: "GET /api/products", status: 503 }),
+      ev("c3", "u3", 660_000, "error", { kind: "image", where: "/wp-content/uploads/a.jpg" }),
+      ev("c3", "u3", 650_000, "not_found", {}, { path: "/old-page" }),
+      ev("c3", "u3", 640_000, "rage_click", { target: "hero:cta" }),
+      ev("c3", "u3", 630_000, "rage_click", { target: "hero:cta" }),
+      ev("c3", "u3", 620_000, "scroll_depth", { pct: 25 }),
+      ev("c3", "u3", 610_000, "scroll_depth", { pct: 50 }),
+      ev("c2", "u2", 600_000, "scroll_depth", { pct: 25 }),
+      // speed: three loads of /shop (2 mobile, 1 desktop) and one slow home load
+      ev("c3", "u3", 590_000, "perf", { metric: "lcp", value: 1200 }, { path: "/shop" }),
+      ev("c2", "u2", 580_000, "perf", { metric: "lcp", value: 3000 }, { path: "/shop" }),
+      ev("c1", "u1", 570_000, "perf", { metric: "lcp", value: 2000 }, { path: "/shop", device: "desktop" }),
+      ev("c1", "u1", 560_000, "perf", { metric: "lcp", value: 4000 }, { path: "/" }),
+      // time on page
+      ev("c1", "u1", 550_000, "page_time", { seconds: 10 }, { path: "/shop" }),
+      ev("c2", "u2", 540_000, "page_time", { seconds: 20 }, { path: "/shop" }),
+      ev("c3", "u3", 530_000, "page_time", { seconds: 30 }, { path: "/shop" }),
+      ev("c3", "u3", 520_000, "page_time", { seconds: 99 }, { path: "/rare" }),
+    ]);
+  });
+
+  it("reports cart and checkout behaviour: abandonment, coupons, shipping and the form drop-off", () => {
+    const { cart } = store.summary(7, NOW, 0);
+    expect(cart).toMatchObject({ addedToCartSessions: 2, cartViewSessions: 1, checkoutSessions: 1 });
+    expect(cart.abandonmentRate).toBe(0.5);
+    expect(cart.couponTries).toEqual({ total: 2, failed: 1 });
+    expect(Object.fromEntries(cart.shipping.map((row) => [row.method, row.count]))).toEqual({ local_pickup: 1, pisol_extended_flat_shipping: 1 });
+    expect(Object.fromEntries(cart.checkoutFields.map((row) => [row.field, row.sessions]))).toEqual({ email: 2, city: 1 });
+  });
+
+  it("lists failures and missing pages", () => {
+    const { problems } = store.summary(7, NOW, 0);
+    expect(problems.errors).toEqual([
+      { kind: "api", where: "GET /api/products", count: 2 },
+      { kind: "image", where: "/wp-content/uploads/a.jpg", count: 1 },
+    ]);
+    expect(problems.notFound).toEqual([{ path: "/old-page", count: 1 }]);
+  });
+
+  it("measures speed with percentiles, a slow share, devices and the slowest pages", () => {
+    const { speed } = store.summary(7, NOW, 0);
+    expect(speed.samples).toBe(4);
+    expect(speed.lcpMedianMs).toBe(2500);
+    expect(speed.lcpP75Ms).toBe(3250);
+    expect(speed.slowShare).toBe(0.5);
+    expect(Object.fromEntries(speed.byDevice.map((row) => [row.device, row.samples]))).toEqual({ mobile: 3, desktop: 1 });
+    expect(speed.slowestPages).toEqual([{ path: "/shop", p75Ms: 2500, samples: 3 }]);
+  });
+
+  it("reports returning visitors, scroll depth, time on page and repeated fast clicks", () => {
+    const { engagement } = store.summary(7, NOW, 0);
+    expect(engagement.returningShare).toBe(0.333);
+    expect(engagement.scroll).toEqual([
+      { pct: 25, pageViews: 2 },
+      { pct: 50, pageViews: 1 },
+      { pct: 75, pageViews: 0 },
+      { pct: 100, pageViews: 0 },
+    ]);
+    expect(engagement.timeOnPage).toEqual([{ path: "/shop", avgSeconds: 20, samples: 3 }]);
+    expect(engagement.rageClicks).toEqual([{ target: "hero:cta", count: 2 }]);
+  });
+});

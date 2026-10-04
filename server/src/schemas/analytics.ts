@@ -15,6 +15,14 @@ export const EVENT_NAMES = [
   "cart_view",
   "checkout_view",
   "back_in_stock_signup",
+  "coupon_try",
+  "shipping_select",
+  "checkout_field",
+  "error",
+  "not_found",
+  "perf",
+  "page_time",
+  "rage_click",
 ] as const;
 
 export type EventName = (typeof EVENT_NAMES)[number];

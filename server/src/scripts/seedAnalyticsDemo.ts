@@ -46,6 +46,9 @@ const SEARCHES = [
 ] as const;
 const ZERO_RESULT = new Set(["טוסטר", "מייבש כביסה", "מגבות ים"]);
 const SORTS = [["popularity:desc", 46], ["price:asc", 34], ["price:desc", 8], ["date:desc", 12]] as const;
+const SHIPPING = [["pisol_extended_flat_shipping", 60], ["local_pickup", 35], ["free_shipping", 5]] as const;
+// In the order of the real checkout form, with the chance that a visitor who reached the previous field reaches this one.
+const CHECKOUT_FIELDS = [["first_name", 1], ["last_name", 0.93], ["company", 0.9], ["address1", 0.85], ["address2", 0.9], ["postcode", 0.88], ["city", 0.9], ["phone", 0.82], ["email", 0.88], ["notes", 0.35]] as const;
 const CLICKS = [["menu:sale", 30], ["menu:shop", 24], ["hero:cta", 16], ["category:card", 14], ["look:pin", 8], ["contact:whatsapp", 6], ["footer:contact", 2]] as const;
 
 async function main() {
@@ -85,8 +88,24 @@ async function main() {
         events.push({ ...base, ts, name, path, props });
       };
 
-      add("session_start", "/", { source: weighted(SOURCES) }, 0);
-      add("page_view", chance(0.4) ? "/" : "/shop", {}, 300);
+      add("session_start", "/", { source: weighted(SOURCES), returning: chance(0.28) }, 0);
+      const landing = chance(0.4) ? "/" : "/shop";
+      add("page_view", landing, {}, 300);
+      // How fast the first page appeared: phones are slower, and some sessions are simply slow.
+      const lcp = Math.round((device === "mobile" ? 2300 : 1500) * Math.exp((rand() - 0.5) * 1.3) + (chance(0.08) ? 2500 : 0));
+      add("perf", landing, { metric: "lcp", value: lcp }, 200);
+      if (chance(0.55)) add("scroll_depth", landing, { pct: 25 }, 1_500);
+      if (chance(0.35)) add("scroll_depth", landing, { pct: 50 }, 1_500);
+      if (chance(0.18)) add("scroll_depth", landing, { pct: 75 }, 1_500);
+      if (chance(0.06)) add("scroll_depth", landing, { pct: 100 }, 1_500);
+      if (chance(0.016)) add("rage_click", landing, { target: pick(["hero:cta", "a:/sale", "category:card"]) }, 800);
+      if (chance(0.02)) {
+        const kind = weighted([["api", 3], ["image", 4], ["script", 2]] as const);
+        const where = { api: "GET /api/products", image: "2026/09/0-22.jpg", script: "ResizeObserver loop limit exceeded" }[kind];
+        add("error", landing, kind === "api" ? { kind, where, status: 503 } : { kind, where }, 500);
+      }
+      if (chance(0.015)) add("not_found", "/old-collection", {}, 600);
+      add("page_time", landing, { seconds: 6 + Math.floor(rand() * 70) }, 1_000);
       if (chance(0.42)) continue; // leaves after one page
 
       if (chance(0.3)) {
@@ -106,15 +125,24 @@ async function main() {
         const product = looksAtSoldOut ? pick(out) : pick(live);
         add("page_view", "/product/demo", {}, 600);
         add("product_view", "/product/demo", { productId: product.id, name: product.name, inStock: product.inStock });
+        add("page_time", "/product/demo", { seconds: 12 + Math.floor(rand() * 100) }, 1_000);
         if (looksAtSoldOut && chance(0.22)) add("back_in_stock_signup", "/product/demo", { productId: product.id });
         if (!looksAtSoldOut && chance(0.26)) {
           add("add_to_cart", "/product/demo", { productId: product.id, name: product.name, qty: 1, from: "product_page" });
           if (chance(0.62)) {
             add("page_view", "/cart", {}, 600);
             add("cart_view", "/cart");
+            if (chance(0.22)) add("coupon_try", "/cart", { ok: chance(0.35) });
+            if (chance(0.6)) add("shipping_select", "/cart", { method: weighted(SHIPPING) });
+            add("page_time", "/cart", { seconds: 10 + Math.floor(rand() * 50) }, 1_000);
             if (chance(0.55)) {
               add("page_view", "/checkout", {}, 600);
               add("checkout_view", "/checkout");
+              for (const [field, reach] of CHECKOUT_FIELDS) {
+                if (!chance(reach)) break; // people stop at some field
+                add("checkout_field", "/checkout", { field }, 5_000);
+              }
+              add("page_time", "/checkout", { seconds: 20 + Math.floor(rand() * 120) }, 1_000);
             }
           }
         }

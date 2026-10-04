@@ -1,7 +1,7 @@
 import Database from "better-sqlite3";
 import fs from "node:fs";
 import path from "node:path";
-import type { AnalyticsSummary, FunnelStep, Kpis } from "../types/analytics.js";
+import type { AnalyticsSummary, CartInsights, Engagement, FunnelStep, Kpis, Problems, Speed } from "../types/analytics.js";
 
 export type StoredEvent = {
   ts: number;
@@ -255,8 +255,131 @@ export class AnalyticsStore {
       pagination,
       clicks,
       topPages,
+      cart: this.cart(range, kpis.sessions),
+      problems: this.problems(range),
+      speed: this.speed(range),
+      engagement: this.engagement(range, kpis.sessions),
     };
   }
+
+  private cart(range: readonly [number, number], sessions: number): CartInsights {
+    const flags = this.db
+      .prepare(
+        `WITH s AS (
+           SELECT session_id, MAX(name = 'add_to_cart') AS added, MAX(name = 'cart_view') AS cartView, MAX(name = 'checkout_view') AS checkout
+           FROM events WHERE ts >= ? AND ts < ? GROUP BY session_id
+         )
+         SELECT SUM(added) AS added, SUM(cartView) AS cartView, SUM(checkout) AS checkout, SUM(added = 1 AND checkout = 0) AS abandoned FROM s`,
+      )
+      .get(...range) as { added: number | null; cartView: number | null; checkout: number | null; abandoned: number | null };
+    const coupons = this.db
+      .prepare(`SELECT COUNT(*) AS total, SUM(json_extract(props, '$.ok') = 0) AS failed FROM events WHERE name = 'coupon_try' AND ts >= ? AND ts < ?`)
+      .get(...range) as { total: number; failed: number | null };
+    const shipping = this.db
+      .prepare(
+        `SELECT json_extract(props, '$.method') AS method, COUNT(*) AS count FROM events
+         WHERE name = 'shipping_select' AND ts >= ? AND ts < ? AND json_extract(props, '$.method') IS NOT NULL
+         GROUP BY method ORDER BY count DESC LIMIT ${TOP}`,
+      )
+      .all(...range) as CartInsights["shipping"];
+    const fields = this.db
+      .prepare(
+        `SELECT json_extract(props, '$.field') AS field, COUNT(DISTINCT session_id) AS sessions FROM events
+         WHERE name = 'checkout_field' AND ts >= ? AND ts < ? AND json_extract(props, '$.field') IS NOT NULL
+         GROUP BY field ORDER BY sessions DESC LIMIT 20`,
+      )
+      .all(...range) as CartInsights["checkoutFields"];
+    const added = flags.added ?? 0;
+    return {
+      addedToCartSessions: added,
+      cartViewSessions: flags.cartView ?? 0,
+      checkoutSessions: flags.checkout ?? 0,
+      abandonmentRate: sessions > 0 && added > 0 ? round((flags.abandoned ?? 0) / added, 3) : 0,
+      couponTries: { total: coupons.total, failed: coupons.failed ?? 0 },
+      shipping,
+      checkoutFields: fields,
+    };
+  }
+
+  private problems(range: readonly [number, number]): Problems {
+    const errors = this.db
+      .prepare(
+        `SELECT json_extract(props, '$.kind') AS kind, COALESCE(json_extract(props, '$.where'), '') AS "where", COUNT(*) AS count FROM events
+         WHERE name = 'error' AND ts >= ? AND ts < ? AND json_extract(props, '$.kind') IN ('api', 'image', 'script')
+         GROUP BY kind, "where" ORDER BY count DESC LIMIT ${TOP}`,
+      )
+      .all(...range) as Problems["errors"];
+    const notFound = this.db
+      .prepare(`SELECT path, COUNT(*) AS count FROM events WHERE name = 'not_found' AND ts >= ? AND ts < ? GROUP BY path ORDER BY count DESC LIMIT ${TOP}`)
+      .all(...range) as Problems["notFound"];
+    return { errors, notFound };
+  }
+
+  private speed(range: readonly [number, number]): Speed {
+    const rows = this.db
+      .prepare(
+        `SELECT path, device, json_extract(props, '$.value') AS value FROM events
+         WHERE name = 'perf' AND json_extract(props, '$.metric') = 'lcp' AND json_extract(props, '$.value') > 0 AND ts >= ? AND ts < ?
+         LIMIT 20000`,
+      )
+      .all(...range) as Array<{ path: string; device: "mobile" | "tablet" | "desktop"; value: number }>;
+    const values = rows.map((row) => row.value);
+    const group = <K extends string>(key: (row: (typeof rows)[number]) => K) => {
+      const map = new Map<K, number[]>();
+      for (const row of rows) map.set(key(row), [...(map.get(key(row)) ?? []), row.value]);
+      return map;
+    };
+    return {
+      samples: values.length,
+      lcpMedianMs: Math.round(percentile(values, 50)),
+      lcpP75Ms: Math.round(percentile(values, 75)),
+      slowShare: values.length > 0 ? round(values.filter((value) => value > 2500).length / values.length, 3) : 0,
+      byDevice: [...group((row) => row.device)].map(([device, list]) => ({ device, medianMs: Math.round(percentile(list, 50)), samples: list.length })),
+      slowestPages: [...group((row) => row.path)]
+        .filter(([, list]) => list.length >= 3)
+        .map(([path, list]) => ({ path, p75Ms: Math.round(percentile(list, 75)), samples: list.length }))
+        .sort((a, b) => b.p75Ms - a.p75Ms)
+        .slice(0, TOP),
+    };
+  }
+
+  private engagement(range: readonly [number, number], sessions: number): Engagement {
+    const returning = this.db
+      .prepare(`SELECT SUM(json_extract(props, '$.returning') = 1) AS returningCount, COUNT(*) AS total FROM events WHERE name = 'session_start' AND ts >= ? AND ts < ?`)
+      .get(...range) as { returningCount: number | null; total: number };
+    const scrollRows = this.db
+      .prepare(`SELECT json_extract(props, '$.pct') AS pct, COUNT(*) AS pageViews FROM events WHERE name = 'scroll_depth' AND ts >= ? AND ts < ? GROUP BY pct`)
+      .all(...range) as Array<{ pct: number; pageViews: number }>;
+    const timeOnPage = this.db
+      .prepare(
+        `SELECT path, AVG(json_extract(props, '$.seconds')) AS avgSeconds, COUNT(*) AS samples FROM events
+         WHERE name = 'page_time' AND ts >= ? AND ts < ? GROUP BY path HAVING samples >= 3 ORDER BY avgSeconds DESC LIMIT ${TOP}`,
+      )
+      .all(...range) as Array<{ path: string; avgSeconds: number; samples: number }>;
+    const rage = this.db
+      .prepare(
+        `SELECT json_extract(props, '$.target') AS target, COUNT(*) AS count FROM events WHERE name = 'rage_click' AND ts >= ? AND ts < ?
+         AND json_extract(props, '$.target') IS NOT NULL GROUP BY target ORDER BY count DESC LIMIT ${TOP}`,
+      )
+      .all(...range) as Engagement["rageClicks"];
+    const reached = (pct: 25 | 50 | 75 | 100) => scrollRows.find((row) => row.pct === pct)?.pageViews ?? 0;
+    return {
+      returningShare: returning.total > 0 && sessions > 0 ? round((returning.returningCount ?? 0) / returning.total, 3) : 0,
+      scroll: ([25, 50, 75, 100] as const).map((pct) => ({ pct, pageViews: reached(pct) })),
+      timeOnPage: timeOnPage.map((row) => ({ path: row.path, avgSeconds: round(row.avgSeconds, 1), samples: row.samples })),
+      rageClicks: rage,
+    };
+  }
+}
+
+/** Percentile by linear interpolation. An empty list gives 0. */
+function percentile(values: number[], p: number): number {
+  if (values.length === 0) return 0;
+  const sorted = [...values].sort((a, b) => a - b);
+  const index = (p / 100) * (sorted.length - 1);
+  const low = Math.floor(index);
+  const high = Math.ceil(index);
+  return sorted[low]! + (sorted[high]! - sorted[low]!) * (index - low);
 }
 
 function round(value: number, digits: number): number {

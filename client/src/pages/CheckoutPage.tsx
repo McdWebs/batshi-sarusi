@@ -18,7 +18,8 @@ import {
   Typography,
 } from "@mui/material";
 import { Link as RouterLink, Navigate } from "react-router-dom";
-import { useEffect, useMemo, useState, type ChangeEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FocusEvent, type ReactNode } from "react";
+import { checkoutFieldId } from "../analytics/fields";
 import { track } from "../analytics/tracker";
 import type { Address, Cart } from "../api/types";
 import { AnimatedMoney } from "../components/AnimatedMoney";
@@ -79,6 +80,14 @@ export function CheckoutPage() {
   useEffect(() => {
     track("checkout_view");
   }, []);
+  // Which form fields people reach, so the dashboard can show where they stop. Names only, never what they type.
+  const reachedFields = useRef(new Set<string>());
+  const reportField = (event: FocusEvent<HTMLElement>) => {
+    const field = event.target instanceof Element ? checkoutFieldId(event.target) : null;
+    if (!field || reachedFields.current.has(field)) return;
+    reachedFields.current.add(field);
+    track("checkout_field", { field });
+  };
   const cartQuery = useCart();
   const { coupon, dropCoupon, shipping } = useCartMutations();
   const cart = cartQuery.data;
@@ -143,7 +152,7 @@ export function CheckoutPage() {
           alignItems: "start",
         }}
       >
-        <Box component="form" noValidate onSubmit={(e) => e.preventDefault()} sx={{ display: "grid", gap: 3 }}>
+        <Box component="form" noValidate onSubmit={(e) => e.preventDefault()} onFocusCapture={reportField} sx={{ display: "grid", gap: 3 }}>
           <SectionTitle>פרטי חיוב</SectionTitle>
           <AddressFields value={billing} onChange={setBilling} includeEmail />
 

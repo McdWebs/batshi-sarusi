@@ -182,7 +182,11 @@ export function useCartMutations() {
 
   const coupon = useMutation({
     mutationFn: applyCoupon,
-    onSuccess: (cart) => queryClient.setQueryData(["cart"], cart),
+    onSuccess: (cart) => {
+      queryClient.setQueryData(["cart"], cart);
+      track("coupon_try", { ok: true });
+    },
+    onError: () => track("coupon_try", { ok: false }),
   });
 
   useEffect(() => {
@@ -213,7 +217,11 @@ export function useCartMutations() {
         severity: "error",
       });
     },
-    onSuccess: (cart) => queryClient.setQueryData(["cart"], cart),
+    onSuccess: (cart, variables) => {
+      queryClient.setQueryData(["cart"], cart);
+      // The method id only (for example "local_pickup"), never an address.
+      track("shipping_select", { method: variables.rateId.split(":")[0]?.slice(0, 40) ?? "" });
+    },
   });
 
   return { addItem, updateItem, removeItem, coupon, dropCoupon, shipping, invalidate };

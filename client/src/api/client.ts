@@ -19,6 +19,24 @@ export function apiUrl(path: string) {
   return `${base}${path}`;
 }
 
+export type ApiFailure = { method: string; path: string; status: number; code: string };
+const failureListeners: Array<(failure: ApiFailure) => void> = [];
+
+/** The analytics tracker registers here to count failed API calls. */
+export function onApiFailure(listener: (failure: ApiFailure) => void) {
+  failureListeners.push(listener);
+}
+
+function reportFailure(failure: ApiFailure) {
+  for (const listener of failureListeners) {
+    try {
+      listener(failure);
+    } catch {
+      // A broken listener must not break the request.
+    }
+  }
+}
+
 export class ApiError extends Error {
   readonly status: number;
   readonly code: string;
@@ -56,11 +74,18 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     if (session.nonce) headers["X-Cart-Nonce"] = session.nonce;
   }
 
-  const response = await fetch(url.toString(), {
-    method: options.method ?? "GET",
-    headers,
-    body: options.body === undefined ? undefined : JSON.stringify(options.body),
-  });
+  const method = options.method ?? "GET";
+  let response: Response;
+  try {
+    response = await fetch(url.toString(), {
+      method,
+      headers,
+      body: options.body === undefined ? undefined : JSON.stringify(options.body),
+    });
+  } catch (error) {
+    reportFailure({ method, path, status: 0, code: "NETWORK" });
+    throw error;
+  }
 
   const json = (await response.json().catch(() => null)) as
     | { success?: boolean; data?: T; session?: { cartToken: string | null; nonce: string | null }; error?: { code: string; message: string } }
@@ -79,6 +104,7 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   }
 
   if (!response.ok || json?.success === false) {
+    reportFailure({ method, path, status: response.status, code: json?.error?.code ?? "UNKNOWN" });
     throw new ApiError(
       json?.error?.code ?? "WOOCOMMERCE_UNAVAILABLE",
       json?.error?.message ?? "משהו השתבש. נסו שוב בעוד רגע.",

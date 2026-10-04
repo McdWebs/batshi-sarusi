@@ -297,4 +297,52 @@ export type AnalyticsSummary = {
   /** Clicks on elements marked with data-track, by their id. */
   clicks: Array<{ id: string; count: number }>;
   topPages: Array<{ path: string; views: number }>;
+  cart: CartInsights;
+  problems: Problems;
+  speed: Speed;
+  engagement: Engagement;
+};
+
+export type CartInsights = {
+  /** Sessions that added something to the cart. */
+  addedToCartSessions: number;
+  cartViewSessions: number;
+  checkoutSessions: number;
+  /** Share (0 to 1) of sessions that added something to the cart and never opened checkout. */
+  abandonmentRate: number;
+  couponTries: { total: number; failed: number };
+  /** Shipping methods chosen in the cart or checkout, by WooCommerce method id (for example "local_pickup"). */
+  shipping: Array<{ method: string; count: number }>;
+  /** For each checkout form field, how many sessions focused it. The drop-off is where the numbers fall. */
+  checkoutFields: Array<{ field: string; sessions: number }>;
+};
+
+export type Problems = {
+  /** Failed API calls, broken images and script errors, with where they happened. */
+  errors: Array<{ kind: "api" | "image" | "script"; where: string; count: number }>;
+  /** Visitors who landed on a page that does not exist. */
+  notFound: Array<{ path: string; count: number }>;
+};
+
+export type Speed = {
+  /** Page loads that reported a Largest Contentful Paint (when the main content appeared). */
+  samples: number;
+  lcpMedianMs: number;
+  lcpP75Ms: number;
+  /** Share (0 to 1) of loads slower than 2.5 seconds, the "needs improvement" line. */
+  slowShare: number;
+  byDevice: Array<{ device: "mobile" | "tablet" | "desktop"; medianMs: number; samples: number }>;
+  /** Pages with at least 3 samples, slowest first by 75th percentile. */
+  slowestPages: Array<{ path: string; p75Ms: number; samples: number }>;
+};
+
+export type Engagement = {
+  /** Share (0 to 1) of sessions that came from a visitor who had been here before. */
+  returningShare: number;
+  /** How many page views scrolled at least this far (compare with kpis.pageViews). */
+  scroll: Array<{ pct: 25 | 50 | 75 | 100; pageViews: number }>;
+  /** Average seconds visitors spent on a page (pages with at least 3 samples, longest first). */
+  timeOnPage: Array<{ path: string; avgSeconds: number; samples: number }>;
+  /** Targets that visitors clicked three or more times in a row (a sign that something looks clickable but is not working). */
+  rageClicks: Array<{ target: string; count: number }>;
 };

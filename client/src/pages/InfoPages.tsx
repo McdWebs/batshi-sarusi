@@ -1,6 +1,8 @@
 import { Container, Typography } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { track } from "../analytics/tracker";
 import { getPage } from "../api/store";
 import { EmptyState, ErrorState, LoadingState } from "../components/States";
 import { getStaticPage } from "../content/staticPages";
@@ -91,5 +93,8 @@ export function AccountPage() {
 }
 
 export function NotFoundPage() {
+  useEffect(() => {
+    track("not_found");
+  }, []);
   return <EmptyState title="העמוד לא נמצא." />;
 }

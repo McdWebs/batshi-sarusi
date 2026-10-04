@@ -163,16 +163,19 @@ export function ProductCardSkeleton() {
         animation="wave"
         sx={{ height: 44, width: "85%", mb: 1, bgcolor: "#EDE4D6", transform: "none" }}
       />
+      {/* Heights match a real card (price row 24, button 46.5) so the grid does not jump when products arrive. */}
       <Box sx={{ mt: "auto" }}>
+        <Box sx={{ height: 24, display: "flex", alignItems: "center" }}>
+          <Skeleton
+            variant="rectangular"
+            animation="wave"
+            sx={{ height: 16, width: 72, bgcolor: "#EDE4D6", transform: "none" }}
+          />
+        </Box>
         <Skeleton
           variant="rectangular"
           animation="wave"
-          sx={{ height: 16, width: 72, bgcolor: "#EDE4D6", transform: "none" }}
-        />
-        <Skeleton
-          variant="rectangular"
-          animation="wave"
-          sx={{ mt: 1.5, height: 44, width: "100%", bgcolor: "#EDE4D6", transform: "none" }}
+          sx={{ mt: 1.5, height: 46.5, width: "100%", bgcolor: "#EDE4D6", transform: "none" }}
         />
       </Box>
     </Box>

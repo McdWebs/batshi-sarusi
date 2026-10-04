@@ -28,7 +28,7 @@ export function ProductGrid({
 }) {
   if (loading) {
     return (
-      <Box sx={gridSx}>
+      <Box sx={gridSx} aria-busy="true" aria-label="טוען מוצרים">
         {Array.from({ length: skeletonCount }, (_, index) => (
           <ProductCardSkeleton key={index} />
         ))}

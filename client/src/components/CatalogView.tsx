@@ -10,6 +10,9 @@ import { Breadcrumbs, type Crumb } from "../components/Breadcrumbs";
 import { useCartMutations } from "../hooks/useCart";
 import { ApiError } from "../api/client";
 
+const SORT_WIDTH = 180;
+const SORT_HEIGHT = 40;
+
 export function CatalogView({
   title,
   query,
@@ -44,8 +47,11 @@ export function CatalogView({
     staleTime: 60_000,
   });
   const { addItem } = useCartMutations();
+  // First load: the sort control, the count and the grid all show placeholders.
   const showSkeleton = !list.data && (list.isPending || !enabled);
-  const refreshing = Boolean(list.data) && list.isFetching;
+  // New sort, page, filter or category: the previous results are still in hand, but they belong to the old request,
+  // so the grid shows placeholder cards instead of old products that are about to be replaced. The control stays live.
+  const switching = list.isPlaceholderData;
 
   const chrome = (
     <>
@@ -89,35 +95,47 @@ export function CatalogView({
         ) : (
           <Typography color="text.secondary">&nbsp;</Typography>
         )}
-        <FormControl size="small" sx={{ minWidth: 180 }}>
-          <InputLabel>מיון</InputLabel>
-          <Select
-            label="מיון"
-            value={`${orderby}:${order}`}
-            onChange={(event) => {
-              const [nextOrderby, nextOrder] = event.target.value.split(":");
-              params.set("orderby", nextOrderby ?? "date");
-              params.set("order", nextOrder ?? "desc");
-              params.set("page", "1");
-              setParams(params);
-            }}
-          >
-            <MenuItem value="date:desc">חדש יותר</MenuItem>
-            <MenuItem value="price:asc">מחיר: זול ליקר</MenuItem>
-            <MenuItem value="price:desc">מחיר: יקר לזול</MenuItem>
-            <MenuItem value="popularity:desc">הכי נמכרים</MenuItem>
-          </Select>
-        </FormControl>
+        {/* Fixed box: the placeholder and the real control are the same size, so swapping them moves nothing. */}
+        <Box sx={{ width: SORT_WIDTH, height: SORT_HEIGHT, flexShrink: 0 }} aria-busy={showSkeleton || undefined}>
+          {showSkeleton ? (
+            <Skeleton
+              variant="rectangular"
+              animation="wave"
+              aria-label="טוען אפשרויות מיון"
+              sx={{ width: "100%", height: "100%", bgcolor: "#EDE4D6", transform: "none", borderRadius: "2px" }}
+            />
+          ) : (
+            <FormControl size="small" fullWidth>
+              <InputLabel>מיון</InputLabel>
+              <Select
+                label="מיון"
+                value={`${orderby}:${order}`}
+                onChange={(event) => {
+                  const [nextOrderby, nextOrder] = event.target.value.split(":");
+                  params.set("orderby", nextOrderby ?? "date");
+                  params.set("order", nextOrder ?? "desc");
+                  params.set("page", "1");
+                  setParams(params);
+                }}
+              >
+                <MenuItem value="date:desc">חדש יותר</MenuItem>
+                <MenuItem value="price:asc">מחיר: זול ליקר</MenuItem>
+                <MenuItem value="price:desc">מחיר: יקר לזול</MenuItem>
+                <MenuItem value="popularity:desc">הכי נמכרים</MenuItem>
+              </Select>
+            </FormControl>
+          )}
+        </Box>
       </Box>
       {list.isError ? (
         <ErrorState message={(list.error as ApiError).message} onRetry={() => list.refetch()} />
-      ) : list.data && list.data.items.length === 0 ? (
+      ) : list.data && list.data.items.length === 0 && !switching ? (
         <EmptyState title="לא מצאנו מוצרים כאן." body="נסו חיפוש, או חזרו למבצעים." />
       ) : (
         <ProductGrid
           products={list.data?.items ?? []}
-          loading={showSkeleton}
-          refreshing={refreshing}
+          loading={showSkeleton || switching}
+          skeletonCount={perPage}
           priorityCount={4}
           addingId={addItem.isPending ? addItem.variables?.id ?? null : null}
           onAdd={(product) =>

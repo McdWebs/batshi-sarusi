@@ -196,14 +196,13 @@ export function InfluencerPage() {
           <EmptyState title="הקולקציה הזו לא זמינה כרגע." body="נסו שוב מאוחר יותר, או עברו לכל המוצרים." />
         ) : list.isError ? (
           <ErrorState message={errorMessage(list.error)} onRetry={() => list.refetch()} />
-        ) : list.data && list.data.items.length === 0 ? (
+        ) : list.data && list.data.items.length === 0 && !list.isPlaceholderData ? (
           <EmptyState title="אין כרגע מוצרים בקולקציה הזו." />
         ) : (
           <ProductGrid
             products={list.data?.items ?? []}
-            loading={showSkeleton}
-            refreshing={Boolean(list.data) && list.isFetching}
-            skeletonCount={8}
+            loading={showSkeleton || list.isPlaceholderData}
+            skeletonCount={PER_PAGE}
             addingId={addItem.isPending ? addItem.variables?.id ?? null : null}
             onAdd={(product) => addItem.mutate({ id: product.id, quantity: product.addToCart.minimum || 1 })}
           />

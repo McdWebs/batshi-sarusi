@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import rateLimit from "express-rate-limit";
 import * as store from "../controllers/storeController.js";
 
 export const healthRouter = Router();
@@ -35,3 +36,19 @@ pagesRouter.get("/:slug", asyncHandler(store.getPage));
 
 export const bannersRouter = Router();
 bannersRouter.get("/", asyncHandler(store.listBanners));
+
+export const studioRouter = Router();
+studioRouter.get("/sample", asyncHandler(store.listStudioSample));
+studioRouter.post(
+  "/generate",
+  rateLimit({
+    windowMs: 60_000,
+    limit: 20,
+    standardHeaders: true,
+    legacyHeaders: false,
+    handler: (_req, res) => {
+      res.status(429).json({ success: false, error: { code: "RATE_LIMITED", message: "Too many AI requests, try again in a minute" } });
+    },
+  }),
+  asyncHandler(store.generateStudioContentHandler),
+);

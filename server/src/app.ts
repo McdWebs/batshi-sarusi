@@ -14,6 +14,7 @@ import {
   pagesRouter,
   productsRouter,
   searchRouter,
+  studioRouter,
 } from "./routes/index.js";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler.js";
 import { CART_SESSION_HEADERS } from "./middleware/cartSession.js";
@@ -97,6 +98,7 @@ export function createApp() {
   app.use("/api/cart", cartRouter);
   app.use("/api/pages", pagesRouter);
   app.use("/api/banners", bannersRouter);
+  app.use("/api/studio", studioRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

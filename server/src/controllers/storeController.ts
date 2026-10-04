@@ -39,6 +39,10 @@ import {
 } from "../integrations/wordpress/content.js";
 import { AppError } from "../utils/errors.js";
 import { z } from "zod";
+import { env } from "../config/env.js";
+import { geminiConfigured } from "../integrations/gemini/client.js";
+import { generateStudioContent, getStudioSample } from "../services/contentStudioService.js";
+import { generateContentBodySchema } from "../schemas/studio.js";
 
 export async function health(_req: Request, res: Response) {
   res.status(200).json({ status: "ok" });
@@ -160,4 +164,16 @@ export async function getPage(req: Request, res: Response) {
 export async function listBanners(_req: Request, res: Response) {
   const data = await cached("wp:banners", TAXONOMY_TTL_MS, async () => (await listWpBanners()).data ?? []);
   sendSuccess(res, data.map(mapPage), 200, 120);
+}
+
+export async function listStudioSample(_req: Request, res: Response) {
+  const items = await getStudioSample();
+  sendSuccess(res, { items, aiConfigured: geminiConfigured() }, 200, 0);
+}
+
+export async function generateStudioContentHandler(req: Request, res: Response) {
+  const { productId, instruction, previous } = parseWith(generateContentBodySchema, req.body);
+  const revision = instruction && previous ? { instruction, previous } : undefined;
+  const data = await generateStudioContent(productId, env.GEMINI_MODEL, revision);
+  sendSuccess(res, data, 200, 0);
 }

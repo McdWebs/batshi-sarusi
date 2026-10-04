@@ -2,6 +2,7 @@ import { Box } from "@mui/material";
 import { useState } from "react";
 import type { Image } from "../api/types";
 import { ProductImagePlaceholder } from "./ProductImagePlaceholder";
+import { GALLERY_SIZES } from "../utils/imageSizes";
 import { StoreImage } from "./StoreImage";
 
 export function ProductGallery({ images, name }: { images: Image[]; name: string }) {
@@ -22,7 +23,7 @@ export function ProductGallery({ images, name }: { images: Image[]; name: string
         <StoreImage
           src={current.src}
           srcSet={current.srcset}
-          sizes={current.sizes || "(max-width: 900px) 100vw, 50vw"}
+          sizes={GALLERY_SIZES}
           alt={current.alt || name}
           priority
           sx={{ width: "100%", height: "100%", objectFit: "cover" }}

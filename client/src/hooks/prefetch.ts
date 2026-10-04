@@ -1,6 +1,7 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { getProduct, getProducts } from "../api/store";
 import { decodeSlug } from "../utils/format";
+import { optimizeImage } from "../utils/imageProxy";
 
 const catalogDefaults = {
   page: 1,
@@ -25,11 +26,14 @@ const preloaded = new Set<string>();
 export function preloadImage(src: string, srcset?: string, sizes?: string) {
   if (!src || preloaded.has(src)) return;
   preloaded.add(src);
+  // Same transform as StoreImage, so the browser fetches exactly the file the page will ask for.
+  const optimized = optimizeImage(src, srcset);
   const image = new Image();
   image.referrerPolicy = "no-referrer";
-  if (srcset) image.srcset = srcset;
+  const finalSrcset = optimized?.srcSet ?? srcset;
+  if (finalSrcset) image.srcset = finalSrcset;
   if (sizes) image.sizes = sizes;
-  image.src = src;
+  image.src = optimized?.src ?? src;
 }
 
 export function prefetchCategoryCatalog(queryClient: QueryClient, categoryId: number) {

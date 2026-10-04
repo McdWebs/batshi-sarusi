@@ -13,6 +13,7 @@ import {
   categoriesRouter,
   eventsRouter,
   healthRouter,
+  imageRouter,
   pagesRouter,
   productsRouter,
   searchRouter,
@@ -80,7 +81,10 @@ export function createApp() {
       limit: 120,
       standardHeaders: true,
       legacyHeaders: false,
-      skip: (req) => req.originalUrl.split("?")[0] === "/health",
+      skip: (req) => {
+        const route = req.originalUrl.split("?")[0] ?? "";
+        return route === "/health" || route === "/api/img";
+      },
       handler: (_req, res) => {
         res.status(429).json({
           success: false,
@@ -104,6 +108,7 @@ export function createApp() {
   app.use("/api/studio", studioRouter);
   app.use("/api/back-in-stock", backInStockRouter);
   app.use("/api/events", eventsRouter);
+  app.use("/api/img", imageRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

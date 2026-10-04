@@ -1,6 +1,8 @@
 import { Box, type BoxProps } from "@mui/material";
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useA11yStore } from "../accessibility/store";
+import { reportImageError } from "../analytics/tracker";
+import { optimizeImage } from "../utils/imageProxy";
 
 const PLACEHOLDER = "#EDE4D6";
 const DECODE_GRACE_MS = 250;
@@ -36,8 +38,13 @@ export function StoreImage({
   const showAlts = useA11yStore((state) => state.showAlts);
   const { sx, ...rest } = props;
   const imageRef = useRef<HTMLImageElement>(null);
+  // Shop photos are served resized and recompressed by our own server. If that ever fails, the original is used.
+  const [proxyFailed, setProxyFailed] = useState(false);
+  const optimized = useMemo(() => (proxyFailed ? null : optimizeImage(src, srcSet)), [src, srcSet, proxyFailed]);
+  const finalSrc = optimized?.src ?? src;
+  const finalSrcSet = optimized?.srcSet ?? srcSet;
   // Tracking the loaded source (not a boolean) hides the old photo again when the source changes, e.g. in a gallery.
-  const sourceKey = `${src}|${srcSet ?? ""}`;
+  const sourceKey = `${finalSrc}|${finalSrcSet ?? ""}`;
   const [loadedKey, setLoadedKey] = useState<string | null>(null);
   const loaded = loadedKey === sourceKey;
 
@@ -78,8 +85,8 @@ export function StoreImage({
       <Box
         component="img"
         ref={imageRef}
-        src={src}
-        srcSet={srcSet || undefined}
+        src={finalSrc}
+        srcSet={finalSrcSet || undefined}
         sizes={sizes || undefined}
         alt={alt}
         loading={priority ? "eager" : loading}
@@ -87,6 +94,15 @@ export function StoreImage({
         decoding="async"
         referrerPolicy="no-referrer"
         onLoad={(event) => reveal(event.currentTarget)}
+        onError={() => {
+          if (optimized) {
+            // The resizer failed: fall back to the original photo, and count it so a broken resizer shows up.
+            reportImageError(finalSrc, true);
+            setProxyFailed(true);
+          } else {
+            reportImageError(finalSrc);
+          }
+        }}
         sx={{
           width: "100%",
           height: "100%",

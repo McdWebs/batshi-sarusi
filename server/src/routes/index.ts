@@ -3,6 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import rateLimit from "express-rate-limit";
 import * as store from "../controllers/storeController.js";
 import * as analytics from "../controllers/analyticsController.js";
+import { optimizedImageHandler } from "../controllers/imageController.js";
 import { requireStudioKey } from "../middleware/studioAuth.js";
 
 export const healthRouter = Router();
@@ -110,3 +111,7 @@ eventsRouter.post(
   express.text({ type: "*/*", limit: "4kb" }),
   asyncHandler(analytics.forgetVisitorHandler),
 );
+
+// Public. A catalog page asks for many photos at once, so this has its own, larger limit (the shared one skips it).
+export const imageRouter = Router();
+imageRouter.get("/", eventsLimit(900, "Too many image requests, slow down"), asyncHandler(optimizedImageHandler));

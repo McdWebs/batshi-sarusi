@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { Product } from "../api/types";
 import { preloadImage, prefetchProduct } from "../hooks/prefetch";
 import { productPath } from "../utils/format";
+import { CARD_SIZES, GALLERY_SIZES } from "../utils/imageSizes";
 import { useUiStore } from "../store/ui";
 import { Price } from "./Price";
 import { ProductImagePlaceholder } from "./ProductImagePlaceholder";
@@ -30,7 +31,7 @@ export function ProductCard({
   const warm = () => {
     prefetchProduct(queryClient, product.slug);
     // Same srcset and sizes as the product page gallery, so the browser fetches the file the page will use.
-    if (image) preloadImage(image.src, image.srcset, "(max-width: 900px) 100vw, 50vw");
+    if (image) preloadImage(image.src, image.srcset, GALLERY_SIZES);
   };
 
   return (
@@ -60,7 +61,7 @@ export function ProductCard({
               priority={priority}
               src={image.thumbnail || image.src}
               srcSet={image.srcset}
-              sizes={image.sizes || "(max-width: 600px) 50vw, (max-width: 1200px) 33vw, 25vw"}
+              sizes={CARD_SIZES}
               alt={image.alt || product.name}
               sx={{
                 width: "100%",
@@ -77,7 +78,7 @@ export function ProductCard({
               className="product-card-hover"
               src={hover.thumbnail || hover.src}
               srcSet={hover.srcset}
-              sizes={hover.sizes || "(max-width: 600px) 50vw, (max-width: 1200px) 33vw, 25vw"}
+              sizes={CARD_SIZES}
               alt=""
               sx={{
                 position: "absolute",

@@ -1,6 +1,6 @@
 import { apiRequest } from "./client";
 import { getStudioKey } from "../studio/studioKey";
-import type { Brand, Cart, Category, CmsPage, DemandRow, Paginated, Product, ProductQuery, StudioContent, StudioResult, StudioSample } from "./types";
+import type { AnalyticsSummary, Brand, Cart, Category, CmsPage, DemandRow, Paginated, Product, ProductQuery, StudioContent, StudioResult, StudioSample } from "./types";
 
 export function getProducts(query: ProductQuery = {}) {
   return apiRequest<Paginated<Product>>("/api/products", {
@@ -128,4 +128,9 @@ export function subscribeBackInStock(productId: number, email: string) {
 /** Owner-only: sold-out products ranked by how many people are waiting. */
 export function getDemandRanking() {
   return apiRequest<{ items: DemandRow[] }>("/api/studio/back-in-stock", { headers: studioHeaders() });
+}
+
+/** Owner-only: the site analytics summary for the last `days` days (1, 7, 30 or 90). */
+export function getAnalyticsSummary(days: number) {
+  return apiRequest<AnalyticsSummary>("/api/studio/analytics/summary", { query: { days }, headers: studioHeaders() });
 }

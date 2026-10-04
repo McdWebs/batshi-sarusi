@@ -23,6 +23,7 @@ const CheckoutPage = lazy(() =>
   import("../pages/CheckoutPage").then((m) => ({ default: m.CheckoutPage })),
 );
 const StudioPage = lazy(() => import("../pages/StudioPage").then((m) => ({ default: m.StudioPage })));
+const AnalyticsPage = lazy(() => import("../pages/AnalyticsPage").then((m) => ({ default: m.AnalyticsPage })));
 const DemandPage = lazy(() => import("../pages/DemandPage").then((m) => ({ default: m.DemandPage })));
 const ShopTheLookPage = lazy(() => import("../pages/LookPages").then((m) => ({ default: m.ShopTheLookPage })));
 const InfluencerPage = lazy(() => import("../pages/LookPages").then((m) => ({ default: m.InfluencerPage })));
@@ -56,6 +57,7 @@ export function AppRoutes() {
         <Route path="/my-account" element={<AccountPage />} />
         <Route path="/צור-קשר" element={<ContactPage />} />
         <Route path="/studio" element={<StudioPage />} />
+        <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="/demand" element={<DemandPage />} />
         <Route path="/shop-the-look" element={<ShopTheLookPage />} />
         <Route path="/influencers/:slug" element={<InfluencerPage />} />

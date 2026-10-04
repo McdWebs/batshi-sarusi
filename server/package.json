@@ -9,13 +9,16 @@
     "start": "node dist/server.js",
     "test": "vitest run --exclude 'src/**/*.live.test.ts'",
     "test:live": "vitest run src/app.live.test.ts src/integrations/woocommerce/storeApi.live.test.ts",
-    "test:all": "vitest run"
+    "test:all": "vitest run",
+    "analytics:seed-demo": "tsx src/scripts/seedAnalyticsDemo.ts",
+    "analytics:clear-demo": "tsx src/scripts/seedAnalyticsDemo.ts --clear"
   },
   "dependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/node": "^24.3.0",
     "axios": "^1.11.0",
+    "better-sqlite3": "^13.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^5.1.0",
@@ -26,6 +29,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^9.6.0",
     "tsx": "^4.20.4",
     "vitest": "^3.2.4"
   }

@@ -1,7 +1,7 @@
 import { Box, Chip, Container, FormControl, InputLabel, MenuItem, Pagination, Select, Skeleton, Typography } from "@mui/material";
 import { Link, useSearchParams } from "react-router-dom";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import type { ProductQuery } from "../api/types";
 import { getProducts, searchProducts } from "../api/store";
 import { ProductGrid } from "../components/ProductGrid";
@@ -9,6 +9,7 @@ import { EmptyState, ErrorState } from "../components/States";
 import { Breadcrumbs, type Crumb } from "../components/Breadcrumbs";
 import { useCartMutations } from "../hooks/useCart";
 import { ApiError } from "../api/client";
+import { track } from "../analytics/tracker";
 
 const SORT_WIDTH = 180;
 const SORT_HEIGHT = 40;
@@ -52,6 +53,17 @@ export function CatalogView({
   // New sort, page, filter or category: the previous results are still in hand, but they belong to the old request,
   // so the grid shows placeholder cards instead of old products that are about to be replaced. The control stays live.
   const switching = list.isPlaceholderData;
+
+  // One "search" event per settled query: the words typed and how many products they found (zero is the useful signal).
+  const searchReported = useRef("");
+  useEffect(() => {
+    if (!search?.trim() || !list.data || list.isPlaceholderData || page !== 1) return;
+    const query = search.trim().toLowerCase().slice(0, 80);
+    const key = `${query}|${list.data.total}`;
+    if (searchReported.current === key) return;
+    searchReported.current = key;
+    track("search", { query, results: list.data.total });
+  }, [search, list.data, list.isPlaceholderData, page]);
 
   const chrome = (
     <>
@@ -112,6 +124,7 @@ export function CatalogView({
                 value={`${orderby}:${order}`}
                 onChange={(event) => {
                   const [nextOrderby, nextOrder] = event.target.value.split(":");
+                  track("sort_change", { orderby: nextOrderby ?? "date", order: nextOrder ?? "desc" });
                   params.set("orderby", nextOrderby ?? "date");
                   params.set("order", nextOrder ?? "desc");
                   params.set("page", "1");
@@ -154,6 +167,7 @@ export function CatalogView({
             page={page}
             count={list.data.totalPages}
             onChange={(_event, next) => {
+              track("page_change", { page: next });
               params.set("page", String(next));
               setParams(params);
               window.scrollTo({ top: 0 });

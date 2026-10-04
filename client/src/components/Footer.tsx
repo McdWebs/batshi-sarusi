@@ -1,6 +1,7 @@
 import { Box, Container, Link as MuiLink, Typography } from "@mui/material";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import { Link } from "react-router-dom";
+import { useConsentStore } from "../consent/store";
 import { useAllCategories } from "../hooks/useCatalog";
 import { collections, departments, storefrontHref } from "../storefront/map";
 import logo from "../assets/batshi-logo.png";
@@ -17,6 +18,7 @@ const footerLinkMotionSx = {
 };
 
 export function Footer() {
+  const openCookiePreferences = useConsentStore((state) => state.openPreferences);
   const { data: categories = [] } = useAllCategories();
   const collectionItems = collections(categories);
   const departmentItems = departments(categories);
@@ -144,11 +146,29 @@ export function Footer() {
                 מחלקות
               </FooterLink>
             </Box>
-            <FooterLink to="/צור-קשר">צור קשר</FooterLink>
+            <FooterLink to="/צור-קשר" track="footer:contact">צור קשר</FooterLink>
             <FooterLink to="/אודות">אודות</FooterLink>
             <FooterLink to="/תקנון-אתר">תקנון אתר</FooterLink>
             <FooterLink to="/מדיניות-פרטיות">מדיניות פרטיות</FooterLink>
             <FooterLink to="/הצהרת-נגישות">הצהרת נגישות</FooterLink>
+            <MuiLink
+              component="button"
+              type="button"
+              onClick={openCookiePreferences}
+              color="text.secondary"
+              underline="none"
+              sx={{
+                fontSize: { xs: 14, md: 15 },
+                lineHeight: 1.45,
+                textAlign: "start",
+                p: 0,
+                cursor: "pointer",
+                justifySelf: "start",
+                ...footerLinkMotionSx,
+              }}
+            >
+              הגדרות עוגיות
+            </MuiLink>
           </Box>
         </Box>
       </Container>
@@ -156,11 +176,12 @@ export function Footer() {
   );
 }
 
-function FooterLink({ to, children, featured = false }: { to: string; children: string; featured?: boolean }) {
+function FooterLink({ to, children, featured = false, track }: { to: string; children: string; featured?: boolean; track?: string }) {
   return (
     <MuiLink
       component={Link}
       to={to}
+      data-track={track}
       color={featured ? "text.primary" : "text.secondary"}
       underline="none"
       sx={{

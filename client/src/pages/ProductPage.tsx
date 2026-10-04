@@ -1,5 +1,5 @@
 import { Alert, Box, Button, Container, FormControl, InputLabel, MenuItem, Select, Skeleton, TextField, Typography } from "@mui/material";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link as RouterLink, useParams } from "react-router-dom";
 import { BackInStockForm } from "../components/BackInStockForm";
 import { demoContentHtml, getDemoEntry } from "../studio/demoStore";
@@ -12,7 +12,8 @@ import { useCartMutations } from "../hooks/useCart";
 import { useAllCategories, useProduct, useProductList } from "../hooks/useCatalog";
 import { useUiStore } from "../store/ui";
 import { categoryAncestors, crumbGroup, storefrontHref } from "../storefront/map";
-import { decodeSlug } from "../utils/format";
+import { decodeHtmlEntities, decodeSlug } from "../utils/format";
+import { track } from "../analytics/tracker";
 import type { Product } from "../api/types";
 
 const bone = { bgcolor: "#EDE4D6", transform: "none" } as const;
@@ -145,6 +146,14 @@ export function ProductPage() {
   );
   const categories = useAllCategories();
   const primaryCategory = categories.data?.find((category) => category.id === product?.categories[0]?.id);
+
+  // One product_view per product shown. The name is kept so the dashboard can list products without another lookup.
+  const viewedId = product?.id;
+  useEffect(() => {
+    if (!product) return;
+    track("product_view", { productId: product.id, name: decodeHtmlEntities(product.name).slice(0, 80), inStock: product.isInStock });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewedId]);
 
   if (productQuery.isLoading) {
     return <ProductPageSkeleton />;

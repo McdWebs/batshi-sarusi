@@ -40,18 +40,22 @@ function DoorLink({
   active,
   accent,
   onClick,
+  track,
 }: {
   to: string;
   label: string;
   active?: boolean;
   accent?: boolean;
   onClick?: () => void;
+  /** Click-tracking id for the analytics dashboard. */
+  track?: string;
 }) {
   return (
     <MuiLink
       component={Link}
       to={to}
       onClick={onClick}
+      data-track={track}
       underline="none"
       aria-current={active ? "page" : undefined}
       sx={{
@@ -98,6 +102,7 @@ export function Header() {
           <Box
             component={Link}
             to="/"
+            data-track="header:logo"
             aria-label="בתשי הום"
             sx={{ display: "flex", alignItems: "center", mr: { xs: "auto", md: 0 }, textDecoration: "none", lineHeight: 0, flexShrink: 0 }}
           >
@@ -120,29 +125,32 @@ export function Header() {
               minWidth: 0,
             }}
           >
-            <DoorLink to="/shop" label="הכל" active={pathIsActive(pathname, "/shop")} />
-            <DoorLink to="/sale" label="מבצעים" active={pathIsActive(pathname, "/sale")} accent />
+            <DoorLink to="/shop" label="הכל" track="menu:shop" active={pathIsActive(pathname, "/shop")} />
+            <DoorLink to="/sale" label="מבצעים" track="menu:sale" active={pathIsActive(pathname, "/sale")} accent />
             <DoorLink
               to="/departments"
               label="מחלקות"
+              track="menu:departments"
               active={pathIsActive(pathname, "/departments") || anyActive(pathname, departmentItems)}
             />
             <DoorLink
               to="/collections"
               label="קולקציות"
+              track="menu:collections"
               active={pathIsActive(pathname, "/collections") || anyActive(pathname, collectionItems)}
             />
           </Box>
           <IconButton
             component={Link}
             to="/search"
+            data-track="header:search"
             aria-label="חיפוש"
             aria-current={pathIsActive(pathname, "/search") ? "page" : undefined}
             sx={{ color: pathIsActive(pathname, "/search") ? "secondary.main" : "inherit" }}
           >
             <SearchIcon />
           </IconButton>
-          <IconButton aria-label="עגלה" onClick={() => setCartOpen(!cartOpen)}>
+          <IconButton aria-label="עגלה" data-track="header:cart" onClick={() => setCartOpen(!cartOpen)}>
             <Badge badgeContent={cart?.itemsCount ?? 0} color="secondary">
               <ShoppingBagOutlinedIcon />
             </Badge>

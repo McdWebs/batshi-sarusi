@@ -9,6 +9,7 @@ import { ScrollToTop } from "../components/ScrollToTop";
 import { AccessibilityRoot } from "../accessibility/AccessibilityRoot";
 import { AccessibilityWidget } from "../accessibility/AccessibilityWidget";
 import { CookieConsent } from "../consent/CookieConsent";
+import { AnalyticsRoot } from "../analytics/AnalyticsRoot";
 
 function RouteFallback() {
   return (
@@ -54,6 +55,7 @@ export function AppShell() {
         דלג לתוכן הראשי
       </a>
       <AccessibilityRoot />
+      <AnalyticsRoot />
       <ScrollToTop />
       <Header />
       <CartDrawer />

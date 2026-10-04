@@ -1,6 +1,7 @@
 import { Alert, Box, Button, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import { ApiError } from "../api/client";
+import { track } from "../analytics/tracker";
 import { subscribeBackInStock } from "../api/store";
 
 function messageFor(error: unknown) {
@@ -24,6 +25,7 @@ export function BackInStockForm({ productId }: { productId: number }) {
     try {
       const result = await subscribeBackInStock(productId, email);
       setState(result.alreadySubscribed ? "already" : "done");
+      if (!result.alreadySubscribed) track("back_in_stock_signup", { productId });
     } catch (caught) {
       setError(messageFor(caught));
       setState("idle");

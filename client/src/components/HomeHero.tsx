@@ -263,6 +263,7 @@ export function HomeHero({ products = [] }: HomeHeroProps) {
             <Button
               component={Link}
               to="/sale"
+              data-track="hero:cta"
               variant="contained"
               size="large"
               sx={{
@@ -277,6 +278,7 @@ export function HomeHero({ products = [] }: HomeHeroProps) {
             <Button
               component={Link}
               to="/shop"
+              data-track="hero:shop"
               variant="outlined"
               size="large"
               sx={{

@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { track } from "../analytics/tracker";
 import {
   addCartItem,
   applyCoupon,
@@ -134,6 +135,7 @@ export function useCartMutations() {
       queryClient.setQueryData(["cart"], cart);
       useUiStore.getState().setNotice({ message: "המוצר נוסף לסל", severity: "success" });
       useUiStore.getState().setAddedProductId(variables.id);
+      track("add_to_cart", { productId: variables.id, qty: variables.quantity });
     },
     onError: (error) => {
       useUiStore.getState().setNotice({
@@ -161,6 +163,9 @@ export function useCartMutations() {
 
   const removeItem = useMutation({
     mutationFn: removeCartItem,
+    onSettled: (_data, error) => {
+      if (!error) track("remove_from_cart");
+    },
     onMutate: async (key) => {
       await queryClient.cancelQueries({ queryKey: ["cart"] });
       const previous = queryClient.getQueryData<Cart>(["cart"]);

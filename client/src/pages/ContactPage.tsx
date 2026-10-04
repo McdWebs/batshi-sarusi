@@ -118,6 +118,7 @@ export function ContactPage() {
             <Button
               component="a"
               href={WHATSAPP_URL}
+              data-track="contact:whatsapp"
               target="_blank"
               rel="noreferrer"
               variant="contained"

@@ -145,6 +145,7 @@ function Pin({
     <Box
       component="button"
       type="button"
+      data-track="look:pin"
       onClick={(event) => onOpen(event.currentTarget)}
       aria-label={`${spot.area}: ${decodeHtmlEntities(product.name)}. הצגת פרטי המוצר`}
       aria-haspopup="dialog"

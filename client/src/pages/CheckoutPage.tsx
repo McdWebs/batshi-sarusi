@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 import { Link as RouterLink, Navigate } from "react-router-dom";
 import { useEffect, useMemo, useState, type ChangeEvent, type ReactNode } from "react";
+import { track } from "../analytics/tracker";
 import type { Address, Cart } from "../api/types";
 import { AnimatedMoney } from "../components/AnimatedMoney";
 import { ErrorState } from "../components/States";
@@ -75,6 +76,9 @@ function CheckoutSkeleton() {
 }
 
 export function CheckoutPage() {
+  useEffect(() => {
+    track("checkout_view");
+  }, []);
   const cartQuery = useCart();
   const { coupon, dropCoupon, shipping } = useCartMutations();
   const cart = cartQuery.data;

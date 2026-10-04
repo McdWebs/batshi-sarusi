@@ -71,6 +71,7 @@ export function CategoryCard({
     <MuiLink
       component={Link}
       to={categoryPathFromPermalink(category.permalink)}
+      data-track="category:card"
       underline="none"
       color="inherit"
       sx={{ display: "block" }}

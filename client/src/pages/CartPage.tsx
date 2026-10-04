@@ -12,7 +12,8 @@ import {
   Typography,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { track } from "../analytics/tracker";
 import { useCart, useCartMutations } from "../hooks/useCart";
 import { AnimatedMoney } from "../components/AnimatedMoney";
 import { CartLineItem, CartLineItemSkeleton } from "../components/CartLineItem";
@@ -86,6 +87,9 @@ function CartPageSkeleton() {
 }
 
 export function CartPage() {
+  useEffect(() => {
+    track("cart_view");
+  }, []);
   const cartQuery = useCart();
   const { updateItem, removeItem, coupon, dropCoupon, shipping } =
     useCartMutations();

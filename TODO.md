@@ -31,10 +31,12 @@ Broad task, so it is split into small steps. Page 4 assumes "item description pa
 
 Catalog sorting controls flash or jump while product data is still loading. Show a calm skeleton placeholder for the sort UI until the options are ready.
 
-- [ ] Find where the sorting options render (catalog / product grid) and note what they look like before data arrives.
-- [ ] Add a skeleton state that matches the sort control layout (same size, no layout shift).
-- [ ] Swap to the real sorting options once products / facets are ready.
-- [ ] Check it on phone and desktop so the skeleton does not cause a jump when it resolves.
+- [x] Found it: the sort control lives in `CatalogView` (shop, sale, search, category and brand pages). The options are fixed, so only the control's first appearance and the product count next to it were visible during loading.
+- [x] Added a skeleton the same size as the control (180 x 40) while the first products load, inside a fixed-size box so swapping it moves nothing.
+- [x] It swaps to the real control when the products arrive. Changing the sort later never brings the skeleton back (checked: 0 skeleton frames while re-sorting).
+- [x] Measured the swap on `/sale`: skeleton and real control are both at the same position and size (top 248, 180 x 40), nothing shifts. Changing the sort still updates the URL and the list.
+- [x] Changing the sort (or page, or category) used to only dim the old products. Now the grid shows product skeletons until the new results arrive, while the sort control stays live. Same on the influencer page. Measured on `/sale`: the skeleton grid is within 10 px of the real grid height (it was 55 px off before), so nothing jumps when the products arrive.
+- [ ] Look at it yourself on a phone-sized window. The Browser pane was hidden for part of the testing, so I measured positions and sizes but could not watch the animation.
 
 ## Site analytics (detailed)
 

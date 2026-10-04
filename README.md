@@ -46,6 +46,9 @@ WooCommerce REST consumer keys are **not required** for this phase. Leave them e
 | GET | `/api/studio/sample` | Live in-stock products with no description (content studio demo). Needs the studio access code |
 | POST | `/api/studio/generate` | Gemini: Hebrew product content, or a rewrite from an instruction. Needs the studio access code |
 | GET | `/api/studio/back-in-stock` | Sold-out products ranked by how many people are waiting (counts only). Needs the studio access code |
+| POST | `/api/events` | The storefront reports visitor events in batches (only after statistics cookies are accepted). Bots are dropped, every field is validated, emails and phone numbers are scrubbed |
+| POST | `/api/events/forget` | Deletes every stored event of one anonymous visitor id (called when consent is withdrawn) |
+| GET | `/api/studio/analytics/summary?days=` | The owner dashboard numbers for the last 1, 7, 30 or 90 days. Needs the studio access code |
 | POST | `/api/back-in-stock` | A shopper asks to be told when a sold-out product is back (demo, no email is sent) |
 | GET | `/api/cart` | Store API cart |
 | POST | `/api/cart/items` | Store API add-item |
@@ -79,6 +82,8 @@ Three pages are reached by URL only (not in the header):
 
 - `/studio` is an AI content studio. It drafts Hebrew descriptions, spec bullets, SEO title and meta, and image alt text for real products that have no description, and can rewrite a draft from an instruction. "Apply to store" is a **demo**: the draft is kept in the browser's `localStorage` and the product page shows it behind a demo banner. **Nothing is written to WooCommerce.** Writing to the store needs WooCommerce REST keys with Read/Write permission, which this project does not have.
 - `/demand` is the owner's list of sold-out products ranked by how many shoppers asked to be notified. The sign-up form is on every sold-out product page. **Demo:** signups are saved in `server/.data/back-in-stock.json` (git-ignored, it holds email addresses), no email is sent, and the list does not update when a product comes back in stock.
+- `/analytics` is the owner's site dashboard (behind the studio access code): visitors and sessions with the change since the previous period, a daily chart, the buying funnel, where visitors come from (Instagram, each influencer's `?ref=`, Google, WhatsApp, direct), top and never-added products, sold-out products people look at, searches (including the ones that found nothing), sort and paging use, top clicks, devices. **Privacy:** events are first-party and anonymous (a random visitor id, no names, emails or addresses), are sent only after the visitor accepts statistics cookies, and are deleted when consent is withdrawn (the footer link "הגדרות עוגיות" reopens the settings). Events live in `server/.data/analytics.sqlite` (git-ignored) and are purged after `ANALYTICS_RETENTION_DAYS` (default 395).
+  Before real traffic exists, `npm run analytics:seed-demo -w server` fills the dashboard with clearly flagged **demo** sessions (the dashboard shows a banner while they exist) and `npm run analytics:clear-demo -w server` removes them.
 - `/shop-the-look` shows example looks with shoppable pins. The photos are stand-ins taken from live product images; there is no Instagram connection.
 - `/influencers/etty` and `/influencers/talia` show an influencer hero and live products from the matching WooCommerce collection. The `?ref=` value is stored in the browser only.
 
@@ -86,6 +91,7 @@ The studio needs these server settings in `.env` (never in a frontend env file):
 
 ```text
 STUDIO_ACCESS_KEY=
+ANALYTICS_RETENTION_DAYS=395
 GEMINI_API_KEY=
 GEMINI_MODEL=gemini-3.8-flash
 GEMINI_FALLBACK_MODEL=gemini-3.7-flash
@@ -98,7 +104,7 @@ Product photos and names are sent to Google's Gemini API to write the drafts. Th
 ## Tests
 
 ```bash
-npm test          # unit tests, no network
+npm test          # server and client unit tests, no network
 npm run test:live # hits the live Store API
 ```
 

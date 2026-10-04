@@ -43,6 +43,8 @@ WooCommerce REST consumer keys are **not required** for this phase. Leave them e
 | GET | `/api/pages` | WP REST pages |
 | GET | `/api/pages/:slug` | WP REST page |
 | GET | `/api/banners` | WP REST `homepage_banners` (empty if CPT missing) |
+| GET | `/api/studio/sample` | Live in-stock products with no description (content studio demo) |
+| POST | `/api/studio/generate` | Gemini: Hebrew product content, or a rewrite from an instruction |
 | GET | `/api/cart` | Store API cart |
 | POST | `/api/cart/items` | Store API add-item |
 | PUT | `/api/cart/items/:key` | Store API update item |
@@ -68,6 +70,24 @@ Cart JSON also includes `session: { cartToken, nonce }`. The client stores these
 ### Prices
 
 Store API minor units are preserved as `minor` (string). The API adds `major` using `currencyMinorUnit` (ILS = 2). WooCommerce still calculates prices, discounts, shipping, and totals.
+
+## Demo features
+
+Three pages are reached by URL only (not in the header):
+
+- `/studio` is an AI content studio. It drafts Hebrew descriptions, spec bullets, SEO title and meta, and image alt text for real products that have no description, and can rewrite a draft from an instruction. "Apply to store" is a **demo**: the draft is kept in the browser's `localStorage` and the product page shows it behind a demo banner. **Nothing is written to WooCommerce.** Writing to the store needs WooCommerce REST keys with Read/Write permission, which this project does not have.
+- `/shop-the-look` shows example looks with shoppable pins. The photos are stand-ins taken from live product images; there is no Instagram connection.
+- `/influencers/etty` and `/influencers/talia` show an influencer hero and live products from the matching WooCommerce collection. The `?ref=` value is stored in the browser only.
+
+The studio needs these server settings in `.env` (never in a frontend env file):
+
+```text
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-3.8-flash
+GEMINI_FALLBACK_MODEL=gemini-3.7-flash
+```
+
+Product photos and names are sent to Google's Gemini API to write the drafts. `POST /api/studio/generate` is rate limited but not authenticated, so gate it before deploying the API publicly.
 
 ## Tests
 

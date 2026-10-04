@@ -243,3 +243,12 @@ export type StudioResult = {
   model: string;
   content: StudioContent;
 };
+
+export type DemandRow = {
+  productId: number;
+  name: string;
+  slug: string;
+  image: string | null;
+  count: number;
+  lastSignupAt: string;
+};

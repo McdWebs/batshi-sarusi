@@ -1,6 +1,6 @@
 import { apiRequest } from "./client";
 import { getStudioKey } from "../studio/studioKey";
-import type { Brand, Cart, Category, CmsPage, Paginated, Product, ProductQuery, StudioContent, StudioResult, StudioSample } from "./types";
+import type { Brand, Cart, Category, CmsPage, DemandRow, Paginated, Product, ProductQuery, StudioContent, StudioResult, StudioSample } from "./types";
 
 export function getProducts(query: ProductQuery = {}) {
   return apiRequest<Paginated<Product>>("/api/products", {
@@ -118,4 +118,14 @@ export function generateStudioContent(productId: number, revision?: { instructio
     headers: studioHeaders(),
     body: revision ? { productId, instruction: revision.instruction, previous: revision.previous } : { productId },
   });
+}
+
+/** Public: a shopper asks to be told when a sold-out product is back. */
+export function subscribeBackInStock(productId: number, email: string) {
+  return apiRequest<{ alreadySubscribed: boolean }>("/api/back-in-stock", { method: "POST", body: { productId, email } });
+}
+
+/** Owner-only: sold-out products ranked by how many people are waiting. */
+export function getDemandRanking() {
+  return apiRequest<{ items: DemandRow[] }>("/api/studio/back-in-stock", { headers: studioHeaders() });
 }

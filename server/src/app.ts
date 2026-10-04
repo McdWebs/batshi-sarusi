@@ -6,6 +6,7 @@ import crypto from "node:crypto";
 import { corsOrigins } from "./config/env.js";
 import { logger } from "./utils/logger.js";
 import {
+  backInStockRouter,
   bannersRouter,
   brandsRouter,
   cartRouter,
@@ -100,6 +101,7 @@ export function createApp() {
   app.use("/api/pages", pagesRouter);
   app.use("/api/banners", bannersRouter);
   app.use("/api/studio", studioRouter);
+  app.use("/api/back-in-stock", backInStockRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

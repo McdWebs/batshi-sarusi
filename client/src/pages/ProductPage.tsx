@@ -1,6 +1,7 @@
 import { Alert, Box, Button, Container, FormControl, InputLabel, MenuItem, Select, Skeleton, TextField, Typography } from "@mui/material";
 import { useMemo, useState } from "react";
 import { Link as RouterLink, useParams } from "react-router-dom";
+import { BackInStockForm } from "../components/BackInStockForm";
 import { demoContentHtml, getDemoEntry } from "../studio/demoStore";
 import { ProductGallery } from "../components/ProductGallery";
 import { ProductGrid } from "../components/ProductGrid";
@@ -243,6 +244,7 @@ export function ProductPage() {
                       : product.addToCart.singleText || product.addToCart.text || "הוספה לסל"}
             </Button>
           </Box>
+          {!product.isInStock ? <BackInStockForm productId={product.id} /> : null}
           {addItem.isError ? (
             <Box mt={2}>
               <ErrorState message={(addItem.error as Error).message} />

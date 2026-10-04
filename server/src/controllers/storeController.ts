@@ -43,6 +43,8 @@ import { env } from "../config/env.js";
 import { geminiConfigured } from "../integrations/gemini/client.js";
 import { generateStudioContent, getStudioSample } from "../services/contentStudioService.js";
 import { generateContentBodySchema } from "../schemas/studio.js";
+import { subscribeBodySchema } from "../schemas/backInStock.js";
+import { getDemandRanking, subscribeBackInStock } from "../services/backInStockService.js";
 
 export async function health(_req: Request, res: Response) {
   res.status(200).json({ status: "ok" });
@@ -176,4 +178,15 @@ export async function generateStudioContentHandler(req: Request, res: Response) 
   const revision = instruction && previous ? { instruction, previous } : undefined;
   const data = await generateStudioContent(productId, env.GEMINI_MODEL, revision);
   sendSuccess(res, data, 200, 0);
+}
+
+export async function subscribeBackInStockHandler(req: Request, res: Response) {
+  const { productId, email } = parseWith(subscribeBodySchema, req.body);
+  const data = await subscribeBackInStock(productId, email);
+  sendSuccess(res, data, 200, 0);
+}
+
+export async function demandRankingHandler(_req: Request, res: Response) {
+  const items = await getDemandRanking();
+  sendSuccess(res, { items }, 200, 0);
 }

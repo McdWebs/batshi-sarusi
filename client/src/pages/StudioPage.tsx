@@ -763,6 +763,8 @@ export function StudioPage() {
             סטודיו תוכן מוצרים
           </Typography>
           <Typography sx={{ mt: 1, color: "text.secondary", fontSize: 14, maxWidth: 560 }}>
+            <RouterLink to="/demand">ביקוש למוצרים שאזלו ←</RouterLink>
+            <br />
             מוצרים אמיתיים מהחנות החיה בלי תיאור. ה-AI כותב טיוטה בעברית, ואת מאשרת או עורכת. שום דבר לא נשלח ל-WooCommerce.
           </Typography>
         </Box>

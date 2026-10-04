@@ -52,6 +52,7 @@ studioRouter.use(
   }),
   requireStudioKey,
 );
+studioRouter.get("/back-in-stock", asyncHandler(store.demandRankingHandler));
 studioRouter.get("/sample", asyncHandler(store.listStudioSample));
 studioRouter.post(
   "/generate",
@@ -65,4 +66,19 @@ studioRouter.post(
     },
   }),
   asyncHandler(store.generateStudioContentHandler),
+);
+
+export const backInStockRouter = Router();
+backInStockRouter.post(
+  "/",
+  rateLimit({
+    windowMs: 60_000,
+    limit: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    handler: (_req, res) => {
+      res.status(429).json({ success: false, error: { code: "RATE_LIMITED", message: "Too many requests, try again in a minute" } });
+    },
+  }),
+  asyncHandler(store.subscribeBackInStockHandler),
 );

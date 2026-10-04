@@ -1,0 +1,508 @@
+<title>Batshi Home Storefront — Pricing Memo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --paper: #EEEDE7;
+    --surface: #F7F6F1;
+    --ink: #211F1B;
+    --muted: #6A665C;
+    --rule: rgba(33, 31, 27, 0.14);
+    --rule-strong: rgba(33, 31, 27, 0.28);
+    --accent: #37624A;      /* ledger green — money figures, key totals */
+    --accent-soft: rgba(55, 98, 74, 0.10);
+    --flag: #9A3B27;        /* brick — floor / caution */
+    --flag-soft: rgba(154, 59, 39, 0.09);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #191815;
+      --surface: #201E1A;
+      --ink: #E9E6DE;
+      --muted: #9C978B;
+      --rule: rgba(233, 230, 222, 0.16);
+      --rule-strong: rgba(233, 230, 222, 0.32);
+      --accent: #74A98A;
+      --accent-soft: rgba(116, 169, 138, 0.14);
+      --flag: #D07C63;
+      --flag-soft: rgba(208, 124, 99, 0.14);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #191815;
+    --surface: #201E1A;
+    --ink: #E9E6DE;
+    --muted: #9C978B;
+    --rule: rgba(233, 230, 222, 0.16);
+    --rule-strong: rgba(233, 230, 222, 0.32);
+    --accent: #74A98A;
+    --accent-soft: rgba(116, 169, 138, 0.14);
+    --flag: #D07C63;
+    --flag-soft: rgba(208, 124, 99, 0.14);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sheet {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 72px 32px 120px;
+  }
+
+  @media (max-width: 640px) {
+    .sheet { padding: 44px 20px 90px; }
+  }
+
+  /* ---- masthead ---- */
+  .masthead {
+    border-bottom: 2px solid var(--rule-strong);
+    padding-bottom: 22px;
+    margin-bottom: 40px;
+  }
+  .kicker {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 14px;
+  }
+  h1 {
+    font-family: "Spectral", Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(28px, 5vw, 40px);
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+    margin: 0 0 16px;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 26px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .meta b { color: var(--ink); font-weight: 500; }
+
+  /* ---- sections ---- */
+  section { margin-top: 52px; }
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 6px;
+  }
+  h2 {
+    font-family: "Spectral", Georgia, serif;
+    font-weight: 600;
+    font-size: 23px;
+    letter-spacing: -0.01em;
+    margin: 0 0 18px;
+    text-wrap: balance;
+  }
+  h3 {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    margin: 26px 0 8px;
+  }
+  p { margin: 0 0 14px; max-width: 65ch; }
+  a { color: var(--accent); text-underline-offset: 2px; }
+  strong { font-weight: 600; }
+
+  .lead {
+    font-size: 17.5px;
+    line-height: 1.55;
+  }
+
+  /* ---- triangulation band ---- */
+  .tri {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border: 1px solid var(--rule);
+    background: var(--surface);
+  }
+  @media (max-width: 640px) { .tri { grid-template-columns: 1fr; } }
+  .tri > div {
+    padding: 18px 18px 20px;
+    border-inline-end: 1px solid var(--rule);
+  }
+  .tri > div:last-child { border-inline-end: none; }
+  @media (max-width: 640px) {
+    .tri > div { border-inline-end: none; border-bottom: 1px solid var(--rule); }
+    .tri > div:last-child { border-bottom: none; }
+  }
+  .tri-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 8px;
+  }
+  .tri-fig {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    margin: 0 0 6px;
+  }
+  .tri-note { font-size: 12.5px; color: var(--muted); margin: 0; line-height: 1.45; }
+
+  /* ---- itemized table ---- */
+  .invoice {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 4px 0 0;
+    font-size: 14.5px;
+  }
+  .invoice th {
+    text-align: start;
+    font-family: "IBM Plex Mono", monospace;
+    font-weight: 500;
+    font-size: 10.5px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 0 10px;
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  .invoice th.num, .invoice td.num { text-align: end; }
+  .invoice td {
+    padding: 13px 0;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  .invoice td.num {
+    font-family: "IBM Plex Mono", monospace;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    padding-inline-start: 18px;
+  }
+  .invoice .item-name { font-weight: 600; display: block; margin-bottom: 2px; }
+  .invoice .item-desc { color: var(--muted); font-size: 12.5px; line-height: 1.45; }
+  .invoice tr.total td {
+    border-bottom: none;
+    border-top: 2px solid var(--rule-strong);
+    padding-top: 15px;
+    font-weight: 600;
+  }
+  .invoice tr.total .num {
+    font-size: 17px;
+    color: var(--accent);
+  }
+  .invoice tr.subtle td { color: var(--muted); }
+
+  /* ---- callout ---- */
+  .callout {
+    border-inline-start: 3px solid var(--flag);
+    background: var(--flag-soft);
+    padding: 16px 20px;
+    margin: 22px 0;
+  }
+  .callout p { margin: 0; font-size: 14px; }
+  .callout .callout-h {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--flag);
+    margin: 0 0 6px;
+  }
+
+  .note-green {
+    border-inline-start: 3px solid var(--accent);
+    background: var(--accent-soft);
+    padding: 16px 20px;
+    margin: 22px 0;
+  }
+  .note-green p { margin: 0 0 8px; font-size: 14px; }
+  .note-green p:last-child { margin: 0; }
+
+  /* ---- key/value negotiation list ---- */
+  .kv { display: grid; gap: 0; margin: 0; }
+  .kv > div {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 20px;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .kv > div:first-child { border-top: 1px solid var(--rule); }
+  @media (max-width: 640px) {
+    .kv > div { grid-template-columns: 1fr; gap: 3px; }
+  }
+  .kv dt {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-top: 2px;
+  }
+  .kv dd { margin: 0; font-size: 14px; }
+  .kv dd .fig {
+    font-family: "IBM Plex Mono", monospace;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  /* ---- compare table ---- */
+  .compare { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 4px; }
+  .compare th {
+    text-align: start;
+    font-family: "IBM Plex Mono", monospace;
+    font-weight: 500;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 12px 9px 0;
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  .compare td {
+    padding: 10px 12px 10px 0;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  .compare td:first-child { font-weight: 600; white-space: nowrap; }
+  .compare .old { color: var(--muted); }
+
+  ul.tight { margin: 4px 0 14px; padding-inline-start: 20px; }
+  ul.tight li { margin-bottom: 6px; padding-inline-start: 4px; }
+
+  .footer-rule {
+    margin-top: 64px;
+    padding-top: 18px;
+    border-top: 2px solid var(--rule-strong);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11.5px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+
+  @media print {
+    @page { margin: 16mm 14mm; }
+    body { background: #fff; color: #211F1B; font-size: 10.5pt; }
+    .sheet { padding: 0; max-width: none; }
+    .tri, .note-green, .callout, .invoice tr, .compare tr, .kv > div,
+    section, h2, h3 { break-inside: avoid; }
+    section { margin-top: 26px; page-break-inside: auto; }
+    .masthead { margin-bottom: 26px; }
+    a { color: #37624A; }
+    .footer-rule { margin-top: 34px; }
+  }
+</style>
+
+<div class="sheet">
+
+  <header class="masthead">
+    <p class="kicker">Internal Pricing Memo · Not for client</p>
+    <h1>Batshi Home — Headless Storefront</h1>
+    <div class="meta">
+      <span><b>Prepared</b> 8 Sep 2026</span>
+      <span><b>Project</b> batshi_sarusi</span>
+      <span><b>Stage</b> Phase 1 delivered</span>
+      <span><b>Currency</b> ILS, pre-VAT</span>
+    </div>
+  </header>
+
+  <section>
+    <p class="lead">A React storefront over the client's existing WooCommerce, plus a full technical audit. About <strong>60–70% of a storefront replacement</strong>: everything from catalog through cart, plus a checkout UI, minus payment, accounts, and domain cutover.</p>
+    <p><strong>Bottom line:</strong> quote Phase 1 at <strong>₪58,000</strong> itemized (below). Floor ₪48,000. Phase 2 (go-live) quoted separately at ₪21,000–32,500. Your reconstructed day-rate value is ₪72k–84k — the itemization is already a quiet discount, so don't discount it again in the room.</p>
+  </section>
+
+  <section>
+    <p class="eyebrow">Three ways the number checks out</p>
+    <h2>Triangulation</h2>
+    <div class="tri">
+      <div>
+        <p class="tri-label">Reconstructed effort</p>
+        <p class="tri-fig">₪72k–84k</p>
+        <p class="tri-note">~30 senior days × ₪2,400–2,800/day. This is your notional list price.</p>
+      </div>
+      <div>
+        <p class="tri-label">Hourly cross-check</p>
+        <p class="tri-fig">₪56,500</p>
+        <p class="tri-note">~195 hrs × ₪290/hr. Lands almost exactly on the ₪58k anchor.</p>
+      </div>
+      <div>
+        <p class="tri-label">Israeli SMB market</p>
+        <p class="tri-fig">₪50k–65k</p>
+        <p class="tri-note">Custom-store ceiling ~₪45–50k + premium for headless architecture &amp; audit.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Phase 1 · delivered</p>
+    <h2>Itemized by work area</h2>
+    <table class="invoice">
+      <thead>
+        <tr><th>Work area</th><th class="num">Fee</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <span class="item-name">Discovery &amp; technical audit</span>
+            <span class="item-desc">8 audit documents, plugin-by-plugin integration map with risk ratings, API inventory, route map, e-commerce flow, decisions log. De-risks every later phase.</span>
+          </td>
+          <td class="num">7,000</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="item-name">Backend API &amp; integration layer</span>
+            <span class="item-desc">Express + TS proxy over WooCommerce Store API and WP REST: products, categories, brands, search, pages, banners, full guest cart with token/nonce forwarding, price normalization, caching, logging, Zod validation, unit + live tests.</span>
+          </td>
+          <td class="num">13,500</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="item-name">Catalog, search &amp; category system</span>
+            <span class="item-desc">Home discovery, catalog with filter / sort / pagination / prefetch, live search, 167-category tree reduced to a curated nav, SEO-preserving URL structure.</span>
+          </td>
+          <td class="num">13,000</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="item-name">Product pages</span>
+            <span class="item-desc">PDP with variation matching against 624 variable products, image gallery, related products, stock &amp; sale states from live data.</span>
+          </td>
+          <td class="num">6,500</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="item-name">Cart &amp; live shipping</span>
+            <span class="item-desc">Cart page + drawer, coupons, animated totals, optimistic updates, live PI SOL shipping rates and local pickup, skeleton states.</span>
+          </td>
+          <td class="num">7,000</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="item-name">Checkout UI <span style="color:var(--muted);font-weight:400">(no payment)</span></span>
+            <span class="item-desc">WooCommerce-parity checkout form, searchable Israeli-city select, shipping-method selection, order summary. Payment integration is Phase 2.</span>
+          </td>
+          <td class="num">4,500</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="item-name">Design system, a11y, consent, mobile, SEO structure</span>
+            <span class="item-desc">Editorial RTL MUI theme, custom accessibility widget, cookie consent with Sourcebuster attribution, mobile-first chrome, responsive images, scroll restoration.</span>
+          </td>
+          <td class="num">5,000</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="item-name">Deployment &amp; handoff</span>
+            <span class="item-desc">Vercel + Render config, environment setup, health endpoint, README and run docs.</span>
+          </td>
+          <td class="num">1,500</td>
+        </tr>
+        <tr class="total">
+          <td>Phase 1 total</td>
+          <td class="num">₪58,000</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <p class="callout-h">Floor</p>
+      <p>₪48,000 if the client pushes hard — drop it by <em>cutting scope</em> (hand over checkout UI as-is, defer a11y-widget polish), never by cutting the rate. Below ₪42,000 you're working under market for headless work; walk or restructure as retainer.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Phase 2 · not started</p>
+    <h2>Go-live — quote separately</h2>
+    <table class="invoice">
+      <tbody>
+        <tr>
+          <td><span class="item-name">Grow payment + headless checkout flow</span><span class="item-desc">Range depends entirely on whether Grow's SDK supports a Store API flow or forces a hybrid Woo-checkout handoff.</span></td>
+          <td class="num">10,000–16,000</td>
+        </tr>
+        <tr>
+          <td><span class="item-name">Customer accounts</span><span class="item-desc">Login, order history, saved addresses. Skip if client accepts guest-only v1.</span></td>
+          <td class="num">4,000–6,000</td>
+        </tr>
+        <tr>
+          <td><span class="item-name">Analytics &amp; funnel tracking</span><span class="item-desc">GTM / GA4 / Meta, consent-gated, purchase de-duplication against real Woo orders.</span></td>
+          <td class="num">3,000–4,500</td>
+        </tr>
+        <tr>
+          <td><span class="item-name">Staging, redirects &amp; cutover</span><span class="item-desc">Staging environment, 301 map for ~3,400 product + 167 category URLs, DNS cutover, launch-week monitoring.</span></td>
+          <td class="num">4,000–6,000</td>
+        </tr>
+        <tr class="total">
+          <td>Phase 2 total</td>
+          <td class="num">₪21,000–32,500</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="note-green">
+      <p><strong>Leverage:</strong> the audit already mapped every pricing / shipping / Shabbat / pre-order plugin. You're the only person who knows where the mines are. That knowledge is worth a monthly retainer once live — pitch ₪2,500–4,000/mo for maintenance + Woo-plugin drift.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">The room</p>
+    <h2>Negotiation notes</h2>
+    <dl class="kv">
+      <div><dt>Anchor</dt><dd>Open at <span class="fig">₪58,000</span> for Phase 1, itemized. Let the itemization do the justifying — don't volunteer the day-rate math unless challenged, then cite <span class="fig">₪72k–84k</span> as list.</dd></div>
+      <div><dt>If fixed price<br>was quoted</dt><dd>This is a <strong>change-order / scope-true-up</strong> conversation, not a fresh quote. The earlier number governs; bill the delta and Phase 2 forward.</dd></div>
+      <div><dt>If open-ended<br>/ T&amp;M</dt><dd>The itemization above <em>is</em> the invoice. Present it as work completed, net-14.</dd></div>
+      <div><dt>Payment terms</dt><dd>50% of Phase 1 on acceptance, balance net-14. Phase 2 only starts on a signed scope + deposit.</dd></div>
+      <div><dt>Client profile</dt><dd>"Wholesale prices" positioning = price-sensitive owner. Expect pushback on the total, not the line items. Hold the rate, trade scope.</dd></div>
+      <div><dt>Don't give away</dt><dd>Source access / repo transfer until Phase 1 is paid in full. The audit docs especially — that's the reusable IP.</dd></div>
+    </dl>
+  </section>
+
+  <section>
+    <p class="eyebrow">Supporting the number</p>
+    <h2>What changed for the client</h2>
+    <table class="compare">
+      <thead><tr><th></th><th>Old site</th><th>New storefront</th></tr></thead>
+      <tbody>
+        <tr><td>Page weight</td><td class="old">530 KB+ HTML, shop 650 KB+</td><td>Code-split SPA, prefetch, cached queries</td></tr>
+        <tr><td>Stack</td><td class="old">Hello + Elementor Pro + ~15 Jet plugins</td><td>React + thin Express proxy</td></tr>
+        <tr><td>Navigation</td><td class="old">167 categories in a mega-menu</td><td>Curated nav, full catalog still reachable</td></tr>
+        <tr><td>Design</td><td class="old">Dated, text-link heavy, no alt text</td><td>Editorial RTL system, real a11y</td></tr>
+        <tr><td>Mobile</td><td class="old">Desktop layout shrunk</td><td>Designed mobile-first</td></tr>
+        <tr><td>Admin workflow</td><td class="old">100% WooCommerce</td><td>Unchanged — no retraining</td></tr>
+      </tbody>
+    </table>
+    <h3>Market context</h3>
+    <ul class="tight">
+      <li>Israeli senior freelance day rate 2026: <strong>₪2,000–3,800</strong>; hourly ₪250–450. Tel Aviv React freelance median ~$117/hr.</li>
+      <li>Israeli custom online store: <strong>₪20,000–50,000+</strong> — but those are Elementor/template WooCommerce, not headless React with a custom API layer.</li>
+      <li>Global headless React storefront: <strong>$30k–50k low end, $40k–150k mid-market</strong>; agencies $100–200/hr over 3–8 months.</li>
+      <li>This project sits above a template build, below a finished enterprise headless build (no payment / accounts / cutover yet).</li>
+    </ul>
+  </section>
+
+  <div class="footer-rule">
+    Codebase: ~10,000 LOC TypeScript (≈2,800 server / ≈8,500 client, excl. 1,300-line city dataset) · 34 commits · 8 audit docs.<br>
+    Sources: CWS Israel freelancer day rates · SalarySavvy Tel Aviv React rates · Codeable WooCommerce cost guide · DigitalSuits headless cost · SGO / uWeb Israeli store pricing.
+  </div>
+
+</div>

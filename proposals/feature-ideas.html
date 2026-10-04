@@ -1,0 +1,284 @@
+<title>Batshi Home — Features for the Switch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --paper: #EEEDE7;
+    --surface: #F7F6F1;
+    --ink: #211F1B;
+    --muted: #6A665C;
+    --rule: rgba(33, 31, 27, 0.14);
+    --rule-strong: rgba(33, 31, 27, 0.28);
+    --accent: #37624A;
+    --accent-soft: rgba(55, 98, 74, 0.10);
+    --flag: #9A3B27;
+    --flag-soft: rgba(154, 59, 39, 0.09);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #191815;
+      --surface: #201E1A;
+      --ink: #E9E6DE;
+      --muted: #9C978B;
+      --rule: rgba(233, 230, 222, 0.16);
+      --rule-strong: rgba(233, 230, 222, 0.32);
+      --accent: #74A98A;
+      --accent-soft: rgba(116, 169, 138, 0.14);
+      --flag: #D07C63;
+      --flag-soft: rgba(208, 124, 99, 0.14);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #191815;
+    --surface: #201E1A;
+    --ink: #E9E6DE;
+    --muted: #9C978B;
+    --rule: rgba(233, 230, 222, 0.16);
+    --rule-strong: rgba(233, 230, 222, 0.32);
+    --accent: #74A98A;
+    --accent-soft: rgba(116, 169, 138, 0.14);
+    --flag: #D07C63;
+    --flag-soft: rgba(208, 124, 99, 0.14);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sheet { max-width: 760px; margin: 0 auto; padding: 72px 32px 120px; }
+  @media (max-width: 640px) { .sheet { padding: 44px 20px 90px; } }
+
+  .masthead { border-bottom: 2px solid var(--rule-strong); padding-bottom: 22px; margin-bottom: 40px; }
+  .kicker {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11.5px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 14px;
+  }
+  h1 {
+    font-family: "Spectral", Georgia, serif; font-weight: 600;
+    font-size: clamp(28px, 5vw, 40px); line-height: 1.12;
+    letter-spacing: -0.015em; text-wrap: balance; margin: 0 0 16px;
+  }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 6px 26px;
+    font-family: "IBM Plex Mono", monospace; font-size: 12.5px; color: var(--muted);
+  }
+  .meta b { color: var(--ink); font-weight: 500; }
+
+  section { margin-top: 52px; }
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11.5px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--accent); margin: 0 0 6px;
+  }
+  h2 {
+    font-family: "Spectral", Georgia, serif; font-weight: 600;
+    font-size: 23px; letter-spacing: -0.01em; margin: 0 0 18px; text-wrap: balance;
+  }
+  h3 {
+    font-family: "IBM Plex Sans", sans-serif; font-weight: 600;
+    font-size: 16px; margin: 0 0 4px;
+  }
+  p { margin: 0 0 14px; max-width: 65ch; }
+  a { color: var(--accent); text-underline-offset: 2px; }
+  strong { font-weight: 600; }
+  .lead { font-size: 17.5px; line-height: 1.55; }
+
+  ol.reasons { margin: 4px 0 0; padding-inline-start: 22px; }
+  ol.reasons li { margin-bottom: 8px; padding-inline-start: 4px; max-width: 62ch; }
+
+  /* ---- feature block ---- */
+  .feat {
+    border-top: 1px solid var(--rule);
+    padding: 22px 0 6px;
+  }
+  .feat:first-of-type { border-top: 1px solid var(--rule-strong); }
+  .feat.lead-feat { background: var(--accent-soft); border-top: 1px solid var(--rule-strong);
+    padding: 22px 20px 8px; margin-inline: -20px; }
+  .feat-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .feat-num {
+    font-family: "IBM Plex Mono", monospace; font-size: 13px; font-weight: 500;
+    color: var(--accent); font-variant-numeric: tabular-nums;
+  }
+  .feat-meta {
+    font-family: "IBM Plex Mono", monospace; font-size: 11.5px;
+    color: var(--muted); margin: 0 0 12px; display: flex; flex-wrap: wrap; gap: 4px 18px;
+  }
+  .feat-meta span b { color: var(--ink); font-weight: 500; }
+  .feat p { font-size: 14px; margin: 0 0 10px; }
+  .feat .tag {
+    font-family: "IBM Plex Mono", monospace; font-size: 10.5px;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+    font-weight: 500;
+  }
+  .feat .why b, .feat .catch b { color: var(--ink); }
+  .feat .catch { color: var(--muted); }
+
+  /* ---- callout / note ---- */
+  .callout {
+    border-inline-start: 3px solid var(--flag); background: var(--flag-soft);
+    padding: 16px 20px; margin: 22px 0;
+  }
+  .callout p { margin: 0 0 8px; font-size: 14px; }
+  .callout p:last-child { margin: 0; }
+  .callout .callout-h {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px;
+    letter-spacing: 0.13em; text-transform: uppercase; color: var(--flag); margin: 0 0 6px;
+  }
+  .note-green {
+    border-inline-start: 3px solid var(--accent); background: var(--accent-soft);
+    padding: 16px 20px; margin: 22px 0;
+  }
+  .note-green p { margin: 0 0 8px; font-size: 14px; }
+  .note-green p:last-child { margin: 0; }
+
+  ul.tight { margin: 4px 0 14px; padding-inline-start: 20px; }
+  ul.tight li { margin-bottom: 8px; padding-inline-start: 4px; font-size: 14px; max-width: 62ch; }
+  ul.tight li b { font-weight: 600; }
+
+  .skip-table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 4px; }
+  .skip-table td { padding: 10px 12px 10px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  .skip-table td:first-child { font-weight: 600; white-space: nowrap; width: 34%; }
+  .skip-table .verdict { font-family: "IBM Plex Mono", monospace; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+
+  .footer-rule {
+    margin-top: 64px; padding-top: 18px; border-top: 2px solid var(--rule-strong);
+    font-family: "IBM Plex Mono", monospace; font-size: 11.5px; color: var(--muted); line-height: 1.6;
+  }
+
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+  @media print {
+    @page { margin: 16mm 14mm; }
+    body { background: #fff; color: #211F1B; font-size: 10.5pt; }
+    .sheet { padding: 0; max-width: none; }
+    .feat, .note-green, .callout, section, h2, h3, .skip-table tr { break-inside: avoid; }
+    .feat.lead-feat { background: none; border-inline-start: 3px solid #37624A; margin-inline: 0; padding-inline: 16px; }
+    section { margin-top: 26px; }
+    .masthead { margin-bottom: 26px; }
+    a { color: #37624A; }
+    .footer-rule { margin-top: 34px; }
+  }
+</style>
+
+<div class="sheet">
+
+  <header class="masthead">
+    <p class="kicker">Internal Working Note · Not for client</p>
+    <h1>Features That Make the Switch Worth It</h1>
+    <div class="meta">
+      <span><b>Prepared</b> 8 Sep 2026</span>
+      <span><b>Project</b> batshi_sarusi</span>
+      <span><b>For</b> Headless storefront pitch</span>
+    </div>
+  </header>
+
+  <section>
+    <p class="lead">Ideas for features to add to the new storefront that would make the client actually <em>want</em> the deal — matched to how she runs the business, not to the architecture.</p>
+    <p class="tag">What we know about her</p>
+    <p>Israeli home / kitchen / textile retailer. ~3,400 products, 624 variable, 167 categories, 2,471 on sale. Wholesale-style pricing. Up to 14 business days to supply. 817 products out of stock. Zero reviews ever, zero blog posts. Instagram + influencer collections (אתי אפינגר, טליה סול) + WhatsApp are the whole marketing engine — half the product photos are WhatsApp exports. Most product descriptions are empty. No analytics stack visible.</p>
+  </section>
+
+  <section>
+    <p class="eyebrow">Framing</p>
+    <h2>What actually makes an owner like her say yes</h2>
+    <ol class="reasons">
+      <li>She sees <strong>her own products</strong> in the demo, visibly transformed.</li>
+      <li>The feature touches <strong>something she does every day</strong> — posting to Instagram, answering WhatsApp, building deals.</li>
+      <li>It solves a problem she <strong>already feels as pain</strong> — the messy catalog, no social proof, "where is my order" messages.</li>
+    </ol>
+    <div class="callout">
+      <p class="callout-h">Honest caveat</p>
+      <p>None of this is novel or defensible — a competitor could copy any of it. That's fine; the goal is winning <em>this</em> deal. The value is that the <strong>combination</strong> is unusually well-matched to her business, and most of her Israeli home-goods competitors have none of it.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Tier 1 · lead with these</p>
+    <h2>High wow, real, feasible</h2>
+
+    <div class="feat lead-feat">
+      <div class="feat-head"><span class="feat-num">01</span><h3>AI Product-Content Studio</h3></div>
+      <p class="feat-meta"><span><b>Build</b> ~1–1.5 weeks</span><span><b>Run cost</b> ₪150–400 one-time + agorot per new product</span><span><b>Wow</b> highest</span></p>
+      <p><b>What it is:</b> an admin tool that takes the ~3,400 products — most with empty descriptions, WhatsApp-JPEG images, no alt text — and bulk-drafts Hebrew descriptions, spec bullets, SEO title/meta and image alt text from the title, image, category and attributes. She reviews and approves in batches; new products get it automatically on save.</p>
+      <p class="why"><b>Why it lands for her:</b> the catalog is currently a liability — it's why she gets near-zero organic search traffic and why conversion is soft. This turns weeks of copywriting she'll never do into an afternoon of tapping "approve." It's the most visible possible before/after.</p>
+      <p class="catch"><b>The catch:</b> for a product with a bad photo and nothing else, the model is guessing — generic copy. Mitigated by the human-in-the-loop approval step, and it's still 10× faster than starting blank. Promise "90% done, you finish it," not "perfect."</p>
+    </div>
+
+    <div class="feat">
+      <div class="feat-head"><span class="feat-num">02</span><h3>WhatsApp commerce layer</h3></div>
+      <p class="feat-meta"><span><b>Build</b> ~1.5–2 weeks</span><span><b>Run cost</b> ~₪0.10–0.25 per conversation</span><span><b>Wow</b> high</span></p>
+      <p><b>What it is:</b> order confirmation, shipping updates, delay notifications, back-in-stock alerts and abandoned-cart nudges — all through WhatsApp instead of email. Plus a "continue on WhatsApp" button at checkout for hesitant buyers that hands her a pre-filled cart.</p>
+      <p class="why"><b>Why it lands:</b> she already runs the business in WhatsApp. This makes the store feel like an extension of how she already sells, and it directly kills the "where is my order?" messages that a 14-day fulfillment window generates.</p>
+      <p class="catch"><b>The catch:</b> needs the WhatsApp Business API via a provider (360dialog, Twilio) — Meta business verification on her side and a small per-message cost. Not hard, but real setup friction; be upfront about both.</p>
+    </div>
+
+    <div class="feat">
+      <div class="feat-head"><span class="feat-num">03</span><h3>Shoppable Instagram + influencer collection pages</h3></div>
+      <p class="feat-meta"><span><b>Build</b> ~2 weeks (feed + influencer pages)</span><span><b>Run cost</b> negligible</span><span><b>Wow</b> high</span></p>
+      <p><b>What it is:</b> pull her Instagram grid onto the storefront, let her tag products to posts, render it as a shoppable gallery. Plus a real page per influencer collaboration — "Shop אתי אפינגר's picks" — with their content, their curated products, a trackable link and a live dashboard of their sales.</p>
+      <p class="why"><b>Why it lands:</b> Instagram + influencers <em>is</em> her marketing engine, and right now that traffic hits a slow Elementor page. This makes her actual channel convert, and the dashboards make influencer relationships stickier — building on the YITH affiliate program she already runs.</p>
+      <p class="catch"><b>The catch:</b> manual product tagging avoids most of the Instagram Graph API approval pain; automatic sync would need a Business account, linked Facebook Page and app review.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Tier 2 · strong support</p>
+    <h2>Worth building, not the centrepiece</h2>
+    <ul class="tight">
+      <li><b>Gift registry</b> (wedding / housewarming / חג). The sleeper. Israeli event-gifting culture is huge and her mix — dinnerware, serving, שולחן שבת, textiles — is exactly registry inventory. A shareable registry brings buyers she didn't pay Instagram for. ~1.5–2 weeks, real new-customer revenue, and almost no local competitor has it. If you want one <em>differentiated</em> feature rather than just well-fitted, it's this.</li>
+      <li><b>Post-delivery review capture via WhatsApp</b> — automated "how was it?" a week after delivery, one-tap stars + photo. Fixes the zero-reviews problem on autopilot. Pairs with feature 02.</li>
+      <li><b>Real delivery-date transparency + branded tracking</b> — compute "arrives between X and Y" per product from stock vs. lead time; branded tracking page; proactive delay messages. De-risks the 14-day window instead of hiding it.</li>
+      <li><b>Conversational catalog assistant</b> — "אני מארחת 12 לראש השנה, מה אני צריכה?" → curated list. High wow, genuinely useful for a 3,400-SKU catalog with broken category nav. Gate it behind feature 01 — it needs clean product data. Pitch as Phase 2.</li>
+    </ul>
+  </section>
+
+  <section>
+    <p class="eyebrow">Tier 3 · do cheaply or skip</p>
+    <h2>Lower priority</h2>
+    <table class="skip-table">
+      <tbody>
+        <tr><td>Scheduled flash sale + real countdown</td><td>Do it — a countdown on a genuinely scheduled sale is legitimate and converts — but it's table stakes, not a wow. <span class="verdict">build, don't pitch</span></td></tr>
+        <tr><td>Mood-board builder</td><td>Cute, unclear ROI. <span class="verdict">skip v1</span></td></tr>
+        <tr><td>AR "see it in your room"</td><td>Bad fit for 3,400 SKUs with poor images, expensive, low real usage. <span class="verdict">skip</span></td></tr>
+        <tr><td>Mystery box / clearance grab-bag</td><td>Fun for the 817 OOS / clearance items but niche. <span class="verdict">maybe, as an add-on</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <p class="eyebrow">The argument</p>
+    <h2>Why this ties to "why switch"</h2>
+    <div class="note-green">
+      <p>Every one of these lives naturally in the headless control layer already built — the Express API is the obvious home for AI calls, WhatsApp webhooks, embeddings, registry logic.</p>
+      <p>On her current Elementor + ~15-plugin WooCommerce stack, each one is a fragile paid plugin, a monthly SaaS subscription, or not possible at all.</p>
+      <p><strong>That's the switch argument</strong> — not "the new site is faster," but "the new site is a platform you can build on; here are four things we can add in month one that you can't do today at any reasonable price."</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Recommendation</p>
+    <h2>Show, don't describe</h2>
+    <div class="callout">
+      <p class="callout-h">Before the pitch</p>
+      <p>Build a live demo of feature 01 on 5–10 of her real products. Pull them from the live Store API, run the content studio, show the before/after Hebrew side by side.</p>
+      <p>That one artifact will do more to close the deal than the whole proposal document — because it's her products, her language, her problem, solved in front of her. Everything else you describe; that one you <strong>show</strong>.</p>
+    </div>
+  </section>
+
+  <div class="footer-rule">
+    Source context: docs/current-site-audit.md · docs/integration-map.md · live batshi-home.co.il inspection.<br>
+    All build estimates are solo senior-developer working days, excluding client review cycles.
+  </div>
+
+</div>

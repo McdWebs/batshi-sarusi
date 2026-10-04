@@ -1,0 +1,256 @@
+<!doctype html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="utf-8">
+<title>בתשי הום — פיצ'רים שהופכים את המעבר לכדאי</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700&family=Heebo:wght@400;500;700&display=swap">
+<style>
+  :root {
+    --paper: #EEEDE7;
+    --surface: #F7F6F1;
+    --ink: #211F1B;
+    --muted: #6A665C;
+    --rule: rgba(33, 31, 27, 0.14);
+    --rule-strong: rgba(33, 31, 27, 0.28);
+    --accent: #37624A;
+    --accent-soft: rgba(55, 98, 74, 0.10);
+    --flag: #9A3B27;
+    --flag-soft: rgba(154, 59, 39, 0.09);
+    --sans: "Heebo", system-ui, sans-serif;
+    --serif: "Frank Ruhl Libre", "Heebo", Georgia, serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #191815; --surface: #201E1A; --ink: #E9E6DE; --muted: #9C978B;
+      --rule: rgba(233, 230, 222, 0.16); --rule-strong: rgba(233, 230, 222, 0.32);
+      --accent: #74A98A; --accent-soft: rgba(116, 169, 138, 0.14);
+      --flag: #D07C63; --flag-soft: rgba(208, 124, 99, 0.14);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #191815; --surface: #201E1A; --ink: #E9E6DE; --muted: #9C978B;
+    --rule: rgba(233, 230, 222, 0.16); --rule-strong: rgba(233, 230, 222, 0.32);
+    --accent: #74A98A; --accent-soft: rgba(116, 169, 138, 0.14);
+    --flag: #D07C63; --flag-soft: rgba(208, 124, 99, 0.14);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: var(--sans); font-size: 16px; line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sheet { max-width: 760px; margin: 0 auto; padding: 72px 32px 120px; }
+  @media (max-width: 640px) { .sheet { padding: 44px 20px 90px; } }
+
+  .masthead { border-bottom: 2px solid var(--rule-strong); padding-bottom: 22px; margin-bottom: 40px; }
+  .kicker {
+    font-size: 12px; letter-spacing: 0.02em; color: var(--muted); margin: 0 0 14px; font-weight: 500;
+  }
+  h1 {
+    font-family: var(--serif); font-weight: 700;
+    font-size: clamp(28px, 5vw, 40px); line-height: 1.2;
+    letter-spacing: 0; text-wrap: balance; margin: 0 0 16px;
+  }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 6px 26px;
+    font-size: 13px; color: var(--muted);
+  }
+  .meta b { color: var(--ink); font-weight: 500; }
+
+  section { margin-top: 52px; }
+  .eyebrow {
+    font-size: 12px; letter-spacing: 0.02em; color: var(--accent); margin: 0 0 6px; font-weight: 600;
+  }
+  h2 {
+    font-family: var(--serif); font-weight: 700;
+    font-size: 24px; letter-spacing: 0; margin: 0 0 18px; text-wrap: balance; line-height: 1.3;
+  }
+  h3 { font-family: var(--sans); font-weight: 700; font-size: 16.5px; margin: 0 0 4px; }
+  p { margin: 0 0 14px; max-width: 64ch; }
+  strong { font-weight: 700; }
+  .lead { font-size: 17.5px; line-height: 1.6; }
+
+  ol.reasons { margin: 4px 0 0; padding-inline-start: 22px; }
+  ol.reasons li { margin-bottom: 8px; padding-inline-start: 4px; max-width: 62ch; }
+
+  .feat { border-top: 1px solid var(--rule); padding: 22px 0 6px; }
+  .feat:first-of-type { border-top: 1px solid var(--rule-strong); }
+  .feat.lead-feat {
+    background: var(--accent-soft); border-top: 1px solid var(--rule-strong);
+    padding: 22px 20px 8px; margin-inline: -20px;
+  }
+  .feat-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .feat-num { font-size: 14px; font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .feat-meta {
+    font-size: 12px; color: var(--muted); margin: 0 0 12px;
+    display: flex; flex-wrap: wrap; gap: 4px 18px;
+  }
+  .feat-meta span b { color: var(--ink); font-weight: 500; }
+  .feat p { font-size: 14.5px; margin: 0 0 10px; }
+  .feat .tag { font-size: 11.5px; letter-spacing: 0.02em; color: var(--muted); font-weight: 600; }
+  .feat .why b, .feat .catch b { color: var(--ink); }
+  .feat .catch { color: var(--muted); }
+
+  .callout {
+    border-inline-start: 3px solid var(--flag); background: var(--flag-soft);
+    padding: 16px 20px; margin: 22px 0;
+  }
+  .callout p { margin: 0 0 8px; font-size: 14.5px; }
+  .callout p:last-child { margin: 0; }
+  .callout .callout-h {
+    font-size: 11.5px; letter-spacing: 0.02em; color: var(--flag); margin: 0 0 6px; font-weight: 700;
+  }
+  .note-green {
+    border-inline-start: 3px solid var(--accent); background: var(--accent-soft);
+    padding: 16px 20px; margin: 22px 0;
+  }
+  .note-green p { margin: 0 0 8px; font-size: 14.5px; }
+  .note-green p:last-child { margin: 0; }
+
+  ul.tight { margin: 4px 0 14px; padding-inline-start: 20px; }
+  ul.tight li { margin-bottom: 9px; padding-inline-start: 4px; font-size: 14.5px; max-width: 62ch; }
+  ul.tight li b { font-weight: 700; }
+
+  .skip-table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 4px; }
+  .skip-table td { padding: 11px 0 11px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  .skip-table td:first-child { font-weight: 700; width: 32%; padding-inline-start: 0; }
+  .skip-table .verdict { font-size: 11.5px; letter-spacing: 0.02em; color: var(--muted); font-weight: 600; display: block; margin-top: 4px; }
+
+  .footer-rule {
+    margin-top: 64px; padding-top: 18px; border-top: 2px solid var(--rule-strong);
+    font-size: 12px; color: var(--muted); line-height: 1.7;
+  }
+
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+  @media print {
+    @page { margin: 16mm 14mm; }
+    body { background: #fff; color: #211F1B; font-size: 10.5pt; }
+    .sheet { padding: 0; max-width: none; }
+    .feat, .note-green, .callout, section, h2, h3, .skip-table tr { break-inside: avoid; }
+    .feat.lead-feat { background: none; border-inline-start: 3px solid #37624A; margin-inline: 0; padding-inline: 16px; }
+    section { margin-top: 26px; }
+    .masthead { margin-bottom: 26px; }
+    .footer-rule { margin-top: 34px; }
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <header class="masthead">
+    <p class="kicker">מסמך עבודה פנימי · לא ללקוחה</p>
+    <h1>פיצ'רים שהופכים את המעבר לאתר החדש לכדאי</h1>
+    <div class="meta">
+      <span><b>הוכן</b> 8 בספטמבר 2026</span>
+      <span><b>פרויקט</b> batshi_sarusi</span>
+      <span><b>עבור</b> מצגת האתר ה-Headless</span>
+    </div>
+  </header>
+
+  <section>
+    <p class="lead">רעיונות לפיצ'רים שאפשר להוסיף לאתר החדש — כאלה שיגרמו ללקוחה באמת <em>לרצות</em> את העסקה, מותאמים לאיך שהיא מנהלת את העסק ולא לארכיטקטורה.</p>
+    <p class="tag">מה שאנחנו יודעים עליה</p>
+    <p>חנות ישראלית למוצרי בית / מטבח / טקסטיל. כ-3,400 מוצרים, 624 מוצרים עם וריאציות, 167 קטגוריות, 2,471 במבצע. מחירים סיטונאיים. אספקה עד 14 ימי עסקים. 817 מוצרים חסרים במלאי. אפס ביקורות אי-פעם, אפס פוסטים בבלוג. אינסטגרם + קולקציות משפיעניות (אתי אפינגר, טליה סול) + וואטסאפ הם כל מנוע השיווק — חצי מתמונות המוצרים הן ייצוא מוואטסאפ. רוב תיאורי המוצרים ריקים. אין מערכת אנליטיקס גלויה.</p>
+  </section>
+
+  <section>
+    <p class="eyebrow">מסגור</p>
+    <h2>מה באמת גורם לבעלת עסק כמוה להגיד כן</h2>
+    <ol class="reasons">
+      <li>היא רואה את <strong>המוצרים שלה</strong> בדמו, עוברים שינוי גלוי.</li>
+      <li>הפיצ'ר נוגע ב<strong>משהו שהיא עושה כל יום</strong> — פרסום באינסטגרם, מענה בוואטסאפ, בניית מבצעים.</li>
+      <li>הוא פותר בעיה ש<strong>היא כבר מרגישה ככאב</strong> — הקטלוג המבולגן, היעדר הוכחה חברתית, הודעות "איפה ההזמנה שלי".</li>
+    </ol>
+    <div class="callout">
+      <p class="callout-h">הסתייגות כנה</p>
+      <p>שום דבר מזה לא חדשני או בר-הגנה — מתחרה יכול להעתיק כל אחד מהם. זה בסדר; המטרה היא לנצח את <em>העסקה הזאת</em>. הערך הוא שה<strong>שילוב</strong> מותאם באופן חריג לעסק שלה, ולרוב המתחרות שלה בתחום מוצרי הבית בישראל אין אף אחד מהם.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">שלב 1 · להוביל עם אלה</p>
+    <h2>אפקט "וואו" גבוה, ריאלי, בר-ביצוע</h2>
+
+    <div class="feat lead-feat">
+      <div class="feat-head"><span class="feat-num">01</span><h3>סטודיו תוכן מוצרים מבוסס AI</h3></div>
+      <p class="feat-meta"><span><b>בנייה</b> כ-1–1.5 שבועות</span><span><b>עלות הפעלה</b> 150–400 ₪ חד-פעמי + אגורות לכל מוצר חדש</span><span><b>וואו</b> הגבוה ביותר</span></p>
+      <p><b>מה זה:</b> כלי ניהול שלוקח את כ-3,400 המוצרים — רובם עם תיאורים ריקים, תמונות JPEG מוואטסאפ, בלי טקסט חלופי — ומייצר בכמות גדולה תיאורים בעברית, נקודות מפרט, כותרות ותיאורי SEO וטקסט חלופי לתמונות, מתוך השם, התמונה, הקטגוריה והמאפיינים. היא בודקת ומאשרת באצוות; מוצרים חדשים מקבלים את זה אוטומטית בשמירה.</p>
+      <p class="why"><b>למה זה עובד בשבילה:</b> הקטלוג כרגע הוא נטל — זו הסיבה שהיא מקבלת כמעט אפס תנועה אורגנית מחיפוש וזו הסיבה שההמרה חלשה. זה הופך שבועות של קופירייטינג שהיא לעולם לא תעשה למחצית יום של הקשה על "אישור". זה ה"לפני/אחרי" הכי גלוי שאפשר.</p>
+      <p class="catch"><b>הקאץ':</b> למוצר עם תמונה גרועה ושום דבר נוסף, המודל מנחש — טקסט גנרי. מתמתן על ידי שלב האישור האנושי, וזה עדיין פי 10 מהר יותר מלהתחיל מאפס. להבטיח "90% מוכן, את מסיימת", לא "מושלם".</p>
+    </div>
+
+    <div class="feat">
+      <div class="feat-head"><span class="feat-num">02</span><h3>שכבת מסחר בוואטסאפ</h3></div>
+      <p class="feat-meta"><span><b>בנייה</b> כ-1.5–2 שבועות</span><span><b>עלות הפעלה</b> כ-0.10–0.25 ₪ לשיחה</span><span><b>וואו</b> גבוה</span></p>
+      <p><b>מה זה:</b> אישור הזמנה, עדכוני משלוח, הודעות עיכוב, התראות "חזר למלאי" ותזכורות עגלה נטושה — הכול דרך וואטסאפ במקום אימייל. בנוסף כפתור "המשך בוואטסאפ" בקופה עבור קונים מהססים, שמעביר אליה עגלה ממולאת מראש.</p>
+      <p class="why"><b>למה זה עובד:</b> היא כבר מנהלת את העסק בוואטסאפ. זה גורם לחנות להרגיש כמו הרחבה של איך שהיא כבר מוכרת, וזה מחסל ישירות את הודעות "איפה ההזמנה שלי" שחלון אספקה של 14 יום מייצר.</p>
+      <p class="catch"><b>הקאץ':</b> דורש את WhatsApp Business API דרך ספק (360dialog, Twilio) — אימות עסקי מול מטא מצידה ועלות קטנה לכל הודעה. לא קשה, אבל חיכוך הקמה אמיתי; להיות שקוף לגבי שניהם.</p>
+    </div>
+
+    <div class="feat">
+      <div class="feat-head"><span class="feat-num">03</span><h3>אינסטגרם לקנייה + עמודי קולקציות משפיעניות</h3></div>
+      <p class="feat-meta"><span><b>בנייה</b> כ-2 שבועות (פיד + עמודי משפיעניות)</span><span><b>עלות הפעלה</b> זניחה</span><span><b>וואו</b> גבוה</span></p>
+      <p><b>מה זה:</b> משיכת גריד האינסטגרם שלה לתוך החנות, אפשרות לתייג מוצרים לפוסטים, ורינדור כגלריה לקנייה. בנוסף עמוד אמיתי לכל שיתוף פעולה עם משפיענית — "קנו את הבחירות של אתי אפינגר" — עם התוכן שלהן, המוצרים שהן אצרו, קישור מדיד ולוח מחוונים חי של המכירות שלהן.</p>
+      <p class="why"><b>למה זה עובד:</b> אינסטגרם + משפיעניות הם <em>מנוע השיווק</em> שלה, וכרגע התנועה הזאת נוחתת על עמוד Elementor איטי. זה גורם לערוץ האמיתי שלה להמיר, והלוחות הופכים את הקשרים עם המשפיעניות לדביקים יותר — בהתבסס על תוכנית השותפים (YITH) שהיא כבר מפעילה.</p>
+      <p class="catch"><b>הקאץ':</b> תיוג מוצרים ידני חוסך את רוב כאב האישור של Instagram Graph API; סנכרון אוטומטי ידרוש חשבון עסקי, עמוד פייסבוק מקושר ובדיקת אפליקציה.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">שלב 2 · תמיכה חזקה</p>
+    <h2>שווה לבנות, לא המרכז</h2>
+    <ul class="tight">
+      <li><b>רשימת מתנות</b> (חתונה / חנוכת בית / חג). ה"סליפר". תרבות מתנות האירועים בישראל ענקית, והתמהיל שלה — כלי הגשה, צלחות, שולחן שבת, טקסטיל — הוא בדיוק מלאי של רשימת מתנות. רשימה ניתנת לשיתוף מביאה קונים שהיא לא שילמה לאינסטגרם עבורם. כ-1.5–2 שבועות, הכנסה אמיתית מלקוחות חדשים, וכמעט לאף מתחרה מקומי אין את זה. אם רוצים פיצ'ר <em>מבדל</em> אחד ולא רק מותאם — זה זה.</li>
+      <li><b>לכידת ביקורות אחרי משלוח דרך וואטסאפ</b> — הודעה אוטומטית "איך היה?" שבוע אחרי המסירה, דירוג כוכבים + תמונה בהקשה אחת. פותר את בעיית האפס-ביקורות באופן אוטומטי. משתלב עם פיצ'ר 02.</li>
+      <li><b>שקיפות תאריך אספקה אמיתי + מעקב ממותג</b> — חישוב "מגיע אלייך בין X ל-Y" לכל מוצר לפי מלאי מול זמן אספקה; עמוד מעקב ממותג; הודעות עיכוב יזומות. מוריד את הסיכון של חלון 14 היום במקום להסתיר אותו.</li>
+      <li><b>עוזר קטלוג שיחתי</b> — "אני מארחת 12 לראש השנה, מה אני צריכה?" ← רשימת מוצרים אצורה. וואו גבוה, שימושי באמת לקטלוג של 3,400 פריטים עם ניווט קטגוריות שבור. לתחום אותו מאחורי פיצ'ר 01 — הוא צריך נתוני מוצר נקיים. להציג כשלב 2.</li>
+    </ul>
+  </section>
+
+  <section>
+    <p class="eyebrow">שלב 3 · לעשות בזול או לדלג</p>
+    <h2>עדיפות נמוכה</h2>
+    <table class="skip-table">
+      <tbody>
+        <tr><td>מבצע בזק מתוזמן + ספירה לאחור אמיתית</td><td>לעשות — ספירה לאחור על מבצע שבאמת מתוזמן היא לגיטימית וממירה — אבל זה בסיסי, לא וואו.<span class="verdict">לבנות, לא להציג</span></td></tr>
+        <tr><td>בונה לוח השראה (mood-board)</td><td>חמוד, החזר השקעה לא ברור.<span class="verdict">לדלג בגרסה 1</span></td></tr>
+        <tr><td>AR "לראות בחדר שלך"</td><td>התאמה גרועה ל-3,400 פריטים עם תמונות חלשות, יקר, שימוש אמיתי נמוך.<span class="verdict">לדלג</span></td></tr>
+        <tr><td>קופסת הפתעה / שק חבילות לחיסול</td><td>כיף עבור 817 המוצרים החסרים / החיסול, אבל נישתי.<span class="verdict">אולי, כתוספת</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <p class="eyebrow">הטיעון</p>
+    <h2>למה זה מתחבר ל"למה לעבור"</h2>
+    <div class="note-green">
+      <p>כל אחד מאלה חי באופן טבעי בשכבת השליטה ה-Headless שכבר נבנתה — ה-API של Express הוא הבית המובן מאליו לקריאות AI, ל-webhooks של וואטסאפ, ל-embeddings וללוגיקת רשימת מתנות.</p>
+      <p>על ה-stack הנוכחי שלה — Elementor + כ-15 תוספים של WooCommerce — כל אחד מאלה הוא תוסף בתשלום שביר, מנוי SaaS חודשי, או בלתי אפשרי בכלל.</p>
+      <p><strong>זה הטיעון למעבר</strong> — לא "האתר החדש מהיר יותר", אלא "האתר החדש הוא פלטפורמה שאפשר לבנות עליה; הנה ארבעה דברים שאפשר להוסיף בחודש הראשון שאי אפשר לעשות היום בשום מחיר סביר".</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">המלצה</p>
+    <h2>להראות, לא לתאר</h2>
+    <div class="callout">
+      <p class="callout-h">לפני המצגת</p>
+      <p>לבנות דמו חי של פיצ'ר 01 על 5–10 מהמוצרים האמיתיים שלה. למשוך אותם מ-Store API החי, להריץ את סטודיו התוכן, ולהראות את ה"לפני/אחרי" בעברית זה לצד זה.</p>
+      <p>ה-artifact הזה לבדו יעשה יותר לסגירת העסקה מכל מסמך ההצעה — כי אלה המוצרים שלה, השפה שלה, הבעיה שלה, נפתרת מול העיניים שלה. את כל השאר אתה מתאר; את זה אתה <strong>מראה</strong>.</p>
+    </div>
+  </section>
+
+  <div class="footer-rule">
+    הקשר מקורות: docs/current-site-audit.md · docs/integration-map.md · בדיקת batshi-home.co.il החיה.<br>
+    כל אומדני הבנייה הם ימי עבודה של מפתח בכיר יחיד, ללא סבבי בדיקה של הלקוחה.
+  </div>
+
+</div>
+</body>
+</html>

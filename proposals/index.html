@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Batshi Home — Proposal Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Heebo:wght@400;500&display=swap">
+<style>
+  :root {
+    --paper: #EEEDE7;
+    --surface: #F7F6F1;
+    --ink: #211F1B;
+    --muted: #6A665C;
+    --rule: rgba(33, 31, 27, 0.14);
+    --rule-strong: rgba(33, 31, 27, 0.28);
+    --accent: #37624A;
+    --accent-soft: rgba(55, 98, 74, 0.11);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #191815; --surface: #201E1A; --ink: #E9E6DE; --muted: #9C978B;
+      --rule: rgba(233, 230, 222, 0.16); --rule-strong: rgba(233, 230, 222, 0.32);
+      --accent: #74A98A; --accent-soft: rgba(116, 169, 138, 0.16);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #191815; --surface: #201E1A; --ink: #E9E6DE; --muted: #9C978B;
+    --rule: rgba(233, 230, 222, 0.16); --rule-strong: rgba(233, 230, 222, 0.32);
+    --accent: #74A98A; --accent-soft: rgba(116, 169, 138, 0.16);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app { display: grid; grid-template-columns: 300px 1fr; height: 100vh; }
+
+  /* ---- sidebar ---- */
+  .side {
+    border-inline-end: 1px solid var(--rule-strong);
+    background: var(--surface);
+    padding: 28px 0 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .brand { padding: 0 24px 22px; border-bottom: 1px solid var(--rule); }
+  .kicker {
+    font-family: "IBM Plex Mono", monospace; font-size: 10.5px;
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px;
+  }
+  .brand h1 {
+    font-family: "Spectral", Georgia, serif; font-weight: 600;
+    font-size: 22px; line-height: 1.15; letter-spacing: -0.01em; margin: 0;
+  }
+
+  nav { padding: 6px 0; flex: 1; }
+  .group { margin-top: 22px; }
+  .group-label {
+    font-family: "IBM Plex Mono", monospace; font-size: 10.5px;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent);
+    padding: 0 24px 8px; margin: 0;
+  }
+  .item {
+    display: block; width: 100%; text-align: start;
+    background: none; border: 0; border-inline-start: 3px solid transparent;
+    padding: 10px 24px 10px 21px; cursor: pointer; color: var(--ink);
+    font: inherit;
+  }
+  .item:hover { background: var(--accent-soft); }
+  .item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .item[aria-current="page"] { background: var(--accent-soft); border-inline-start-color: var(--accent); }
+  .item-title { display: block; font-weight: 600; font-size: 14px; }
+  .item-sub { display: block; color: var(--muted); font-size: 12px; margin-top: 1px; }
+  .item[lang="he"] { font-family: "Heebo", "IBM Plex Sans", sans-serif; }
+
+  .side-foot {
+    padding: 14px 24px 0; border-top: 1px solid var(--rule);
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--muted); line-height: 1.55;
+  }
+
+  /* ---- viewer ---- */
+  .main { display: grid; grid-template-rows: auto 1fr; min-width: 0; height: 100vh; }
+  .bar {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    padding: 12px 20px; border-bottom: 1px solid var(--rule-strong); background: var(--paper);
+  }
+  .bar-title { font-weight: 600; font-size: 14px; margin: 0; flex: 1; min-width: 160px; }
+  .seg { display: inline-flex; border: 1px solid var(--rule-strong); }
+  .seg button {
+    font: inherit; font-size: 12.5px; font-weight: 500; padding: 6px 14px;
+    background: transparent; color: var(--muted); border: 0; cursor: pointer;
+  }
+  .seg button + button { border-inline-start: 1px solid var(--rule-strong); }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  .seg button:focus-visible, .nav-btn:focus-visible, .open-link:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  .nav-btn, .open-link {
+    font: inherit; font-size: 12.5px; font-weight: 500; padding: 6px 12px;
+    border: 1px solid var(--rule-strong); background: transparent; color: var(--ink);
+    cursor: pointer; text-decoration: none;
+  }
+  .nav-btn:hover, .open-link:hover { background: var(--accent-soft); }
+  .nav-btn:disabled { opacity: 0.4; cursor: default; background: transparent; }
+
+  .frame-wrap { background: var(--surface); min-height: 0; }
+  iframe { width: 100%; height: 100%; border: 0; display: block; background: #fff; }
+
+  /* ---- small screens: nav becomes a top strip ---- */
+  @media (max-width: 820px) {
+    .app { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height: 100vh; }
+    .side { border-inline-end: 0; border-bottom: 1px solid var(--rule-strong); padding: 14px 0 0; max-height: 44vh; }
+    .brand { padding: 0 16px 12px; }
+    .brand h1 { font-size: 19px; }
+    .group { margin-top: 12px; }
+    .group-label, .item { padding-inline: 16px; }
+    .side-foot { display: none; }
+    .main { height: auto; min-height: 0; }
+    .frame-wrap { height: 100%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="side">
+    <div class="brand">
+      <p class="kicker">Batshi Home · Internal</p>
+      <h1>Proposal Library</h1>
+    </div>
+    <nav id="nav" aria-label="Documents"></nav>
+    <div class="side-foot">Documents open beside this list.<br>Use ← → to move between them.</div>
+  </aside>
+
+  <main class="main">
+    <div class="bar">
+      <p class="bar-title" id="title"></p>
+      <div class="seg" role="group" aria-label="Format" id="seg">
+        <button type="button" data-fmt="html" aria-pressed="true">Page</button>
+        <button type="button" data-fmt="pdf" aria-pressed="false">PDF</button>
+      </div>
+      <button type="button" class="nav-btn" id="prev">← Prev</button>
+      <button type="button" class="nav-btn" id="next">Next →</button>
+      <a class="open-link" id="open" target="_blank" rel="noopener">Open in tab ↗</a>
+    </div>
+    <div class="frame-wrap"><iframe id="frame" title="Selected document"></iframe></div>
+  </main>
+
+</div>
+
+<script>
+  var DOCS = [
+    { group: "Pricing", id: "pricing", file: "pricing-memo", title: "Headless storefront", sub: "Phase 1 itemized ₪58k + Phase 2" },
+    { group: "Pricing", id: "rebuild", file: "rebuild-memo", title: "Full store rebuild", sub: "From scratch · ₪520k · reality check" },
+    { group: "Features", id: "features", file: "feature-ideas", title: "Features for the switch", sub: "English" },
+    { group: "Features", id: "features-he", file: "feature-ideas-he", title: "פיצ'רים שהופכים את המעבר לכדאי", sub: "עברית · RTL", lang: "he" }
+  ];
+
+  var nav = document.getElementById("nav");
+  var frame = document.getElementById("frame");
+  var titleEl = document.getElementById("title");
+  var openEl = document.getElementById("open");
+  var prevBtn = document.getElementById("prev");
+  var nextBtn = document.getElementById("next");
+  var segBtns = document.querySelectorAll("#seg button");
+  var state = { index: 0, fmt: "html" };
+
+  function buildNav() {
+    var groups = {};
+    DOCS.forEach(function (d, i) {
+      if (!groups[d.group]) {
+        var wrap = document.createElement("div");
+        wrap.className = "group";
+        var label = document.createElement("p");
+        label.className = "group-label";
+        label.textContent = d.group;
+        wrap.appendChild(label);
+        nav.appendChild(wrap);
+        groups[d.group] = wrap;
+      }
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "item";
+      btn.dataset.index = i;
+      if (d.lang) { btn.lang = d.lang; btn.dir = "rtl"; }
+      btn.innerHTML = '<span class="item-title"></span><span class="item-sub"></span>';
+      btn.querySelector(".item-title").textContent = d.title;
+      btn.querySelector(".item-sub").textContent = d.sub;
+      btn.addEventListener("click", function () { go(i, state.fmt); });
+      groups[d.group].appendChild(btn);
+    });
+  }
+
+  function render() {
+    var d = DOCS[state.index];
+    var src = d.file + "." + state.fmt;
+    if (frame.getAttribute("src") !== src) frame.setAttribute("src", src);
+    titleEl.textContent = d.title + (d.lang ? "" : "") + " — " + state.fmt.toUpperCase();
+    openEl.setAttribute("href", src);
+    segBtns.forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.fmt === state.fmt)); });
+    nav.querySelectorAll(".item").forEach(function (el) {
+      if (Number(el.dataset.index) === state.index) el.setAttribute("aria-current", "page");
+      else el.removeAttribute("aria-current");
+    });
+    prevBtn.disabled = state.index === 0;
+    nextBtn.disabled = state.index === DOCS.length - 1;
+    document.title = d.title + " · Proposal Library";
+  }
+
+  function go(index, fmt) {
+    state.index = Math.max(0, Math.min(DOCS.length - 1, index));
+    state.fmt = fmt === "pdf" ? "pdf" : "html";
+    try { history.replaceState(null, "", "#" + DOCS[state.index].id + "/" + state.fmt); } catch (e) {}
+    render();
+  }
+
+  function fromHash() {
+    var parts = location.hash.replace("#", "").split("/");
+    var idx = DOCS.findIndex(function (d) { return d.id === parts[0]; });
+    go(idx >= 0 ? idx : 0, parts[1]);
+  }
+
+  segBtns.forEach(function (b) { b.addEventListener("click", function () { go(state.index, b.dataset.fmt); }); });
+  prevBtn.addEventListener("click", function () { go(state.index - 1, state.fmt); });
+  nextBtn.addEventListener("click", function () { go(state.index + 1, state.fmt); });
+  document.addEventListener("keydown", function (e) {
+    if (e.target && /input|textarea|select/i.test(e.target.tagName)) return;
+    if (e.key === "ArrowRight") go(state.index + 1, state.fmt);
+    if (e.key === "ArrowLeft") go(state.index - 1, state.fmt);
+  });
+  window.addEventListener("hashchange", fromHash);
+
+  buildNav();
+  fromHash();
+</script>
+</body>
+</html>

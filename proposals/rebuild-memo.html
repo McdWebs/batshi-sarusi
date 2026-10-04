@@ -1,0 +1,584 @@
+<title>Batshi Home — Full Rebuild Memo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --paper: #EEEDE7;
+    --surface: #F7F6F1;
+    --ink: #211F1B;
+    --muted: #6A665C;
+    --rule: rgba(33, 31, 27, 0.14);
+    --rule-strong: rgba(33, 31, 27, 0.28);
+    --accent: #37624A;      /* ledger green — money figures, key totals */
+    --accent-soft: rgba(55, 98, 74, 0.10);
+    --flag: #9A3B27;        /* brick — floor / caution */
+    --flag-soft: rgba(154, 59, 39, 0.09);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #191815;
+      --surface: #201E1A;
+      --ink: #E9E6DE;
+      --muted: #9C978B;
+      --rule: rgba(233, 230, 222, 0.16);
+      --rule-strong: rgba(233, 230, 222, 0.32);
+      --accent: #74A98A;
+      --accent-soft: rgba(116, 169, 138, 0.14);
+      --flag: #D07C63;
+      --flag-soft: rgba(208, 124, 99, 0.14);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #191815;
+    --surface: #201E1A;
+    --ink: #E9E6DE;
+    --muted: #9C978B;
+    --rule: rgba(233, 230, 222, 0.16);
+    --rule-strong: rgba(233, 230, 222, 0.32);
+    --accent: #74A98A;
+    --accent-soft: rgba(116, 169, 138, 0.14);
+    --flag: #D07C63;
+    --flag-soft: rgba(208, 124, 99, 0.14);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sheet {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 72px 32px 120px;
+  }
+
+  @media (max-width: 640px) {
+    .sheet { padding: 44px 20px 90px; }
+  }
+
+  /* ---- masthead ---- */
+  .masthead {
+    border-bottom: 2px solid var(--rule-strong);
+    padding-bottom: 22px;
+    margin-bottom: 40px;
+  }
+  .kicker {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 14px;
+  }
+  h1 {
+    font-family: "Spectral", Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(28px, 5vw, 40px);
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+    margin: 0 0 16px;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 26px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .meta b { color: var(--ink); font-weight: 500; }
+
+  /* ---- sections ---- */
+  section { margin-top: 52px; }
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 6px;
+  }
+  h2 {
+    font-family: "Spectral", Georgia, serif;
+    font-weight: 600;
+    font-size: 23px;
+    letter-spacing: -0.01em;
+    margin: 0 0 18px;
+    text-wrap: balance;
+  }
+  h3 {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    margin: 26px 0 8px;
+  }
+  p { margin: 0 0 14px; max-width: 65ch; }
+  a { color: var(--accent); text-underline-offset: 2px; }
+  strong { font-weight: 600; }
+
+  .lead {
+    font-size: 17.5px;
+    line-height: 1.55;
+  }
+
+  /* ---- triangulation band ---- */
+  .tri {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border: 1px solid var(--rule);
+    background: var(--surface);
+  }
+  @media (max-width: 640px) { .tri { grid-template-columns: 1fr; } }
+  .tri > div {
+    padding: 18px 18px 20px;
+    border-inline-end: 1px solid var(--rule);
+  }
+  .tri > div:last-child { border-inline-end: none; }
+  @media (max-width: 640px) {
+    .tri > div { border-inline-end: none; border-bottom: 1px solid var(--rule); }
+    .tri > div:last-child { border-bottom: none; }
+  }
+  .tri-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 8px;
+  }
+  .tri-fig {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    margin: 0 0 6px;
+  }
+  .tri-note { font-size: 12.5px; color: var(--muted); margin: 0; line-height: 1.45; }
+
+  /* ---- itemized table ---- */
+  .invoice {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 4px 0 0;
+    font-size: 14.5px;
+  }
+  .invoice th {
+    text-align: start;
+    font-family: "IBM Plex Mono", monospace;
+    font-weight: 500;
+    font-size: 10.5px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 0 10px;
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  .invoice th.num, .invoice td.num { text-align: end; }
+  .invoice td {
+    padding: 13px 0;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  .invoice td.num {
+    font-family: "IBM Plex Mono", monospace;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    padding-inline-start: 18px;
+  }
+  .invoice td.when {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+    padding-inline: 16px;
+  }
+  .invoice .item-name { font-weight: 600; display: block; margin-bottom: 2px; }
+  .invoice .item-desc { color: var(--muted); font-size: 12.5px; line-height: 1.45; }
+  .invoice tr.total td {
+    border-bottom: none;
+    border-top: 2px solid var(--rule-strong);
+    padding-top: 15px;
+    font-weight: 600;
+  }
+  .invoice tr.total .num {
+    font-size: 17px;
+    color: var(--accent);
+  }
+  .invoice tr.rule-line td {
+    border-bottom: 1px solid var(--rule-strong);
+    font-style: italic;
+    color: var(--muted);
+  }
+
+  /* ---- callout ---- */
+  .callout {
+    border-inline-start: 3px solid var(--flag);
+    background: var(--flag-soft);
+    padding: 16px 20px;
+    margin: 22px 0;
+  }
+  .callout p { margin: 0 0 8px; font-size: 14px; }
+  .callout p:last-child { margin: 0; }
+  .callout .callout-h {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--flag);
+    margin: 0 0 6px;
+  }
+
+  .note-green {
+    border-inline-start: 3px solid var(--accent);
+    background: var(--accent-soft);
+    padding: 16px 20px;
+    margin: 22px 0;
+  }
+  .note-green p { margin: 0 0 8px; font-size: 14px; }
+  .note-green p:last-child { margin: 0; }
+
+  /* ---- key/value list ---- */
+  .kv { display: grid; gap: 0; margin: 0; }
+  .kv > div {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 20px;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .kv > div:first-child { border-top: 1px solid var(--rule); }
+  @media (max-width: 640px) {
+    .kv > div { grid-template-columns: 1fr; gap: 3px; }
+  }
+  .kv dt {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-top: 2px;
+  }
+  .kv dd { margin: 0; font-size: 14px; }
+  .kv dd .fig {
+    font-family: "IBM Plex Mono", monospace;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  /* ---- compare table ---- */
+  .compare { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 4px; }
+  .compare th {
+    text-align: start;
+    font-family: "IBM Plex Mono", monospace;
+    font-weight: 500;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 12px 9px 0;
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  .compare td {
+    padding: 10px 12px 10px 0;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  .compare td:first-child { font-weight: 600; white-space: nowrap; }
+  .compare .old { color: var(--muted); }
+  .compare .strong-cell { color: var(--accent); font-weight: 600; }
+
+  ul.tight { margin: 4px 0 14px; padding-inline-start: 20px; }
+  ul.tight li { margin-bottom: 7px; padding-inline-start: 4px; }
+  ul.tight li strong { font-weight: 600; }
+
+  .footer-rule {
+    margin-top: 64px;
+    padding-top: 18px;
+    border-top: 2px solid var(--rule-strong);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11.5px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+
+  @media print {
+    @page { margin: 16mm 14mm; }
+    body { background: #fff; color: #211F1B; font-size: 10.5pt; }
+    .sheet { padding: 0; max-width: none; }
+    .tri, .note-green, .callout, .invoice tr, .compare tr, .kv > div,
+    section, h2, h3 { break-inside: avoid; }
+    section { margin-top: 26px; page-break-inside: auto; }
+    .masthead { margin-bottom: 26px; }
+    a { color: #37624A; }
+    .footer-rule { margin-top: 34px; }
+  }
+</style>
+
+<div class="sheet">
+
+  <header class="masthead">
+    <p class="kicker">Internal Pricing Memo · Not for client</p>
+    <h1>Batshi Home — Full Store Rebuild</h1>
+    <div class="meta">
+      <span><b>Prepared</b> 8 Sep 2026</span>
+      <span><b>Project</b> batshi_sarusi</span>
+      <span><b>Scope</b> From scratch, WooCommerce retired</span>
+      <span><b>Currency</b> ILS, pre-VAT</span>
+    </div>
+  </header>
+
+  <section>
+    <p class="lead">A bespoke commerce platform replacing WordPress / WooCommerce entirely: custom storefront, custom API, own database, <strong>custom admin panel</strong>, own pricing / shipping / coupon engines, Israeli payment integrations, and full migration of the existing ~3,400-product catalog with customers and order history.</p>
+    <p><strong>Bottom line:</strong> anchor <strong>₪520,000</strong>, range ₪460,000–580,000, hard floor ₪400,000 (only by cutting scope — see notes). Timeline <strong>9–11 months solo</strong> or ~6 months with a second developer. Milestone-billed across 4 releases. This is a ~6× multiple of the headless path already delivered — <strong>read the reality check before pitching it.</strong></p>
+  </section>
+
+  <section>
+    <p class="eyebrow">Three ways the number checks out</p>
+    <h2>Triangulation</h2>
+    <div class="tri">
+      <div>
+        <p class="tri-label">Reconstructed effort</p>
+        <p class="tri-fig">₪475k–555k</p>
+        <p class="tri-note">~183 senior days × ₪2,600–3,000/day, including a 15% parity-risk contingency.</p>
+      </div>
+      <div>
+        <p class="tri-label">Global market comp</p>
+        <p class="tri-fig">$120k–300k</p>
+        <p class="tri-note">Full custom platform / composable rebuild. Mid-market ecommerce builds run $80k–250k; headless-from-scratch $150k+.</p>
+      </div>
+      <div>
+        <p class="tri-label">vs the headless path</p>
+        <p class="tri-fig">6.5×</p>
+        <p class="tri-note">Headless-on-Woo delivers ~80% of the customer-facing upside for ~₪80k all-in (Phase 1 + 2).</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Full scope · not started</p>
+    <h2>Itemized by work area</h2>
+    <table class="invoice">
+      <thead>
+        <tr><th>Work area</th><th class="num">Days</th><th class="num">Fee</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <span class="item-name">Discovery, architecture &amp; data modeling</span>
+            <span class="item-desc">Requirements, full domain model (products / variants / attributes / pricing / inventory / tax / shipping / coupons / orders / customers), infra plan, migration plan. Builds on the existing audit.</span>
+          </td>
+          <td class="num">10</td><td class="num">26,000</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="item-name">Core platform &amp; admin foundation</span>
+            <span class="item-desc">Postgres schema + migrations, ORM &amp; repository layer, admin auth + RBAC (owner / staff / warehouse), audit log, settings (shipping zones, tax, payment config, store hours / Shabbat), dashboard shell.</span>
+          </td>
+          <td class="num">18</td><td class="num">44,000</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="item-name">Catalog service + admin</span>
+            <span class="item-desc">Product CRUD incl. variable products (matching the current 624), 167 nested categories, 5 brands, global + product attributes, media upload / management, bulk edit, CSV import/export. Storefront catalog API: list, filter, sort, paginate.</span>
+          </td>
+          <td class="num">20</td><td class="num">52,000</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="item-name">Search</span>
+            <span class="item-desc">Meilisearch / Typesense indexing pipeline, Hebrew tokenization, faceted filters with live counts, autocomplete, synonyms.</span>
+          </td>
+          <td class="num">6</td><td class="num">16,000</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="item-name">Pricing, cart &amp; shipping engine</span>
+            <span class="item-desc">Server-side cart; pricing engine replacing Advanced Woo Discount Rules + ELEX Flexible Pricing (role / qty / wholesale); tax rules; shipping-rate engine replacing PI SOL conditional flat rates (₪39 / free-over-threshold / ₪100 / furniture / courier ₪299–499, tag-based exclusions); free-shipping progress.</span>
+          </td>
+          <td class="num">18</td><td class="num">46,000</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="item-name">Checkout &amp; payments</span>
+            <span class="item-desc">Grow (cards + Bit) + Meshulam integration, webhook handling, 3DS, order state machine, refunds, reconciliation, PCI-safe. Highest external-dependency risk.</span>
+          </td>
+          <td class="num">15</td><td class="num">40,000</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="item-name">Order management (admin)</span>
+            <span class="item-desc">Order list / detail, status workflow, fulfillment, partial refunds, invoices &amp; packing slips, internal notes, customer comms, store-closed handling.</span>
+          </td>
+          <td class="num">12</td><td class="num">32,000</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="item-name">Customer accounts</span>
+            <span class="item-desc">Registration, login, guest checkout, saved addresses, order history, reorder, password reset. Storefront + admin customer views.</span>
+          </td>
+          <td class="num">8</td><td class="num">20,000</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="item-name">Coupons &amp; promotions engine + admin</span>
+            <span class="item-desc">Coupon types, cart / product rules, scheduling, usage limits, store-credit / gift-card-style balance.</span>
+          </td>
+          <td class="num">7</td><td class="num">18,000</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="item-name">Inventory &amp; pre-orders</span>
+            <span class="item-desc">Stock tracking, cart / checkout reservations, low-stock alerts, back-in-stock, pre-order flow.</span>
+          </td>
+          <td class="num">6</td><td class="num">16,000</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="item-name">Storefront frontend</span>
+            <span class="item-desc">Next.js SSR/SSG for SEO across 3,400 products: home / merchandising, category pages, PDP with gallery + variants, cart, checkout flow, account area, legal + contact pages. RTL design system, mobile-first, a11y, structured data, sitemaps, performance budget.</span>
+          </td>
+          <td class="num">25</td><td class="num">64,000</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="item-name">Data migration</span>
+            <span class="item-desc">ETL from WooCommerce: ~3,400 products, 624 variable, 167 categories, 5 brands, images (download + re-host), customers, order history, coupons. Reconciliation, dry runs, 301 redirect map for all indexed Hebrew-slug URLs.</span>
+          </td>
+          <td class="num">12</td><td class="num">32,000</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="item-name">Analytics, transactional email &amp; marketing</span>
+            <span class="item-desc">GA4 / GTM / Meta with server-side purchase events, consent management, order / shipping / account emails, abandoned-cart flow.</span>
+          </td>
+          <td class="num">6</td><td class="num">16,000</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="item-name">Infra, DevOps &amp; security</span>
+            <span class="item-desc">CI/CD, staging + production environments, managed Postgres + backups, S3 / CDN, monitoring + alerting + error tracking, rate limiting, security headers, secrets management, load test.</span>
+          </td>
+          <td class="num">8</td><td class="num">20,000</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="item-name">QA, UAT, launch &amp; hypercare</span>
+            <span class="item-desc">End-to-end + payment-sandbox testing, client UAT cycle, bug fixing, staged rollout, DNS cutover, 2 weeks post-launch hypercare.</span>
+          </td>
+          <td class="num">12</td><td class="num">32,000</td>
+        </tr>
+        <tr class="rule-line">
+          <td>Subtotal</td><td class="num">183</td><td class="num">474,000</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="item-name">Parity-risk contingency (≈10%)</span>
+            <span class="item-desc">You are re-implementing 4 mature plugins. Parity bugs in pricing / shipping mean wrong amounts charged. This buffer is not optional on a from-scratch build.</span>
+          </td>
+          <td class="num">—</td><td class="num">46,000</td>
+        </tr>
+        <tr class="total">
+          <td>Anchor total</td><td class="num"></td><td class="num">₪520,000</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <p class="eyebrow">Cannot ship in one delivery</p>
+    <h2>Milestone plan</h2>
+    <table class="invoice">
+      <thead>
+        <tr><th>Release</th><th class="num">Window</th><th class="num">Fee</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="item-name">M1 — Foundation</span><span class="item-desc">Architecture, data model, core platform, admin shell + auth, catalog model.</span></td>
+          <td class="when">Mo. 1–2.5</td><td class="num">88,000</td>
+        </tr>
+        <tr>
+          <td><span class="item-name">M2 — Catalog &amp; storefront browse</span><span class="item-desc">Catalog admin, search, storefront catalog + PDP, catalog migration on staging.</span></td>
+          <td class="when">Mo. 2.5–5</td><td class="num">150,000</td>
+        </tr>
+        <tr>
+          <td><span class="item-name">M3 — Commerce core</span><span class="item-desc">Pricing / cart / shipping engine, checkout, payments, order-management admin, inventory, coupons.</span></td>
+          <td class="when">Mo. 5–8</td><td class="num">165,000</td>
+        </tr>
+        <tr>
+          <td><span class="item-name">M4 — Accounts, hardening &amp; launch</span><span class="item-desc">Customer accounts, analytics + email, full migration, infra hardening, QA, UAT, cutover, hypercare.</span></td>
+          <td class="when">Mo. 8–10.5</td><td class="num">117,000</td>
+        </tr>
+        <tr class="total">
+          <td>Total</td><td class="num"></td><td class="num">₪520,000</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="note-green">
+      <p><strong>Billing:</strong> 15% mobilization on signature, remainder on milestone acceptance, 10% retention released 30 days after launch. Each milestone gated by a signed spec; anything outside it is a change order at ₪2,800/day.</p>
+      <p><strong>After launch:</strong> a custom platform has no plugin vendor shipping security patches — that is now you. Attach a mandatory support contract: ₪7,000–12,000/mo, or ₪90k/yr.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Read this before pitching</p>
+    <h2>Reality check</h2>
+    <div class="callout">
+      <p class="callout-h">This is probably the wrong project for this client</p>
+      <p>Batshi Home is a wholesale-priced home-goods SMB. The headless-on-Woo path already delivered gives ~80% of the customer-facing upside — speed, design, mobile, SEO, discovery — for ~₪80k all-in, keeps a battle-tested admin, and keeps the whole WooCommerce plugin ecosystem doing its job. From-scratch is ~6.5× the cost, ~5× the timeline, and hands the client (and you) a bespoke admin, a bespoke pricing engine, and a bespoke shipping engine to own and patch forever.</p>
+      <p>Only pitch this if the client has a concrete reason Woo cannot continue: a licensing / cost ceiling they have actually hit, a performance wall the headless front end did not solve, a business model Woo genuinely cannot represent, or an investor / acquirer requiring fully owned IP. "It would be cleaner" is not a reason worth ₪520k of their money.</p>
+    </div>
+    <dl class="kv">
+      <div><dt>Anchor</dt><dd>Open at <span class="fig">₪520,000</span>, itemized + milestone plan. Do not present a lump sum — the client must see it is 15 distinct builds, not a website.</dd></div>
+      <div><dt>Floor ₪400k</dt><dd>Reachable only by cutting: swap the custom admin for Medusa / Saleor (−₪80–100k but you lose "fully owned"), drop order-history migration (−₪12k), defer the promotions engine to post-launch (−₪18k), shorten hypercare.</dd></div>
+      <div><dt>Do not solo blind</dt><dd>10 months of solo delivery risk is high — one illness or one hard client and the timeline doubles. Price a second developer into M3 (commerce core) or extend the schedule and say so in writing.</dd></div>
+      <div><dt>Highest-risk line</dt><dd>Pricing + shipping engine. You are replacing Advanced Woo Discount Rules, ELEX Flexible Pricing, PI SOL shipping, and Smart Coupons. Get every rule documented and signed before M3 starts; the contingency lives here.</dd></div>
+      <div><dt>Payment dependency</dt><dd>Grow / Meshulam headless support is still unverified from the audit. Do not sign a fixed price for checkout until the gateway vendor confirms an API flow — carve it out as T&amp;M if they cannot.</dd></div>
+      <div><dt>If they hesitate</dt><dd>Offer the staged route: ship the headless storefront now (₪80k), run it 6–12 months, migrate the back office to custom later only if the business case still holds. Lower risk, same end state, and you keep the relationship warm.</dd></div>
+    </dl>
+  </section>
+
+  <section>
+    <p class="eyebrow">Supporting the number</p>
+    <h2>Headless vs from-scratch</h2>
+    <table class="compare">
+      <thead><tr><th></th><th>Headless (delivered)</th><th>From-scratch (this memo)</th></tr></thead>
+      <tbody>
+        <tr><td>All-in price</td><td class="old">~₪80,000</td><td class="strong-cell">~₪520,000</td></tr>
+        <tr><td>Timeline</td><td class="old">~2 months</td><td>9–11 months</td></tr>
+        <tr><td>Back office</td><td class="old">WooCommerce, unchanged</td><td>Custom admin panel, owned + maintained by you</td></tr>
+        <tr><td>Pricing / shipping logic</td><td class="old">Stays in Woo plugins</td><td>Re-implemented from scratch — parity risk</td></tr>
+        <tr><td>Plugin ecosystem</td><td class="old">Kept (invoices, affiliates, pre-orders, POS…)</td><td>Each one now a custom feature or dropped</td></tr>
+        <tr><td>Security patching</td><td class="old">Plugin + WP vendors</td><td>You, under a support contract</td></tr>
+        <tr><td>Customer-facing result</td><td class="old">Modern, fast, SEO-preserving storefront</td><td class="strong-cell">Same — plus fully owned data + IP</td></tr>
+      </tbody>
+    </table>
+    <h3>Market context</h3>
+    <ul class="tight">
+      <li>Israeli senior freelance day rate 2026: <strong>₪2,000–3,800</strong>. At ~183 days this build is a ₪370k–700k span before contingency — the anchor sits mid-band.</li>
+      <li>Global full custom / composable commerce platform: <strong>$120k–300k+</strong>; agencies bill $100–200/hr over 3–8 months with a team.</li>
+      <li>Israeli "custom online store" quotes of ₪20k–50k are template WooCommerce builds and are <strong>not comparable</strong> — no custom admin, no engine work, no migration at this scale.</li>
+      <li>The 15% contingency is standard for parity rebuilds and should not be negotiated away; it is the line that covers wrong-price bugs.</li>
+    </ul>
+  </section>
+
+  <div class="footer-rule">
+    Existing store: ~3,400 products · 624 variable · 167 categories · 5 brands · 2,471 on sale · Grow + Meshulam payments · PI SOL shipping · ~15 commerce / merchandising plugins.<br>
+    Sources: CWS Israel freelancer day rates · Codeable WooCommerce cost guide · DigitalSuits &amp; Elogic headless / composable cost · existing project audit (docs/).
+  </div>
+
+</div>

@@ -24,7 +24,7 @@ export function ProductGallery({ images, name }: { images: Image[]; name: string
           srcSet={current.srcset}
           sizes={current.sizes || "(max-width: 900px) 100vw, 50vw"}
           alt={current.alt || name}
-          loading="eager"
+          priority
           sx={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
       </Box>

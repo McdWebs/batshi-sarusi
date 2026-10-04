@@ -144,7 +144,7 @@ export function HomeHero({ products = [] }: HomeHeroProps) {
                     srcSet={slide.srcset}
                     sizes="100vw"
                     alt=""
-                    loading={index === 0 ? "eager" : "lazy"}
+                    priority={index === 0}
                     sx={{
                       width: "100%",
                       height: "100%",

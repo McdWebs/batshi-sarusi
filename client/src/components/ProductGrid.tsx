@@ -15,6 +15,7 @@ export function ProductGrid({
   loading,
   refreshing,
   skeletonCount = 8,
+  priorityCount = 0,
 }: {
   products: Product[];
   onAdd?: (product: Product) => void;
@@ -22,6 +23,8 @@ export function ProductGrid({
   loading?: boolean;
   refreshing?: boolean;
   skeletonCount?: number;
+  /** How many of the first cards sit on the first screen and should load their photos first. */
+  priorityCount?: number;
 }) {
   if (loading) {
     return (
@@ -43,8 +46,14 @@ export function ProductGrid({
       }}
       aria-busy={refreshing || undefined}
     >
-      {products.map((product) => (
-        <ProductCard key={product.id} product={product} onAdd={onAdd} adding={addingId === product.id} />
+      {products.map((product, index) => (
+        <ProductCard
+          key={product.id}
+          product={product}
+          onAdd={onAdd}
+          adding={addingId === product.id}
+          priority={index < priorityCount}
+        />
       ))}
     </Box>
   );

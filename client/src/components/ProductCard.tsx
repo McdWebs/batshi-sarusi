@@ -2,7 +2,7 @@ import { Box, Button, Chip, Link as MuiLink, Skeleton, Typography } from "@mui/m
 import { Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import type { Product } from "../api/types";
-import { prefetchProduct } from "../hooks/prefetch";
+import { preloadImage, prefetchProduct } from "../hooks/prefetch";
 import { productPath } from "../utils/format";
 import { useUiStore } from "../store/ui";
 import { Price } from "./Price";
@@ -13,10 +13,13 @@ export function ProductCard({
   product,
   onAdd,
   adding,
+  priority = false,
 }: {
   product: Product;
   onAdd?: (product: Product) => void;
   adding?: boolean;
+  /** First-screen card: its photo is fetched first instead of lazily. */
+  priority?: boolean;
 }) {
   const queryClient = useQueryClient();
   const image = product.images[0];
@@ -24,7 +27,11 @@ export function ProductCard({
   const canQuickAdd = Boolean(product.isPurchasable && product.isInStock && !product.hasOptions && onAdd);
   const justAdded = useUiStore((state) => state.addedProductId === product.id);
   const path = productPath(product.slug);
-  const warm = () => prefetchProduct(queryClient, product.slug);
+  const warm = () => {
+    prefetchProduct(queryClient, product.slug);
+    // Same srcset and sizes as the product page gallery, so the browser fetches the file the page will use.
+    if (image) preloadImage(image.src, image.srcset, "(max-width: 900px) 100vw, 50vw");
+  };
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
@@ -50,6 +57,7 @@ export function ProductCard({
           {image ? (
             <StoreImage
               className="product-card-main"
+              priority={priority}
               src={image.thumbnail || image.src}
               srcSet={image.srcset}
               sizes={image.sizes || "(max-width: 600px) 50vw, (max-width: 1200px) 33vw, 25vw"}

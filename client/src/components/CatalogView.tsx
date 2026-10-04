@@ -118,6 +118,7 @@ export function CatalogView({
           products={list.data?.items ?? []}
           loading={showSkeleton}
           refreshing={refreshing}
+          priorityCount={4}
           addingId={addItem.isPending ? addItem.variables?.id ?? null : null}
           onAdd={(product) =>
             addItem.mutate({ id: product.id, quantity: product.addToCart.minimum || 1 })

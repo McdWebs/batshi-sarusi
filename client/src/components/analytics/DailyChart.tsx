@@ -2,11 +2,12 @@ import { Box, Typography } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import type { AnalyticsSummary } from "../../api/types";
 import { formatCount, formatShortDay } from "../../analytics/labels";
-import { chartInk, Section, tabular, visuallyHidden } from "./shared";
+import { chartInk, ink, tabular, visuallyHidden } from "./shared";
 
 type Day = AnalyticsSummary["daily"][number];
 
-const HEIGHT = 220;
+const HEIGHT_PHONE = 220;
+const HEIGHT_WIDE = 300;
 const MARGIN = { top: 12, right: 8, bottom: 28, left: 34 };
 const MAX_BAR = 24;
 const GAP = 2;
@@ -48,7 +49,8 @@ export function DailyChart({ daily, days }: { daily: Day[]; days: number }) {
   const hasTraffic = totalVisits > 0;
   const top = niceMax(Math.max(1, ...daily.map((day) => Math.max(day.visitors, day.sessions))));
   const innerW = width - MARGIN.left - MARGIN.right;
-  const innerH = HEIGHT - MARGIN.top - MARGIN.bottom;
+  const height = width >= 700 ? HEIGHT_WIDE : HEIGHT_PHONE;
+  const innerH = height - MARGIN.top - MARGIN.bottom;
   const slot = innerW / Math.max(1, daily.length);
   const barW = Math.max(1, Math.min(MAX_BAR, slot - GAP));
   const y = (value: number) => MARGIN.top + innerH - (value / top) * innerH;
@@ -63,8 +65,8 @@ export function DailyChart({ daily, days }: { daily: Day[]; days: number }) {
     : "אין כניסות לאתר בטווח הזה.";
 
   return (
-    <Section title="כמה אנשים מגיעים כל יום" intro="העמודות הן מבקרים, והקו הוא כניסות. געו או עברו עם העכבר על יום כדי לראות את המספרים.">
-      <Box sx={{ display: "flex", gap: 2.5, flexWrap: "wrap", alignItems: "center", fontSize: 13, mb: 1 }}>
+    <Box>
+      <Box sx={{ display: "flex", gap: 2.5, flexWrap: "wrap", alignItems: "center", fontSize: 14, mb: 1 }}>
         <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.75 }}>
           <Box aria-hidden="true" sx={{ width: 10, height: 10, bgcolor: chartInk.bar, borderRadius: "2px" }} />
           מבקרים
@@ -73,7 +75,7 @@ export function DailyChart({ daily, days }: { daily: Day[]; days: number }) {
           <Box aria-hidden="true" sx={{ width: 16, height: 2, bgcolor: chartInk.second, borderRadius: 1 }} />
           כניסות
         </Box>
-        <Typography aria-live="polite" sx={{ marginInlineStart: { sm: "auto" }, flexBasis: { xs: "100%", sm: "auto" }, fontSize: 13, fontWeight: 700, minHeight: 20, ...tabular }}>
+        <Typography aria-live="polite" sx={{ marginInlineStart: { sm: "auto" }, flexBasis: { xs: "100%", sm: "auto" }, fontSize: 14, fontWeight: 700, minHeight: 20, ...tabular }}>
           {shown ? readout(shown) : hasTraffic && peak ? `היום העמוס ביותר: ${readout(peak)}` : ""}
         </Typography>
       </Box>
@@ -81,7 +83,7 @@ export function DailyChart({ daily, days }: { daily: Day[]; days: number }) {
       <Box ref={ref} sx={{ width: "100%", direction: "ltr" }}>
         <svg
           width="100%"
-          viewBox={`0 0 ${width} ${HEIGHT}`}
+          viewBox={`0 0 ${width} ${height}`}
           role="img"
           aria-label={`גרף עמודות של מבקרים וכניסות לפי יום. ${summary}`}
           style={{ display: "block", height: "auto", overflow: "visible" }}
@@ -90,7 +92,7 @@ export function DailyChart({ daily, days }: { daily: Day[]; days: number }) {
           {ticks.map((tick) => (
             <g key={tick}>
               <line x1={MARGIN.left} x2={width - MARGIN.right} y1={y(tick)} y2={y(tick)} stroke="rgba(44,36,30,0.12)" strokeWidth={1} />
-              <text x={MARGIN.left - 6} y={y(tick)} textAnchor="end" dominantBaseline="middle" fontSize={11} fill="#6A6158" style={{ fontVariantNumeric: "tabular-nums" }}>
+              <text x={MARGIN.left - 6} y={y(tick)} textAnchor="end" dominantBaseline="middle" fontSize={12} fill="#6A6158" style={{ fontVariantNumeric: "tabular-nums" }}>
                 {formatCount(tick)}
               </text>
             </g>
@@ -126,7 +128,7 @@ export function DailyChart({ daily, days }: { daily: Day[]; days: number }) {
           <line x1={MARGIN.left} x2={width - MARGIN.right} y1={y(0)} y2={y(0)} stroke="rgba(44,36,30,0.32)" strokeWidth={1} />
           {daily.map((day, index) =>
             index % labelEvery === 0 ? (
-              <text key={day.day} x={cx(index)} y={HEIGHT - 8} textAnchor="middle" fontSize={11} fill="#6A6158" style={{ fontVariantNumeric: "tabular-nums" }}>
+              <text key={day.day} x={cx(index)} y={height - 8} textAnchor="middle" fontSize={12} fill="#6A6158" style={{ fontVariantNumeric: "tabular-nums" }}>
                 {formatShortDay(day.day)}
               </text>
             ) : null,
@@ -153,12 +155,12 @@ export function DailyChart({ daily, days }: { daily: Day[]; days: number }) {
       ) : null}
       <Typography sx={visuallyHidden}>{summary}</Typography>
 
-      <Box component="details" sx={{ mt: 2, fontSize: 13 }}>
-        <Typography component="summary" sx={{ cursor: "pointer", color: "secondary.main", fontSize: 13, fontWeight: 600, width: "fit-content" }}>
+      <Box component="details" sx={{ mt: 1, fontSize: 14 }}>
+        <Typography component="summary" sx={{ cursor: "pointer", color: ink.accent, fontSize: 14, fontWeight: 600, width: "fit-content", minHeight: 44, display: "flex", alignItems: "center", "&:focus-visible": { outline: `2px solid ${ink.accent}`, outlineOffset: 2 } }}>
           הצגה כטבלה ({days === 1 ? "24 שעות אחרונות" : `${days} ימים`})
         </Typography>
         <Box sx={{ maxHeight: 260, overflow: "auto", mt: 1 }}>
-          <Box component="table" sx={{ borderCollapse: "collapse", width: "100%", maxWidth: 420, fontSize: 13, ...tabular }}>
+          <Box component="table" sx={{ borderCollapse: "collapse", width: "100%", maxWidth: 420, fontSize: 14, ...tabular }}>
             <thead>
               <tr>
                 {["יום", "מבקרים", "כניסות"].map((head) => (
@@ -180,6 +182,6 @@ export function DailyChart({ daily, days }: { daily: Day[]; days: number }) {
           </Box>
         </Box>
       </Box>
-    </Section>
+    </Box>
   );
 }

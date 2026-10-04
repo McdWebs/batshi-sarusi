@@ -82,6 +82,50 @@ export function pageLabel(path: string): string {
   return path === "/" || path === "" ? "דף הבית" : path;
 }
 
+const SHIPPING_LABELS: Record<string, string> = {
+  local_pickup: "איסוף עצמי",
+  pisol_extended_flat_shipping: "משלוח עד הבית",
+  free_shipping: "משלוח חינם",
+  flat_rate: "תעריף קבוע",
+};
+
+export function shippingLabel(method: string): string {
+  return SHIPPING_LABELS[method] ?? method;
+}
+
+/** The checkout form fields in the order they appear on the page. */
+export const CHECKOUT_FIELD_ORDER = ["first_name", "last_name", "company", "address1", "address2", "postcode", "city", "phone", "email", "notes"] as const;
+
+const CHECKOUT_FIELD_LABELS: Record<string, string> = {
+  first_name: "שם פרטי",
+  last_name: "שם משפחה",
+  company: "שם החברה",
+  address1: "כתובת רחוב",
+  address2: "דירה/קומה",
+  postcode: "מיקוד",
+  city: "עיר",
+  phone: "טלפון",
+  email: "אימייל",
+  notes: "הערות להזמנה",
+};
+
+export function checkoutFieldLabel(field: string): string {
+  return CHECKOUT_FIELD_LABELS[field] ?? field;
+}
+
+export function errorKindLabel(kind: string): string {
+  if (kind === "api") return "שרת";
+  if (kind === "image") return "תמונה";
+  if (kind === "script") return "שגיאת דפדפן";
+  return kind;
+}
+
+/** Milliseconds as seconds with one decimal: "1.8 שנ׳". */
+export function formatSeconds(ms: number): string {
+  const seconds = Math.max(0, ms) / 1000;
+  return `${new Intl.NumberFormat("he-IL", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(seconds)} שנ׳`;
+}
+
 export const FUNNEL_STEPS: Array<{ step: FunnelStep; label: string; hint: string }> = [
   { step: "visit", label: "כניסה לאתר", hint: "כל הכניסות" },
   { step: "product_view", label: "צפייה במוצר", hint: "נכנסו לדף של מוצר" },
@@ -130,11 +174,16 @@ export function formatShortDay(day: string): string {
 
 export type Change = { kind: "new" } | { kind: "same" } | { kind: "change"; percent: number };
 
-/** Relative change versus the previous period. Null when there is nothing to compare. */
+/** Below this many in the earlier period a percentage says nothing (3 to 9 is "+200%"), so no comparison is shown. */
+const MIN_COMPARABLE = 20;
+
+/** Relative change versus the previous period. Null when there is not enough in the earlier period to compare. */
 export function changeVersus(current: number, previous: number): Change | null {
-  if (previous <= 0) return current > 0 ? { kind: "new" } : null;
-  const percent = Math.round(((current - previous) / previous) * 100);
-  return percent === 0 ? { kind: "same" } : { kind: "change", percent };
+  if (previous < MIN_COMPARABLE) return null;
+  const exact = ((current - previous) / previous) * 100;
+  // A change under 2 percent is noise, so it reads as "no change" instead of a worrying arrow.
+  if (Math.abs(exact) < 2) return { kind: "same" };
+  return { kind: "change", percent: Math.round(exact) };
 }
 
 function csvCell(value: string | number): string {
@@ -160,4 +209,35 @@ export function downloadCsv(filename: string, headers: string[], rows: Array<Arr
   anchor.click();
   anchor.remove();
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/** The five detail tabs on the dashboard, in the order shown. The id is what `?tab=` holds in the URL. */
+export const TAB_OPTIONS = [
+  { id: "visitors", label: "מבקרים" },
+  { id: "products", label: "מוצרים" },
+  { id: "searches", label: "חיפושים" },
+  { id: "buying", label: "קנייה" },
+  { id: "health", label: "מהירות ותקלות" },
+] as const;
+
+export type AnalyticsTabId = (typeof TAB_OPTIONS)[number]["id"];
+
+export const DEFAULT_TAB: AnalyticsTabId = "visitors";
+
+export function parseTab(value: string | null): AnalyticsTabId {
+  return TAB_OPTIONS.find((option) => option.id === value)?.id ?? DEFAULT_TAB;
+}
+
+/** Milliseconds written out for a sentence: "2.1 שניות". */
+export function secondsText(ms: number): string {
+  const seconds = Math.round(Math.max(0, ms) / 100) / 10;
+  if (seconds === 1) return "שנייה אחת";
+  return `${formatDecimal(seconds)} שניות`;
+}
+
+/** Seconds written out for a sentence: "12 שניות" or "1:20 דקות". */
+export function durationWords(seconds: number): string {
+  const total = Math.max(0, Math.round(seconds));
+  if (total < 60) return total === 1 ? "שנייה אחת" : `${total} שניות`;
+  return `${formatDuration(total)} דקות`;
 }

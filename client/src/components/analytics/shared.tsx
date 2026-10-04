@@ -1,21 +1,41 @@
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import { Box, Button, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
-import { useId, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { downloadCsv, formatCount, formatPercent } from "../../analytics/labels";
+import { isLatinText } from "./insights";
 
-/** One calm chart system: a single terracotta for the main series, a validated gold for the second one. */
-export const chartInk = {
-  bar: "#8F3D2A",
-  second: "#B07D2B",
-  track: "#E7DFD2",
-  emptyDay: "#D6CBBA",
+/**
+ * The look of the owner dashboard. One accent (terracotta) for bars and links, status colours only for a status word
+ * and its dot, hairlines instead of boxes. Type scale: 12 / 14 / 16 / 22 / 26 / 40.
+ */
+export const ink = {
+  text: "#1C1814",
+  muted: "#6A6158",
+  accent: "#8F3D2A",
+  track: "#EDE4D6",
+  rule: "rgba(44,36,30,0.14)",
+  paper: "#FFFbf5",
   good: "#2E6B4F",
-  worse: "#8F3D2A",
+  problem: "#8F3D2A",
+  /** Readable amber for text; the lighter gold is for the dot only. */
+  attention: "#8A5A00",
+  attentionDot: "#B07D2B",
 } as const;
 
-export const bone = { bgcolor: "#EDE4D6", transform: "none" } as const;
+/** Colours the daily chart draws with. */
+export const chartInk = {
+  bar: ink.accent,
+  second: "#B07D2B",
+  track: ink.track,
+  emptyDay: "#D6CBBA",
+  good: ink.good,
+  worse: ink.problem,
+} as const;
+
+export const bone = { bgcolor: ink.track, transform: "none" } as const;
+
+export const tabular = { fontVariantNumeric: "tabular-nums" } as const;
 
 export const visuallyHidden: SxProps<Theme> = {
   position: "absolute",
@@ -29,143 +49,263 @@ export const visuallyHidden: SxProps<Theme> = {
   border: 0,
 };
 
-export const tabular = { fontVariantNumeric: "tabular-nums" } as const;
+/**
+ * How the detail blocks are laid out: one column on a phone, two side by side from the "md" breakpoint (900px).
+ * Blocks that need the full width (a closed disclosure, a note) span both columns.
+ */
+export const detailGrid = {
+  display: "grid",
+  gridTemplateColumns: { xs: "minmax(0, 1fr)", md: "repeat(2, minmax(0, 1fr))" },
+  columnGap: { md: 8 },
+  rowGap: 5,
+  alignItems: "start",
+} as const;
 
-/** A titled block separated from the next by a hairline rule. Headings run h1 (page), h2 (this), h3 (SubSection). */
-export function Section({ title, intro, children }: { title: string; intro?: ReactNode; children: ReactNode }) {
-  const id = useId();
+export const spanAll = { gridColumn: "1 / -1" } as const;
+
+export const focusRing = { "&:focus-visible": { outline: `2px solid ${ink.accent}`, outlineOffset: 2 } } as const;
+
+export const serif = '"Noto Serif Hebrew", "Times New Roman", serif';
+
+export type Tone = "problem" | "attention" | "good" | "info";
+
+export const TONES: Record<Tone, { word: string; dot: string; text: string }> = {
+  problem: { word: "דורש טיפול", dot: ink.problem, text: ink.problem },
+  attention: { word: "שווה בדיקה", dot: ink.attentionDot, text: ink.attention },
+  good: { word: "חדשות טובות", dot: ink.good, text: ink.good },
+  info: { word: "לידיעה", dot: ink.muted, text: ink.muted },
+};
+
+/** A colour dot followed by a written status. The word is always shown, so colour is never the only signal. */
+export function StatusWord({ tone, word }: { tone: Tone; word?: string }) {
+  const style = TONES[tone];
   return (
-    <Box component="section" aria-labelledby={id} sx={{ borderTop: "1px solid", borderColor: "divider", pt: { xs: 3, md: 4 }, pb: { xs: 3, md: 4 } }}>
-      <Typography id={id} variant="h3" component="h2" sx={{ fontSize: { xs: 21, md: 24 }, lineHeight: 1.25 }}>
-        {title}
-      </Typography>
-      {intro ? (
-        <Typography sx={{ mt: 0.75, color: "text.secondary", fontSize: 14, maxWidth: 620 }}>{intro}</Typography>
-      ) : null}
-      <Box sx={{ mt: 2.5 }}>{children}</Box>
+    <Box component="span" sx={{ display: "inline-flex", alignItems: "center", gap: 0.75, color: style.text, fontSize: 14, fontWeight: 700, lineHeight: 1.4 }}>
+      <Box component="span" aria-hidden="true" sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: style.dot, flexShrink: 0 }} />
+      {word ?? style.word}
     </Box>
   );
 }
 
-export function SubSection({ title, hint, action, children }: { title: string; hint?: string; action?: ReactNode; children: ReactNode }) {
+/** A block of the page: an h2 and its content, 48px from the next block. */
+export function Block({ title, children, id }: { title: string; children: ReactNode; id?: string }) {
+  const generated = useId();
+  const headingId = id ?? generated;
   return (
-    <Box sx={{ minWidth: 0 }}>
-      <Box sx={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 1, flexWrap: "wrap" }}>
-        <Typography variant="h3" component="h3" sx={{ fontSize: 16, fontFamily: '"Heebo", sans-serif', fontWeight: 700 }}>
+    <Box component="section" aria-labelledby={headingId} sx={{ mt: 6 }}>
+      <Typography id={headingId} variant="h2" sx={{ fontSize: { xs: 22, md: 26 }, lineHeight: 1.3 }}>
+        {title}
+      </Typography>
+      <Box sx={{ mt: 2 }}>{children}</Box>
+    </Box>
+  );
+}
+
+/** An h3 inside a tab, with an optional one-line hint and an action (the CSV button) at the end of the row. */
+export function Group({ title, hint, action, children }: { title: string; hint?: string; action?: ReactNode; children: ReactNode }) {
+  return (
+    <Box component="div" sx={{ minWidth: 0 }}>
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, minHeight: 32 }}>
+        <Typography variant="h3" component="h3" sx={{ fontSize: 16, fontWeight: 600, lineHeight: 1.4 }}>
           {title}
         </Typography>
         {action}
       </Box>
-      {hint ? <Typography sx={{ mt: 0.25, mb: 1, color: "text.secondary", fontSize: 13, maxWidth: 520 }}>{hint}</Typography> : <Box sx={{ mb: 1 }} />}
-      {children}
+      {hint ? <Typography sx={{ mt: 0.25, color: ink.muted, fontSize: 14, lineHeight: 1.5 }}>{hint}</Typography> : null}
+      <Box sx={{ mt: 1 }}>{children}</Box>
     </Box>
   );
 }
 
-export function TwoColumns({ children }: { children: ReactNode }) {
-  return <Box sx={{ display: "grid", gridTemplateColumns: { xs: "minmax(0, 1fr)", md: "repeat(2, minmax(0, 1fr))" }, columnGap: 6, rowGap: 4 }}>{children}</Box>;
+/** One short grey sentence for a list with nothing in it. */
+export function Quiet({ children }: { children: ReactNode }) {
+  return <Typography sx={{ py: 0.5, color: ink.muted, fontSize: 14, lineHeight: 1.6 }}>{children}</Typography>;
 }
 
-export function EmptyNote({ children }: { children: ReactNode }) {
+/** A plain sentence in body type, for the one-line answers inside the tabs. */
+export function Sentence({ children }: { children: ReactNode }) {
+  return <Typography sx={{ fontSize: 16, lineHeight: 1.6 }}>{children}</Typography>;
+}
+
+/** A closed-by-default disclosure for the details only an expert wants. */
+export function Disclosure({ summary, children }: { summary: string; children: ReactNode }) {
   return (
-    <Typography sx={{ py: 1.5, color: "text.secondary", fontSize: 14, borderTop: "1px solid", borderColor: "divider" }}>{children}</Typography>
+    <Box
+      component="details"
+      sx={{
+        ...spanAll,
+        borderTop: `1px solid ${ink.rule}`,
+        borderBottom: `1px solid ${ink.rule}`,
+        "& > summary::-webkit-details-marker": { display: "none" },
+        "&[open] > summary .chevron": { transform: "rotate(180deg)" },
+      }}
+    >
+      <Box
+        component="summary"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          minHeight: 48,
+          cursor: "pointer",
+          listStyle: "none",
+          color: ink.accent,
+          fontSize: 14,
+          fontWeight: 700,
+          ...focusRing,
+        }}
+      >
+        {summary}
+        <Box component="span" className="chevron" aria-hidden="true" sx={{ fontSize: 12, transition: "transform 160ms", "@media (prefers-reduced-motion: reduce)": { transition: "none" } }}>
+          ▼
+        </Box>
+      </Box>
+      <Box sx={{ pb: 3, pt: 2, ...detailGrid }}>{children}</Box>
+    </Box>
   );
 }
 
-export function CsvButton({ filename, headers, rows, disabled }: { filename: string; headers: string[]; rows: Array<Array<string | number>>; disabled?: boolean }) {
+const rowSx = { py: 1.5, borderTop: `1px solid ${ink.rule}` } as const;
+
+/**
+ * A list that shows at most `limit` rows and a "show more" text button for the rest. The page only ever hands it
+ * rows that are already capped by the server, so "more" never means "hundreds".
+ */
+export function ShowMore<T>({ items, render, getKey, limit = 5 }: { items: T[]; render: (item: T) => ReactNode; getKey: (item: T) => string; limit?: number }) {
+  const [open, setOpen] = useState(false);
+  const shown = open ? items : items.slice(0, limit);
+  const listId = useId();
+  return (
+    <>
+      <Box id={listId} component="ul" sx={{ listStyle: "none", m: 0, p: 0, borderBottom: `1px solid ${ink.rule}` }}>
+        {shown.map((item) => (
+          <Box component="li" key={getKey(item)} sx={rowSx}>
+            {render(item)}
+          </Box>
+        ))}
+      </Box>
+      {items.length > limit ? (
+        <Button
+          variant="text"
+          color="secondary"
+          aria-expanded={open}
+          aria-controls={listId}
+          onClick={() => setOpen((current) => !current)}
+          sx={{ mt: 0.5, minHeight: 44, px: 1, fontSize: 14, fontWeight: 700, ...focusRing }}
+        >
+          {open ? "הצג פחות" : "הצג עוד"}
+          {open ? null : <Box component="span" sx={visuallyHidden}> ({items.length - limit} נוספים)</Box>}
+        </Button>
+      ) : null}
+    </>
+  );
+}
+
+/** Text that may be a URL or file name: left to right when it has no Hebrew, so it does not get scrambled. */
+export function Bidi({ text }: { text: string }) {
+  if (isLatinText(text)) {
+    return (
+      <Box component="span" dir="ltr" sx={{ display: "inline-block", maxWidth: "100%", overflowWrap: "anywhere" }}>
+        {text}
+      </Box>
+    );
+  }
+  return <>{text}</>;
+}
+
+const linkSx = {
+  color: "inherit",
+  textDecoration: "underline",
+  textDecorationColor: ink.rule,
+  textUnderlineOffset: "4px",
+  "&:hover": { textDecorationColor: ink.accent, color: ink.accent },
+  ...focusRing,
+} as const;
+
+export function NameLabel({ label, href }: { label: string; href?: string }) {
+  const content = <Bidi text={label} />;
+  return href ? (
+    <Typography component={RouterLink} to={href} sx={{ fontSize: 16, lineHeight: 1.4, overflowWrap: "anywhere", ...linkSx }}>
+      {content}
+    </Typography>
+  ) : (
+    <Typography component="span" sx={{ fontSize: 16, lineHeight: 1.4, overflowWrap: "anywhere" }}>
+      {content}
+    </Typography>
+  );
+}
+
+export type NameRowItem = { key: string; label: string; href?: string; /** What the row counts, written in words: "45 צפיות · 12 הוספות". */ stat?: ReactNode; prefix?: ReactNode };
+
+/** A name and, beside it (or under it on a narrow screen), its numbers written with the thing they count. */
+export function NameRows({ items }: { items: NameRowItem[] }) {
+  return (
+    <ShowMore
+      items={items}
+      getKey={(item) => item.key}
+      render={(item) => (
+        <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", justifyContent: "space-between", columnGap: 2, rowGap: 0.25 }}>
+          <Box sx={{ flex: "1 1 160px", minWidth: 0 }}>
+            {item.prefix}
+            <NameLabel label={item.label} href={item.href} />
+          </Box>
+          {item.stat ? <Typography component="div" sx={{ flex: "0 0 auto", color: ink.muted, fontSize: 14, ...tabular }}>{item.stat}</Typography> : null}
+        </Box>
+      )}
+    />
+  );
+}
+
+export type BarItem = { key: string; label: string; value: number; href?: string; /** Replaces the default "34% · 120 כניסות". */ valueText?: ReactNode };
+
+/**
+ * Thin bars. The bar is the value's share of `total` (honest, never stretched), and the share and the count are always
+ * written next to it, with the thing they count.
+ */
+export function BarRows({ items, total, noun }: { items: BarItem[]; total: number; noun: string }) {
+  return (
+    <ShowMore
+      items={items}
+      getKey={(item) => item.key}
+      render={(item) => {
+        const share = total > 0 ? Math.min(1, item.value / total) : 0;
+        return (
+          <>
+            <Box sx={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 2 }}>
+              <Box sx={{ minWidth: 0 }}>
+                <NameLabel label={item.label} href={item.href} />
+              </Box>
+              <Typography component="div" sx={{ flexShrink: 0, color: ink.muted, fontSize: 14, whiteSpace: "nowrap", ...tabular }}>
+                {item.valueText ?? (
+                  <>
+                    <Box component="span" sx={{ color: ink.text, fontWeight: 700 }}>{formatPercent(share)}</Box> · {formatCount(item.value)} {noun}
+                  </>
+                )}
+              </Typography>
+            </Box>
+            <Box aria-hidden="true" sx={{ mt: 1, height: 6, bgcolor: ink.track, borderRadius: 3, overflow: "hidden" }}>
+              <Box sx={{ height: "100%", width: `${item.value > 0 ? Math.max(1, share * 100) : 0}%`, bgcolor: ink.accent, borderRadius: 3 }} />
+            </Box>
+          </>
+        );
+      }}
+    />
+  );
+}
+
+/** A small "CSV" text button that downloads the rows of the list it sits on (UTF-8 with BOM for Excel). */
+export function CsvButton({ filename, headers, rows }: { filename: string; headers: string[]; rows: Array<Array<string | number>> }) {
   return (
     <Button
       size="small"
       variant="text"
       color="secondary"
-      disabled={disabled || rows.length === 0}
-      startIcon={<FileDownloadOutlinedIcon fontSize="small" />}
+      disabled={rows.length === 0}
+      aria-label="הורדת הרשימה כקובץ CSV"
       onClick={() => downloadCsv(filename, headers, rows)}
-      sx={{ py: 0.25, px: 1, fontSize: 13, minHeight: 32 }}
+      sx={{ minHeight: 32, minWidth: 0, px: 1, fontSize: 12, fontWeight: 700, letterSpacing: "0.04em", ...focusRing }}
     >
-      הורדת CSV
+      CSV
     </Button>
-  );
-}
-
-export type BarItem = { key: string; label: string; value: number; href?: string; note?: string };
-
-/**
- * Horizontal bars. The bar is the value's share of `total` (so it is honest, never stretched to fill),
- * and the count and percent are always written out, so colour and length are never the only signal.
- */
-export function BarList({ items, total, valueNoun }: { items: BarItem[]; total: number; valueNoun?: string }) {
-  return (
-    <Box component="ul" sx={{ listStyle: "none", m: 0, p: 0 }}>
-      {items.map((item) => {
-        const share = total > 0 ? Math.min(1, item.value / total) : 0;
-        return (
-          <Box component="li" key={item.key} sx={{ py: 1, borderTop: "1px solid", borderColor: "divider", "&:last-of-type": { borderBottom: "1px solid", borderColor: "divider" } }}>
-            <Box sx={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 1.5 }}>
-              <Box sx={{ minWidth: 0 }}>
-                {item.href ? (
-                  <Typography component={RouterLink} to={item.href} sx={{ color: "inherit", fontSize: 15, lineHeight: 1.35, overflowWrap: "anywhere", unicodeBidi: "plaintext", textDecoration: "none", "&:hover": { textDecoration: "underline" } }}>
-                    {item.label}
-                  </Typography>
-                ) : (
-                  <Typography sx={{ fontSize: 15, lineHeight: 1.35, overflowWrap: "anywhere" }}>{item.label}</Typography>
-                )}
-                {item.note ? <Typography sx={{ fontSize: 12, color: "text.secondary" }}>{item.note}</Typography> : null}
-              </Box>
-              <Typography sx={{ flexShrink: 0, fontSize: 14, whiteSpace: "nowrap", ...tabular }}>
-                <Box component="span" sx={{ fontWeight: 700 }}>
-                  {formatCount(item.value)}
-                </Box>
-                {valueNoun ? <Box component="span" sx={{ color: "text.secondary" }}> {valueNoun}</Box> : null}
-                <Box component="span" sx={{ color: "text.secondary" }}> · {formatPercent(share)}</Box>
-              </Typography>
-            </Box>
-            <Box sx={{ mt: 0.75, height: 8, bgcolor: chartInk.track }} aria-hidden="true">
-              <Box
-                sx={{
-                  height: "100%",
-                  width: `${item.value > 0 ? Math.max(1, share * 100) : 0}%`,
-                  bgcolor: chartInk.bar,
-                  borderStartEndRadius: 4,
-                  borderEndEndRadius: 4,
-                }}
-              />
-            </Box>
-          </Box>
-        );
-      })}
-    </Box>
-  );
-}
-
-/** A ranked list row set: rank, linked name and a few right-aligned numbers. */
-export function RankedRows({ rows }: { rows: Array<{ key: string; label: string; href?: string; stats: Array<{ value: string; caption: string }> }> }) {
-  return (
-    <Box component="ol" sx={{ listStyle: "none", m: 0, p: 0, borderBottom: "1px solid", borderColor: "divider" }}>
-      {rows.map((row, index) => (
-        <Box
-          component="li"
-          key={row.key}
-          sx={{ display: "grid", gridTemplateColumns: "24px minmax(0, 1fr) auto", alignItems: "center", gap: 1.25, py: 1.1, borderTop: "1px solid", borderColor: "divider" }}
-        >
-          <Typography sx={{ fontSize: 13, fontWeight: 700, color: "text.secondary", ...tabular }}>{index + 1}</Typography>
-          {row.href ? (
-            <Typography component={RouterLink} to={row.href} sx={{ color: "inherit", fontSize: 15, lineHeight: 1.35, overflowWrap: "anywhere", unicodeBidi: "plaintext", textDecoration: "none", "&:hover": { textDecoration: "underline" } }}>
-              {row.label}
-            </Typography>
-          ) : (
-            <Typography sx={{ fontSize: 15, lineHeight: 1.35, overflowWrap: "anywhere", unicodeBidi: "plaintext" }}>{row.label}</Typography>
-          )}
-          <Box sx={{ display: "flex", gap: 2, textAlign: "end" }}>
-            {row.stats.map((stat) => (
-              <Box key={stat.caption} sx={{ minWidth: 44 }}>
-                <Typography sx={{ fontSize: 16, fontWeight: 700, lineHeight: 1.1, ...tabular }}>{stat.value}</Typography>
-                <Typography sx={{ fontSize: 11, color: "text.secondary" }}>{stat.caption}</Typography>
-              </Box>
-            ))}
-          </Box>
-        </Box>
-      ))}
-    </Box>
   );
 }

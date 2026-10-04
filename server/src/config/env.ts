@@ -21,6 +21,7 @@ const envSchema = z.object({
   WOOCOMMERCE_CONSUMER_SECRET: z.string().optional().default(""),
   WOOCOMMERCE_API_VERSION: z.string().optional().default("wc/v3"),
   STUDIO_ACCESS_KEY: z.string().optional().default(""),
+  ANALYTICS_RETENTION_DAYS: z.coerce.number().int().min(1).default(395),
   GEMINI_API_KEY: z.string().optional().default(""),
   GEMINI_MODEL: z.string().optional().default("gemini-3.8-flash"),
   GEMINI_FALLBACK_MODEL: z.string().optional().default("gemini-3.7-flash"),

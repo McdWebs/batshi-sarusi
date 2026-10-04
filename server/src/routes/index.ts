@@ -1,7 +1,8 @@
-import { Router } from "express";
+import express, { Router } from "express";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import rateLimit from "express-rate-limit";
 import * as store from "../controllers/storeController.js";
+import * as analytics from "../controllers/analyticsController.js";
 import { requireStudioKey } from "../middleware/studioAuth.js";
 
 export const healthRouter = Router();
@@ -53,6 +54,7 @@ studioRouter.use(
   requireStudioKey,
 );
 studioRouter.get("/back-in-stock", asyncHandler(store.demandRankingHandler));
+studioRouter.get("/analytics/summary", asyncHandler(analytics.analyticsSummaryHandler));
 studioRouter.get("/sample", asyncHandler(store.listStudioSample));
 studioRouter.post(
   "/generate",
@@ -81,4 +83,30 @@ backInStockRouter.post(
     },
   }),
   asyncHandler(store.subscribeBackInStockHandler),
+);
+
+const eventsLimit = (limit: number, message: string) =>
+  rateLimit({
+    windowMs: 60_000,
+    limit,
+    standardHeaders: true,
+    legacyHeaders: false,
+    handler: (_req, res) => {
+      res.status(429).json({ success: false, error: { code: "RATE_LIMITED", message } });
+    },
+  });
+
+// Public: the storefront reports what visitors do (only after they accepted statistics cookies).
+export const eventsRouter = Router();
+eventsRouter.post(
+  "/",
+  eventsLimit(120, "Too many events, slow down"),
+  express.text({ type: "*/*", limit: "32kb" }),
+  asyncHandler(analytics.ingestEventsHandler),
+);
+eventsRouter.post(
+  "/forget",
+  eventsLimit(10, "Too many requests, try again in a minute"),
+  express.text({ type: "*/*", limit: "4kb" }),
+  asyncHandler(analytics.forgetVisitorHandler),
 );

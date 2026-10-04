@@ -11,6 +11,7 @@ import {
   brandsRouter,
   cartRouter,
   categoriesRouter,
+  eventsRouter,
   healthRouter,
   pagesRouter,
   productsRouter,
@@ -102,6 +103,7 @@ export function createApp() {
   app.use("/api/banners", bannersRouter);
   app.use("/api/studio", studioRouter);
   app.use("/api/back-in-stock", backInStockRouter);
+  app.use("/api/events", eventsRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

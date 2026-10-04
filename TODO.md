@@ -145,5 +145,5 @@ Write one list of event names and their fields before coding, so every page trac
 - [x] Shoppable look pages and influencer collection pages.
 - [x] Routes and README for the demo features. Committed on the branch.
 - [x] Image loading fix, TODO file and proposals. Committed on the branch.
-- [x] Studio access code on every `/api/studio` route, with a form on `/studio` and `/demand`. Not committed yet.
-- [x] Back-in-stock demo: "notify me" form on sold-out product pages and the owner's ranked list at `/demand`. Signups go to `server/.data/back-in-stock.json`, no email is sent. Not committed yet.
+- [x] Studio access code on every `/api/studio` route, with a form on `/studio` and `/demand`. Committed on the branch.
+- [x] Back-in-stock demo: "notify me" form on sold-out product pages and the owner's ranked list at `/demand`. Signups go to `server/.data/back-in-stock.json`, no email is sent. Committed on the branch.

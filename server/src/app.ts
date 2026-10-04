@@ -48,6 +48,7 @@ export function createApp() {
         "X-Cart-Nonce",
         "Cart-Token",
         "Nonce",
+        "X-Studio-Key",
       ],
     }),
   );

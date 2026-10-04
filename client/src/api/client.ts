@@ -35,6 +35,7 @@ type RequestOptions = {
   query?: Record<string, string | number | boolean | undefined>;
   body?: unknown;
   cart?: boolean;
+  headers?: Record<string, string>;
 };
 
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
@@ -45,7 +46,7 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     }
   }
 
-  const headers: Record<string, string> = { Accept: "application/json" };
+  const headers: Record<string, string> = { Accept: "application/json", ...options.headers };
   if (options.body !== undefined) {
     headers["Content-Type"] = "application/json";
   }

@@ -24,13 +24,16 @@ import AutoFixHighOutlinedIcon from "@mui/icons-material/AutoFixHighOutlined";
 import UndoIcon from "@mui/icons-material/Undo";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ApiError } from "../api/client";
 import { generateStudioContent, getStudioSample } from "../api/store";
 import type { StudioContent, StudioSample } from "../api/types";
 import { Price } from "../components/Price";
 import { ProductImagePlaceholder } from "../components/ProductImagePlaceholder";
 import { EmptyState, ErrorState } from "../components/States";
 import { StoreImage } from "../components/StoreImage";
+import { AccessCodeForm } from "../components/AccessCodeForm";
 import { listDemoIds, removeDemoEntry, setDemoEntry } from "../studio/demoStore";
+import { setStudioKey } from "../studio/studioKey";
 import { productPath } from "../utils/format";
 
 type Generation =
@@ -638,7 +641,15 @@ function Workspace({
 }
 
 export function StudioPage() {
-  const sampleQuery = useQuery({ queryKey: ["studio", "sample"], queryFn: getStudioSample, staleTime: 5 * 60_000 });
+  const sampleQuery = useQuery({
+    queryKey: ["studio", "sample"],
+    queryFn: getStudioSample,
+    staleTime: 5 * 60_000,
+    // A wrong or missing access code will not fix itself, so do not retry it.
+    retry: (count, error) => !(error instanceof ApiError && error.status === 401) && count < 2,
+  });
+  const needsCode = sampleQuery.error instanceof ApiError && sampleQuery.error.status === 401;
+  const [codeTried, setCodeTried] = useState(false);
   const [generations, setGenerations] = useState<Record<number, Generation>>({});
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const running = useRef(new Set<number>());
@@ -790,6 +801,15 @@ export function StudioPage() {
           <Skeleton variant="rectangular" animation="wave" height={420} sx={bone} />
           <Skeleton variant="rectangular" animation="wave" height={420} sx={bone} />
         </Box>
+      ) : needsCode ? (
+        <AccessCodeForm
+          wrong={codeTried}
+          onSubmit={(code) => {
+            setStudioKey(code);
+            setCodeTried(true);
+            void sampleQuery.refetch();
+          }}
+        />
       ) : sampleQuery.isError ? (
         <ErrorState message={(sampleQuery.error as Error).message} onRetry={() => sampleQuery.refetch()} />
       ) : !sampleQuery.data?.aiConfigured ? (

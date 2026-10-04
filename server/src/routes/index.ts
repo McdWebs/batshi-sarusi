@@ -2,6 +2,7 @@ import { Router } from "express";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import rateLimit from "express-rate-limit";
 import * as store from "../controllers/storeController.js";
+import { requireStudioKey } from "../middleware/studioAuth.js";
 
 export const healthRouter = Router();
 healthRouter.get("/", asyncHandler(store.health));
@@ -38,6 +39,19 @@ export const bannersRouter = Router();
 bannersRouter.get("/", asyncHandler(store.listBanners));
 
 export const studioRouter = Router();
+// Every studio route is owner-only: slow down guessing of the access code, then check it.
+studioRouter.use(
+  rateLimit({
+    windowMs: 60_000,
+    limit: 60,
+    standardHeaders: true,
+    legacyHeaders: false,
+    handler: (_req, res) => {
+      res.status(429).json({ success: false, error: { code: "RATE_LIMITED", message: "Too many requests, try again in a minute" } });
+    },
+  }),
+  requireStudioKey,
+);
 studioRouter.get("/sample", asyncHandler(store.listStudioSample));
 studioRouter.post(
   "/generate",

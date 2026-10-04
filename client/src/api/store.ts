@@ -1,4 +1,5 @@
 import { apiRequest } from "./client";
+import { getStudioKey } from "../studio/studioKey";
 import type { Brand, Cart, Category, CmsPage, Paginated, Product, ProductQuery, StudioContent, StudioResult, StudioSample } from "./types";
 
 export function getProducts(query: ProductQuery = {}) {
@@ -101,13 +102,20 @@ export function getBanners() {
   return apiRequest<CmsPage[]>("/api/banners");
 }
 
+/** The studio routes are owner-only and need the access code the owner typed in. */
+function studioHeaders(): Record<string, string> {
+  const key = getStudioKey();
+  return key ? { "X-Studio-Key": key } : {};
+}
+
 export function getStudioSample() {
-  return apiRequest<{ items: StudioSample[]; aiConfigured: boolean }>("/api/studio/sample");
+  return apiRequest<{ items: StudioSample[]; aiConfigured: boolean }>("/api/studio/sample", { headers: studioHeaders() });
 }
 
 export function generateStudioContent(productId: number, revision?: { instruction: string; previous: StudioContent }) {
   return apiRequest<StudioResult>("/api/studio/generate", {
     method: "POST",
+    headers: studioHeaders(),
     body: revision ? { productId, instruction: revision.instruction, previous: revision.previous } : { productId },
   });
 }

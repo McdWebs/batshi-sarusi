@@ -1,6 +1,7 @@
-import { Box, Button, Container, FormControl, InputLabel, MenuItem, Select, Skeleton, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, Container, FormControl, InputLabel, MenuItem, Select, Skeleton, TextField, Typography } from "@mui/material";
 import { useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link as RouterLink, useParams } from "react-router-dom";
+import { demoContentHtml, getDemoEntry } from "../studio/demoStore";
 import { ProductGallery } from "../components/ProductGallery";
 import { ProductGrid } from "../components/ProductGrid";
 import { Price } from "../components/Price";
@@ -158,6 +159,11 @@ export function ProductPage() {
     return <EmptyState title="המוצר לא נמצא." />;
   }
 
+  // Demo only: a draft applied in the content studio (kept in this browser, never written to WooCommerce).
+  const demo = getDemoEntry(product.id);
+  const galleryImages = demo
+    ? product.images.map((image, index) => (index === 0 ? { ...image, alt: demo.content.imageAlt } : image))
+    : product.images;
   const variationAttributes = product.attributes.filter((attribute) => attribute.hasVariations);
   const trail = primaryCategory && categories.data ? categoryAncestors(categories.data, primaryCategory) : [];
   const group = primaryCategory && categories.data ? crumbGroup(primaryCategory, categories.data) : null;
@@ -172,7 +178,7 @@ export function ProductPage() {
     <Container maxWidth="lg" sx={{ py: 5 }}>
       <Breadcrumbs items={crumbs} />
       <Box sx={{ display: "grid", gap: 5, gridTemplateColumns: { md: "1fr 1fr" } }}>
-        <ProductGallery images={product.images} name={product.name} />
+        <ProductGallery images={galleryImages} name={product.name} />
         <Box>
           <Typography variant="h3" mb={1} sx={{ fontSize: { xs: 22, md: 32 }, lineHeight: 1.3 }}>
             {product.name}
@@ -244,8 +250,17 @@ export function ProductPage() {
           ) : null}
         </Box>
       </Box>
-      {product.description || product.shortDescription ? (
-        <Box sx={{ mt: 6, maxWidth: 760 }} dangerouslySetInnerHTML={{ __html: product.description || product.shortDescription }} />
+      {demo ? (
+        <Alert severity="info" sx={{ mt: 6, maxWidth: 760 }}>
+          תצוגת הדגמה: התוכן שלמטה נוצר בסטודיו התוכן ונשמר רק בדפדפן הזה. הוא לא נכתב לחנות.{" "}
+          <RouterLink to="/studio">חזרה לסטודיו</RouterLink>
+        </Alert>
+      ) : null}
+      {demo || product.description || product.shortDescription ? (
+        <Box
+          sx={{ mt: demo ? 2 : 6, maxWidth: 760 }}
+          dangerouslySetInnerHTML={{ __html: demo ? demoContentHtml(demo.content) : product.description || product.shortDescription }}
+        />
       ) : null}
       {product.attributes.length ? (
         <Box sx={{ mt: 4 }}>

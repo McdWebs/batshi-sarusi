@@ -217,3 +217,29 @@ export type ProductQuery = {
   orderby?: "date" | "price" | "title" | "menu_order" | "popularity" | "rating";
   order?: "asc" | "desc";
 };
+
+export type StudioSample = {
+  id: number;
+  name: string;
+  slug: string;
+  permalink: string;
+  image: { src: string; thumbnail: string; alt: string } | null;
+  categories: string[];
+  attributes: Array<{ name: string; values: string[] }>;
+  price: PricedAmount | null;
+  before: { description: string; shortDescription: string; imageAlt: string };
+};
+
+export type StudioContent = {
+  description: string;
+  bullets: string[];
+  seoTitle: string;
+  metaDescription: string;
+  imageAlt: string;
+};
+
+export type StudioResult = {
+  productId: number;
+  model: string;
+  content: StudioContent;
+};

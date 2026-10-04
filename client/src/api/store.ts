@@ -1,5 +1,5 @@
 import { apiRequest } from "./client";
-import type { Brand, Cart, Category, CmsPage, Paginated, Product, ProductQuery } from "./types";
+import type { Brand, Cart, Category, CmsPage, Paginated, Product, ProductQuery, StudioContent, StudioResult, StudioSample } from "./types";
 
 export function getProducts(query: ProductQuery = {}) {
   return apiRequest<Paginated<Product>>("/api/products", {
@@ -99,4 +99,15 @@ export function getPage(slug: string) {
 
 export function getBanners() {
   return apiRequest<CmsPage[]>("/api/banners");
+}
+
+export function getStudioSample() {
+  return apiRequest<{ items: StudioSample[]; aiConfigured: boolean }>("/api/studio/sample");
+}
+
+export function generateStudioContent(productId: number, revision?: { instruction: string; previous: StudioContent }) {
+  return apiRequest<StudioResult>("/api/studio/generate", {
+    method: "POST",
+    body: revision ? { productId, instruction: revision.instruction, previous: revision.previous } : { productId },
+  });
 }

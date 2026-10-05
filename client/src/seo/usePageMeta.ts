@@ -95,8 +95,11 @@ function pageFromSearch(search: string): number {
 export function RouteMeta() {
   const { pathname, search } = useLocation();
   const first = useRef(true);
+  const lastPath = useRef(pathname);
 
   useLayoutEffect(() => {
+    const pathChanged = lastPath.current !== pathname;
+    lastPath.current = pathname;
     const route = classifyPath(pathname);
     const page = pageFromSearch(search);
     const origin = siteOrigin();
@@ -127,8 +130,9 @@ export function RouteMeta() {
         break;
       default:
         // product, category, brand, cms: the page sets its own once its data arrives. On the first load the
-        // edge function's tags are already in place, so they are left alone.
-        if (!first.current) applyMeta(genericMeta());
+        // edge function's tags are already in place, so they are left alone, and so are the page's own tags when
+        // only the sort, filter or page number in the address changed.
+        if (!first.current && pathChanged) applyMeta(genericMeta());
     }
     first.current = false;
   }, [pathname, search]);

@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Disallow: /cart/
+Disallow: /checkout/
+Disallow: /my-account/
+Disallow: /login
+Disallow: /search
+Disallow: /studio
+Disallow: /analytics
+Disallow: /demand
+Disallow: /*?add-to-cart=
+Disallow: /*?*orderby=
+Disallow: /*?*order=
+
+Sitemap: https://batshi-home.co.il/sitemap_index.xml

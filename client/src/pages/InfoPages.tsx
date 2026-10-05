@@ -6,6 +6,8 @@ import { track } from "../analytics/tracker";
 import { getPage } from "../api/store";
 import { EmptyState, ErrorState, LoadingState } from "../components/States";
 import { getStaticPage } from "../content/staticPages";
+import { cmsMeta, notFoundMeta } from "../seo/meta";
+import { usePageMeta } from "../seo/usePageMeta";
 import { decodeSlug } from "../utils/format";
 
 export function CmsPage() {
@@ -19,6 +21,17 @@ export function CmsPage() {
     enabled: Boolean(decoded) && !staticPage,
     staleTime: 5 * 60_000,
   });
+
+  const pageMissing = pageQuery.isError && !staticPage;
+  usePageMeta(
+    staticPage
+      ? cmsMeta({ title: staticPage.title, excerptHtml: "", contentHtml: staticPage.html }, decoded)
+      : pageQuery.data
+        ? cmsMeta(pageQuery.data, decoded)
+        : pageMissing
+          ? notFoundMeta()
+          : null,
+  );
 
   if (staticPage) {
     return (

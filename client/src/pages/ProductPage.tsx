@@ -16,6 +16,8 @@ import { decodeHtmlEntities, decodeSlug } from "../utils/format";
 import { track } from "../analytics/tracker";
 import { ApiError } from "../api/client";
 import type { Product } from "../api/types";
+import { categoryTrail, notFoundMeta, productMeta } from "../seo/meta";
+import { siteOrigin, usePageMeta } from "../seo/usePageMeta";
 
 const bone = { bgcolor: "#EDE4D6", transform: "none" } as const;
 
@@ -162,6 +164,13 @@ export function ProductPage() {
 
   // A link to a product that no longer exists is worth knowing about.
   const productMissing = productQuery.isError && productQuery.error instanceof ApiError && productQuery.error.status === 404;
+  usePageMeta(
+    product
+      ? productMeta(product, siteOrigin(), categories.data && primaryCategory ? categoryTrail(categories.data, primaryCategory) : [])
+      : productMissing
+        ? notFoundMeta("המוצר לא נמצא")
+        : null,
+  );
   useEffect(() => {
     if (productMissing) track("not_found");
   }, [productMissing]);

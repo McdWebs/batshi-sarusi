@@ -10,6 +10,7 @@ import { AccessibilityRoot } from "../accessibility/AccessibilityRoot";
 import { AccessibilityWidget } from "../accessibility/AccessibilityWidget";
 import { CookieConsent } from "../consent/CookieConsent";
 import { AnalyticsRoot } from "../analytics/AnalyticsRoot";
+import { RouteMeta } from "../seo/usePageMeta";
 
 function RouteFallback() {
   return (
@@ -56,6 +57,7 @@ export function AppShell() {
       </a>
       <AccessibilityRoot />
       <AnalyticsRoot />
+      <RouteMeta />
       <ScrollToTop />
       <Header />
       <CartDrawer />

@@ -10,6 +10,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import type { Category } from "../api/types";
+import { brandMeta, categoryMeta, categoryTrail, notFoundMeta } from "../seo/meta";
+import { siteOrigin, usePageMeta } from "../seo/usePageMeta";
 
 export function ShopPage() {
   return (
@@ -200,9 +202,24 @@ function DirectoryPage({
   );
 }
 
+/** Page number from "?page=N", as the catalog reads it. */
+function usePageParam(): number {
+  const [params] = useSearchParams();
+  const page = Math.floor(Number(params.get("page") || "1"));
+  return Number.isFinite(page) && page >= 1 ? page : 1;
+}
+
 export function CategoryPage({ splat }: { splat: string }) {
   const categories = useAllCategories();
   const match = findCategoryByPath(categories.data ?? [], splat);
+  const page = usePageParam();
+  usePageMeta(
+    match
+      ? categoryMeta(match, siteOrigin(), categoryTrail(categories.data ?? [], match).slice(0, -1), page)
+      : !categories.isPending && !categories.isError
+        ? notFoundMeta("הקטגוריה לא נמצאה")
+        : null,
+  );
   const fallbackTitle = decodeSlug(splat.split("/").filter(Boolean).at(-1) ?? "") || "קטגוריה";
 
   if (categories.isError) {
@@ -250,6 +267,8 @@ export function BrandPage({ slug }: { slug: string }) {
   const match = brands.data?.items.find(
     (brand) => decodeSlug(brand.slug) === decoded || decodeSlug(brand.permalink).endsWith(`/${decoded}`),
   );
+  const page = usePageParam();
+  usePageMeta(match ? brandMeta(match, page) : !brands.isPending && !brands.isError ? notFoundMeta("המותג לא נמצא") : null);
 
   if (brands.isError) {
     return (

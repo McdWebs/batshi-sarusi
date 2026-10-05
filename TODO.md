@@ -137,6 +137,21 @@ Still open from the plan above:
 - [x] 19 variable products (for example "מעמד עם 6 כפיות יהלום") came back from WooCommerce with price 0 even though their options are priced. The server now takes the price from the options (lowest option, else sale, else regular), and options with different prices show a range ("139.00 ₪ – 189.00 ₪") like the old site. Picking an option shows that option's own price.
 - [ ] 11 simple products have no price at all in WooCommerce (the old site prints "0.00 ₪" for them and lets people order them for free). The new site shows "המחיר לפי פנייה" and does not offer them for purchase until a price is set in the shop. The client should set real prices: ids 34961, 32214, 29511, 11155, 27227, 26736, 21063, 21248, 972, 971, and 6230 (the gift card, which is an amount-based product the headless cart cannot sell yet).
 
+## SEO for the switch from the old site (done in code 2026-10-05, see docs/seo.md)
+
+- [x] Compared the old and new site: the new one served an empty shell with one title for every page. Plan agreed: an edge middleware that adds each page's tags and plain-HTML content, no move to server rendering.
+- [x] Phase 1: valid `robots.txt`, per-page title/description/canonical in the browser (`usePageMeta`, `RouteMeta`), `noindex` for cart, checkout, account, search, owner tools and demo pages. Found that the root `.env` has `NODE_ENV=development`, which made local builds ship the slow development React; the client build script now forces production (Vercel was never affected).
+- [x] Phase 2: Product (price or low-high range, availability, SKU, brand, images, rating), BreadcrumbList, Organization, WebSite structured data; Open Graph and Twitter tags; later catalog pages get their own canonical.
+- [x] Phase 3: `middleware.ts` puts the real tags and a plain-HTML page into the first response; missing products, categories and pages get a real 404; a failure falls back to the old behaviour.
+- [x] Phase 4: sitemap addresses (`/sitemap_index.xml`, `/product-sitemap*.xml`, ...) answered from the shop's Yoast files, same addresses Google knows.
+- [x] Phase 5: `scripts/seo-parity.ts` checks every address in the old sitemaps; `npm run preview:seo` serves the build through the middleware locally; cutover checklist in docs/seo.md.
+- [x] The API skips its per-address rate limit for requests carrying `X-Edge-Key` (`EDGE_API_KEY`); without it a crawl was answered with errors by the limiter.
+- [ ] Set on Vercel and the API: `EDGE_API_KEY` (same long random value on both), `SITE_URL`, `VITE_SITE_URL`, `SHOP_ORIGIN`, and make sure `VITE_API_BASE_URL` is set. Add the production domain to the API's `CORS_ORIGIN`.
+- [ ] Deploy a preview and run `scripts/seo-parity.ts` against it. The middleware has only been run by the local preview server, not on Vercel itself.
+- [ ] Move WordPress to its own host before the storefront takes over `batshi-home.co.il` (point `SHOP_ORIGIN` and `WOOCOMMERCE_BASE_URL` at it).
+- [ ] Search Console: verify the domain, submit the sitemap, inspect a product, a category and the home page; watch indexing for the first weeks; keep the old site ready to switch back.
+- [ ] Optional: redirect old WordPress search addresses (`/?s=term`) to `/search?q=term`; rewrite the home page body to include real products (today it lists departments, collections and sale items).
+
 ## Waiting on you
 
 - [ ] Decide on "apply to the real store". It needs WooCommerce REST keys with Read/Write permission (only the store admin can create them) and a go-ahead to build the write code, which was blocked once. The draft files are parked in the session scratchpad, not in the repo.

@@ -111,6 +111,10 @@ The endpoint only fetches `https` photos from the shop's own host and uploads fo
 
 WordPress tells browsers every product photo is full width (`sizes="(max-width: 1140px) 100vw, 1140px"`), so a small grid card used to download the largest copy. The storefront now uses its own `sizes` (`client/src/utils/imageSizes.ts`).
 
+## Search engine visibility
+
+The storefront is a single-page app, so an edge middleware (`middleware.ts`, Vercel Routing Middleware) gives search engines each page's real title, description, canonical link, structured data (Product, BreadcrumbList, Organization, WebSite) and plain-HTML content in the first response, answers the old site's sitemap addresses, and returns real 404s. The same page-tag code runs in the browser (`client/src/seo/`). Cart, checkout, account, search and the owner tools are `noindex`; any host other than `SITE_URL` is `noindex`. How it works, the settings, the check scripts (`npm run preview:seo`, `scripts/seo-parity.ts`) and the cutover checklist are in [docs/seo.md](docs/seo.md).
+
 ## Tests
 
 ```bash

@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import { hasEdgeKey } from "./middleware/edgeKey.js";
 import rateLimit from "express-rate-limit";
 import crypto from "node:crypto";
 import { corsOrigins } from "./config/env.js";
@@ -83,7 +84,7 @@ export function createApp() {
       legacyHeaders: false,
       skip: (req) => {
         const route = req.originalUrl.split("?")[0] ?? "";
-        return route === "/health" || route === "/api/img";
+        return route === "/health" || route === "/api/img" || hasEdgeKey(req);
       },
       handler: (_req, res) => {
         res.status(429).json({

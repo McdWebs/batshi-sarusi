@@ -1,4 +1,4 @@
-import { Box, Chip, Container, FormControl, InputLabel, MenuItem, Pagination, Select, Skeleton, Typography } from "@mui/material";
+import { Box, Checkbox, Chip, Container, FormControl, FormControlLabel, InputLabel, MenuItem, Pagination, Select, Skeleton, Typography } from "@mui/material";
 import { Link, useSearchParams } from "react-router-dom";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, type ReactNode } from "react";
@@ -13,6 +13,7 @@ import { track } from "../analytics/tracker";
 
 const SORT_WIDTH = 180;
 const SORT_HEIGHT = 40;
+const STOCK_WIDTH = 132;
 
 export function CatalogView({
   title,
@@ -38,7 +39,9 @@ export function CatalogView({
   const orderby = (params.get("orderby") as ProductQuery["orderby"]) || "date";
   const order = (params.get("order") as ProductQuery["order"]) || "desc";
   const perPage = 12;
-  const listQuery = { ...query, page, perPage, orderby, order };
+  // "In stock only" lives in the address (?stock=instock) so it survives a reload and can be shared.
+  const inStockOnly = params.get("stock") === "instock";
+  const listQuery = { ...query, page, perPage, orderby, order, ...(inStockOnly ? { stockStatus: "instock" as const } : {}) };
   const searchReady = search === undefined || search.trim().length > 0;
   const list = useQuery({
     queryKey: ["catalog", search ?? "", listQuery],
@@ -95,9 +98,9 @@ export function CatalogView({
     <Container maxWidth="lg" sx={{ py: 5 }}>
       {chrome}
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3, gap: 2, flexWrap: "wrap" }}>
-        {list.data ? (
+        {list.data && !switching ? (
           <Typography color="text.secondary">{`${list.data.total} מוצרים`}</Typography>
-        ) : showSkeleton ? (
+        ) : showSkeleton || switching ? (
           <Skeleton
             variant="text"
             animation="wave"
@@ -107,7 +110,35 @@ export function CatalogView({
         ) : (
           <Typography color="text.secondary">&nbsp;</Typography>
         )}
-        {/* Fixed box: the placeholder and the real control are the same size, so swapping them moves nothing. */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexShrink: 0 }}>
+        {/* Fixed boxes: each placeholder and its real control are the same size, so swapping them moves nothing. */}
+        <Box sx={{ width: STOCK_WIDTH, height: SORT_HEIGHT, flexShrink: 0 }} aria-busy={showSkeleton || undefined}>
+          {showSkeleton ? (
+            <Skeleton
+              variant="rectangular"
+              animation="wave"
+              aria-label="טוען סינון"
+              sx={{ width: "100%", height: "100%", bgcolor: "#EDE4D6", transform: "none", borderRadius: "2px" }}
+            />
+          ) : (
+            <FormControlLabel
+              sx={{ m: 0, height: SORT_HEIGHT, whiteSpace: "nowrap" }}
+              control={
+                <Checkbox
+                  size="small"
+                  checked={inStockOnly}
+                  onChange={(event) => {
+                    if (event.target.checked) params.set("stock", "instock");
+                    else params.delete("stock");
+                    params.set("page", "1");
+                    setParams(params);
+                  }}
+                />
+              }
+              label="במלאי בלבד"
+            />
+          )}
+        </Box>
         <Box sx={{ width: SORT_WIDTH, height: SORT_HEIGHT, flexShrink: 0 }} aria-busy={showSkeleton || undefined}>
           {showSkeleton ? (
             <Skeleton
@@ -138,6 +169,7 @@ export function CatalogView({
               </Select>
             </FormControl>
           )}
+        </Box>
         </Box>
       </Box>
       {list.isError ? (

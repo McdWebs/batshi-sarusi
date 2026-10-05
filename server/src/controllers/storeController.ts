@@ -68,6 +68,7 @@ export async function searchProducts(req: Request, res: Response) {
     page: query.page,
     perPage: query.perPage,
     search: query.q,
+    stockStatus: query.stockStatus,
     orderby: query.orderby,
     order: query.order,
   });

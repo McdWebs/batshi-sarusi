@@ -53,6 +53,7 @@ export const productListQuerySchema = paginationQuerySchema.extend({
 
 export const searchQuerySchema = paginationQuerySchema.extend({
   q: z.string().trim().min(1, "q is required"),
+  stockStatus: z.enum(["instock", "outofstock", "onbackorder"]).optional(),
   orderby: z.enum(["date", "price", "title", "menu_order", "popularity", "rating"]).optional(),
   order: z.enum(["asc", "desc"]).optional(),
 });

@@ -30,6 +30,7 @@ export function searchProducts(q: string, query: ProductQuery = {}) {
       q,
       page: query.page,
       perPage: query.perPage,
+      stockStatus: query.stockStatus,
       orderby: query.orderby,
       order: query.order,
     },

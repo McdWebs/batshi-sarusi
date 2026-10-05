@@ -3,6 +3,7 @@ import { mapProduct } from "../integrations/woocommerce/mappers.js";
 import type { Paginated, Product } from "../types/api.js";
 import type { ProductListQuery } from "../integrations/woocommerce/products.js";
 import { CATALOG_TTL_MS, cacheKey, cached } from "../utils/cache.js";
+import { priceSortedPage } from "./priceSort.js";
 
 export async function getProductsPage(query: ProductListQuery): Promise<Paginated<Product>> {
   const page = query.page ?? 1;
@@ -22,6 +23,9 @@ export async function getProductsPage(query: ProductListQuery): Promise<Paginate
     query.order,
   ]);
   return cached(key, CATALOG_TTL_MS, async () => {
+    // The shop's own price order is wrong for products with options; see priceSort.ts.
+    const byPrice = await priceSortedPage({ ...query, page, perPage });
+    if (byPrice) return byPrice;
     const result = await listProducts({ ...query, page, perPage });
     return {
       items: (result.data ?? []).map(mapProduct),

@@ -1,5 +1,6 @@
 import { createApp } from "./app.js";
 import { corsOrigins, env } from "./config/env.js";
+import { refreshPriceIndex } from "./services/priceSort.js";
 import { logger } from "./utils/logger.js";
 
 const app = createApp();
@@ -13,4 +14,6 @@ app.listen(env.PORT, () => {
     },
     "api.listening",
   );
+  // Build the price list now, so price sorting is correct from the first visitor on.
+  void refreshPriceIndex();
 });

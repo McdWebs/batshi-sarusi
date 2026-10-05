@@ -13,6 +13,8 @@ export type ProductListQuery = {
   stockStatus?: string;
   orderby?: string;
   order?: "asc" | "desc";
+  /** Only these product ids (the shop returns them in its own order). */
+  include?: number[];
 };
 
 export async function listProducts(query: ProductListQuery) {
@@ -31,6 +33,7 @@ export async function listProducts(query: ProductListQuery) {
       stock_status: query.stockStatus,
       orderby: query.orderby,
       order: query.order,
+      include: query.include?.length ? query.include.join(",") : undefined,
     },
   });
 }

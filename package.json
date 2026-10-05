@@ -14,9 +14,13 @@
     "build": "npm run build -w server && npm run build -w client",
     "start": "npm run start -w server",
     "test": "npm run test -w server && npm run test -w client",
-    "test:live": "npm run test:live -w server"
+    "test:live": "npm run test:live -w server",
+    "preview:seo": "tsx scripts/seo-preview.ts"
   },
   "engines": {
     "node": ">=20 <23"
+  },
+  "devDependencies": {
+    "@vercel/functions": "^3.9.11"
   }
 }

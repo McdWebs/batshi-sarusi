@@ -3,7 +3,13 @@ import { Link } from "react-router-dom";
 
 export type Crumb = { label: string; to?: string };
 
-export function Breadcrumbs({ items }: { items: Crumb[] }) {
+/**
+ * The trail above a page's title. The last step with no link is the page itself, which the title right below already
+ * says, so it is left out. Steps that link somewhere (a product's category) always stay.
+ */
+export function Breadcrumbs({ items: all }: { items: Crumb[] }) {
+  const last = all[all.length - 1];
+  const items = last && !last.to ? all.slice(0, -1) : all;
   if (!items.length) return null;
   return (
     <Box

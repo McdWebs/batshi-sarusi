@@ -20,6 +20,33 @@ export type PricedAmount = CurrencyFormat & {
   priceRange: { minAmount: Money; maxAmount: Money } | null;
 };
 
+function isPositive(money: Money): boolean {
+  return Number(money.minor) > 0;
+}
+
+/**
+ * Variable products (for example a spoon stand in gold or silver) often come back from the Store API with
+ * `price: "0"` even though their variations are priced; the old site shows the variation price instead.
+ * This fills the missing price from the lowest variation price, or the sale / regular price, and drops a
+ * "range" whose two ends are the same. A product that really has no price anywhere stays at zero.
+ */
+export function repairPrices(prices: PricedAmount | null): PricedAmount | null {
+  if (!prices) return prices;
+  const range = prices.priceRange && prices.priceRange.minAmount.minor !== prices.priceRange.maxAmount.minor ? prices.priceRange : null;
+  let price = prices.price;
+  if (!isPositive(price)) {
+    if (range && isPositive(range.minAmount)) price = range.minAmount;
+    else if (isPositive(prices.salePrice)) price = prices.salePrice;
+    else if (isPositive(prices.regularPrice)) price = prices.regularPrice;
+  }
+  return { ...prices, price, priceRange: range };
+}
+
+/** True when the product has any price above zero (a range counts through its lowest end, which `repairPrices` already put in `price`). */
+export function hasPrice(prices: PricedAmount): boolean {
+  return isPositive(prices.price);
+}
+
 export function minorToMajor(minor: string | number | null | undefined, minorUnit: number): string {
   const unit = Number.isFinite(minorUnit) && minorUnit >= 0 ? minorUnit : 0;
   const raw = String(minor ?? "0").trim();

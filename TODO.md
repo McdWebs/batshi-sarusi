@@ -131,6 +131,12 @@ Still open from the plan above:
 
 - [ ] Revenue by influencer and campaign, and real order counts, need WooCommerce order access (REST keys). Until then the dashboard can show visits, carts and checkout starts, but not money. This is the same item as "Analytics and owner dashboard" in the next-plan list below.
 
+## Product data check against the old site (done 2026-10-04)
+
+- [x] Compared all 3,515 products in the shop with what our API serves (name, stock, SKU, images, categories, sale flag, price) and read 100 old product pages (every affected product plus a sample) to compare the printed price. Everything matched except prices.
+- [x] 19 variable products (for example "מעמד עם 6 כפיות יהלום") came back from WooCommerce with price 0 even though their options are priced. The server now takes the price from the options (lowest option, else sale, else regular), and options with different prices show a range ("139.00 ₪ – 189.00 ₪") like the old site. Picking an option shows that option's own price.
+- [ ] 11 simple products have no price at all in WooCommerce (the old site prints "0.00 ₪" for them and lets people order them for free). The new site shows "המחיר לפי פנייה" and does not offer them for purchase until a price is set in the shop. The client should set real prices: ids 34961, 32214, 29511, 11155, 27227, 26736, 21063, 21248, 972, 971, and 6230 (the gift card, which is an amount-based product the headless cart cannot sell yet).
+
 ## Waiting on you
 
 - [ ] Decide on "apply to the real store". It needs WooCommerce REST keys with Read/Write permission (only the store admin can create them) and a go-ahead to build the write code, which was blocked once. The draft files are parked in the session scratchpad, not in the repo.

@@ -141,6 +141,10 @@ export function ProductPage() {
     () => (product ? selectedVariationId(product, selected) : undefined),
     [product, selected],
   );
+  // Options can cost different amounts, so once one is picked the page shows that option's own price.
+  const optionId = product?.hasOptions && variationId && variationId !== product.id ? String(variationId) : undefined;
+  const optionQuery = useProduct(optionId);
+  const shownPrices = optionQuery.data?.prices ?? product?.prices ?? null;
   const related = useProductList(
     { category: product?.categories[0]?.id, perPage: 5, orderby: "date", order: "desc" },
     Boolean(product?.categories[0]?.id),
@@ -205,7 +209,7 @@ export function ProductPage() {
               מק״ט {product.sku}
             </Typography>
           ) : null}
-          <Price prices={product.prices} size="lg" />
+          <Price prices={shownPrices} size="lg" />
           <Typography sx={{ mt: 2 }} color={product.isInStock ? "text.primary" : "secondary"}>
             {product.stockAvailability.text || (product.isInStock ? "קיים במלאי" : "אזל מהמלאי")}
           </Typography>
@@ -251,13 +255,15 @@ export function ProductPage() {
             >
               {!product.isInStock
                 ? product.stockAvailability.text || "אזל מהמלאי"
-                : product.hasOptions && product.variations.length > 0 && !variationId
-                  ? "בחרו אפשרות"
-                  : addItem.isPending
-                    ? "מוסיפים…"
-                    : addedProductId === (variationId ?? product.id)
-                      ? "נוסף לסל"
-                      : product.addToCart.singleText || product.addToCart.text || "הוספה לסל"}
+                : !product.isPurchasable
+                  ? "לא זמין להזמנה כרגע"
+                  : product.hasOptions && product.variations.length > 0 && !variationId
+                    ? "בחרו אפשרות"
+                    : addItem.isPending
+                      ? "מוסיפים…"
+                      : addedProductId === (variationId ?? product.id)
+                        ? "נוסף לסל"
+                        : product.addToCart.singleText || product.addToCart.text || "הוספה לסל"}
             </Button>
           </Box>
           {!product.isInStock ? <BackInStockForm productId={product.id} /> : null}

@@ -1,5 +1,5 @@
 import { decodeEntities } from "../../utils/html.js";
-import { readCurrencyFormat, toMoney, toPricedAmount } from "../../utils/money.js";
+import { hasPrice, readCurrencyFormat, repairPrices, toMoney, toPricedAmount } from "../../utils/money.js";
 import type {
   Address,
   Brand,
@@ -83,6 +83,9 @@ export function mapAddress(address: WooAddress | undefined): Address {
 }
 
 export function mapProduct(product: WooProduct): Product {
+  const prices = repairPrices(toPricedAmount(product.prices));
+  // A product with no price anywhere in the shop would be orderable for free, so it is not offered for purchase.
+  const priced = prices ? hasPrice(prices) : true;
   return {
     id: product.id,
     name: decodeEntities(product.name ?? ""),
@@ -95,7 +98,7 @@ export function mapProduct(product: WooProduct): Product {
     shortDescription: product.short_description ?? "",
     description: product.description ?? "",
     onSale: Boolean(product.on_sale),
-    prices: toPricedAmount(product.prices),
+    prices,
     averageRating: product.average_rating ?? "0",
     reviewCount: product.review_count ?? 0,
     images: (product.images ?? []).map(mapImage),
@@ -123,7 +126,7 @@ export function mapProduct(product: WooProduct): Product {
     })),
     groupedProducts: product.grouped_products ?? [],
     hasOptions: Boolean(product.has_options),
-    isPurchasable: Boolean(product.is_purchasable),
+    isPurchasable: Boolean(product.is_purchasable) && priced,
     isInStock: Boolean(product.is_in_stock),
     isOnBackorder: Boolean(product.is_on_backorder),
     lowStockRemaining: product.low_stock_remaining ?? null,

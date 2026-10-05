@@ -152,6 +152,12 @@ Still open from the plan above:
 - [ ] Search Console: verify the domain, submit the sitemap, inspect a product, a category and the home page; watch indexing for the first weeks; keep the old site ready to switch back.
 - [ ] Optional: redirect old WordPress search addresses (`/?s=term`) to `/search?q=term`; rewrite the home page body to include real products (today it lists departments, collections and sale items).
 
+## Sorting by price (done 2026-10-05)
+
+- [x] Sorting by price put 30 products first or last: WooCommerce sorts by its own stored price, which is 0 for the 19 products with options (and for the 11 with no price), so "low to high" started with them and a 5 shekel bottle came last. The server now keeps its own list of every product's real price (`server/src/services/priceSort.ts`, built at startup and rebuilt every 30 minutes), sorts and pages from it, and fetches only the 12 products of the page. Products with no price go last in both directions. Checked against the live shop: shop, sale and three categories sort correctly and the totals match WooCommerce's.
+- [x] "In stock only" checkbox next to the sort (`?stock=instock` in the address): works with every sort, in the shop, sale, categories, brands and search; checked against the shop's own totals.
+- [ ] Until the list is built (about a minute after the server starts) price sorting still uses the shop's own order. The shop's real fix is to resave the prices of those 19 products in WordPress (then its stored price is right and this workaround is only a safety net).
+
 ## Waiting on you
 
 - [ ] Decide on "apply to the real store". It needs WooCommerce REST keys with Read/Write permission (only the store admin can create them) and a go-ahead to build the write code, which was blocked once. The draft files are parked in the session scratchpad, not in the repo.
